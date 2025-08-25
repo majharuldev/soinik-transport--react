@@ -33,15 +33,15 @@ const Honda = () => {
   // find honda
   const hondaTrip = honda?.filter((dt) => dt.customer === "Honda");
 
-  const handleCheckBox = (index) => {
-    setSelectedRows((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
+  const handleCheckBox = (id) => {
+   setSelectedRows((prev) => ({
+    ...prev,
+    [id]: !prev[id],
+  }));
   };
   // Filter start
   // Get selected data based on selectedRows
-  const selectedTrips = hondaTrip.filter((_, idx) => selectedRows[idx]);
+  const selectedTrips = hondaTrip.filter((dt) => selectedRows[dt.id]);
   // Fallback: show all if none selected
   const tripsToCalculate = selectedTrips.length > 0 ? selectedTrips : hondaTrip;
   const filteredTrips = hondaTrip.filter((trip) => {
@@ -67,24 +67,32 @@ const Honda = () => {
     const perTruckRent = parseFloat(dt.per_truck_rent || 0);
     return sum + trips * perTruckRent;
   }, 0);
+
   // Calculate 15% vat
   const totalVat = tripsToCalculate.reduce((sum, dt) => {
     const rent = parseFloat(dt.total_rent || 0);
-    const vatAmount = (rent * 15) / 100;
+    // const vatAmount = Math.round(rent * 15) / 100;
+    const vatAmountRaw = (rent * 15) / 100;
+// Custom rounding: only round if decimal >= 0.5
+const vatAmount = Math.floor(vatAmountRaw) + (vatAmountRaw % 1 >= 0.5 ? 1 : 0);
     return sum + vatAmount;
   }, 0);
+
   // Calculate Total Cost
   const totalCost = tripsToCalculate.reduce((sum, dt) => {
     const rent = parseFloat(dt.total_rent || 0);
-    const vatAmount = (rent * 15) / 100;
+    // const vatAmount = Math.round((rent * 15) / 100);
+    const vatAmountRaw = (rent * 15) / 100;
+// Custom rounding: only round if decimal >= 0.5
+const vatAmount = Math.floor(vatAmountRaw) + (vatAmountRaw % 1 >= 0.5 ? 1 : 0);
     return sum + rent + vatAmount;
   }, 0);
 
   // bill submit func
   const handleSubmit = async () => {
-    const selectedData = hondaTrip.filter((_, i) => selectedRows[i] && dt.status === "Pending");
+    const selectedData = hondaTrip.filter((dt, i) => selectedRows[dt.id] && dt.status === "Pending");
     if (!selectedData.length) {
-      return toast.error("Please select at least one row.", {
+      return toast.error("Please select at least one not submitted row.", {
         position: "top-right",
       });
     }
@@ -92,7 +100,10 @@ const Honda = () => {
       const loadingToast = toast.loading("Submitting selected rows...");
       for (const dt of selectedData) {
         const rent = parseFloat(dt.total_rent) || 0;
-      const vatAmount = (rent * 15) / 100;
+      // const vatAmount = Math.round(rent * 15) / 100;
+      const vatAmountRaw = (rent * 15) / 100;
+// Custom rounding: only round if decimal >= 0.5
+const vatAmount = Math.floor(vatAmountRaw) + (vatAmountRaw % 1 >= 0.5 ? 1 : 0);
       const totalCost = rent + vatAmount
         const fd = new FormData();
         fd.append("bill_date", new Date().toISOString().split("T")[0]);
@@ -103,6 +114,7 @@ const Honda = () => {
         fd.append("qty", dt.quantity);
         fd.append("vehicle_mode", dt.vehicle_mode);
         fd.append("per_truck_rent", dt.per_truck_rent);
+        fd.append("vat", vatAmount);
         fd.append("bill_amount", totalCost);
 
         // Step 1: Create ledger entry
@@ -222,7 +234,10 @@ const Honda = () => {
       ],
       body: selectedTrips.map((dt) => {
         const rent = parseFloat(dt.total_rent) || 0;
-        const vatAmount = (rent * 15) / 100;
+        // const vatAmount = Math.round(rent * 15) / 100;
+        const vatAmountRaw = (rent * 15) / 100;
+// Custom rounding: only round if decimal >= 0.5
+const vatAmount = Math.floor(vatAmountRaw) + (vatAmountRaw % 1 >= 0.5 ? 1 : 0);
         return [
           dt.date,
           dt.do_si,
@@ -282,7 +297,10 @@ const Honda = () => {
             ${selectedTrips
               .map((dt) => {
                 const rent = parseFloat(dt.total_rent) || 0;
-                const vatAmount = (rent * 15) / 100;
+                // const vatAmount = Math.round(rent * 15) / 100;
+                const vatAmountRaw = (rent * 15) / 100;
+// Custom rounding: only round if decimal >= 0.5
+const vatAmount = Math.floor(vatAmountRaw) + (vatAmountRaw % 1 >= 0.5 ? 1 : 0);
                 return `
                   <tr>
                     <td>${dt.date}</td>
@@ -416,8 +434,10 @@ const Honda = () => {
             <tbody className="font-semibold">
               {filteredTrips?.map((dt, index) => {
                 const rent = parseFloat(dt?.total_rent) || 0;
-                const vatAmount = (rent * 15) / 100;
-                const totalCost = rent + vatAmount;
+                // const vatAmount = Math.round((rent * 15) / 100);
+                const vatAmountRaw = (rent * 15) / 100;
+const vatAmount = Math.floor(vatAmountRaw) + (vatAmountRaw % 1 >= 0.5 ? 1 : 0)
+                const totalCost = (rent + vatAmount);
 
                 return (
                   <tr key={index} className="hover:bg-gray-50 transition-all">
@@ -454,8 +474,8 @@ const Honda = () => {
     <input
     type="checkbox"
     className="w-4 h-4"
-    checked={!!selectedRows[index]}
-    onChange={() => handleCheckBox(index)}
+    checked={!!selectedRows[dt.id]}
+  onChange={() => handleCheckBox(dt.id)}
     disabled={false} 
   />
   {dt.status === "Pending" && (

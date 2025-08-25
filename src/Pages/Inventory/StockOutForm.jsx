@@ -203,9 +203,9 @@ const StockOutForm = () => {
   }, []);
 
   const vehicleOptions = vehicle.map((dt) => ({
-    value: dt.vehicle_name,
-    label: dt.vehicle_name,
-  }));
+  value: `${dt.registration_zone} ${dt.registration_serial} ${dt.registration_number}`, 
+  label: `${dt.registration_zone} ${dt.registration_serial} ${dt.registration_number}`
+}));
 
   // Fetch driver data
   useEffect(() => {

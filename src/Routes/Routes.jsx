@@ -95,6 +95,8 @@ import OfficialExpense from "../Pages/HR/HRM/OfficialExpense";
 import MonthlyStatement from "../Pages/MonthlyStatement";
 import VendorPayment from "../Pages/Account/VendorPayment";
 import VendorPaymentForm from "../Pages/VendorPaymentForm";
+import RoutePricing from "../Pages/Customer/RoutePricing";
+import VehicleReport from "../Pages/Reports/VehicelReport";
 export const router = createBrowserRouter([
   {
     path: "/tramessy",
@@ -208,13 +210,14 @@ export const router = createBrowserRouter([
         path: "/tramessy/UpdateTripForm/:id",
         element: (
           <PrivateRoute>
-            <UpdateTripForm />
+            {/* <UpdateTripForm /> */}
+            <AddTripForm />
           </PrivateRoute>
         ),
-        loader: ({ params }) =>
-          fetch(
-            `${import.meta.env.VITE_BASE_URL}/api/trip/show/${params.id}`
-          ),
+        // loader: ({ params }) =>
+        //   fetch(
+        //     `${import.meta.env.VITE_BASE_URL}/api/trip/show/${params.id}`
+        //   ),
       },
       {
         path: "/tramessy/Fuel",
@@ -585,6 +588,10 @@ export const router = createBrowserRouter([
         element: <Customer />,
       },
       {
+        path: "/tramessy/route-pricing",
+        element: <RoutePricing />,
+      },
+      {
         path: "/tramessy/AddCustomer",
         element: <AddCustomer />,
       },
@@ -604,6 +611,10 @@ export const router = createBrowserRouter([
       {
         path: "/tramessy/Reports/Driver-Report",
         element: <DriverReport />,
+      },
+      {
+        path: "/tramessy/Reports/vehicle-report",
+        element: <VehicleReport/>,
       },
       {
         path: "/tramessy/Reports/Fuel-Report",

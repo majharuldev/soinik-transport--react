@@ -269,7 +269,7 @@ const Sidebar = () => {
                     <ul className="space-y-2 px-2 text-sm mt-2">
                       <li>
                         {/* HRM toggle inside HR */}
-                        <div
+                        {/* <div
                           onClick={() => toggleMenu("hrm")}
                           className="flex justify-between items-center p-2 cursor-pointer hover:text-primary rounded-sm"
                         >
@@ -284,13 +284,13 @@ const Sidebar = () => {
                           >
                             <FaChevronDown />
                           </span>
-                        </div>
+                        </div> */}
                         {/* Animate HRM nested submenu */}
-                        <div
+                        {/* <div
                           className={`transition-all duration-900 overflow-hidden ${
                             openMenu.hrm ? "max-h-[500px]" : "max-h-0"
                           }`}
-                        >
+                        > */}
                           <ul className="pl-6 space-y-2 mt-1">
                             <li>
                               <Link
@@ -371,7 +371,7 @@ const Sidebar = () => {
                               </Link>
                             </li>
                           </ul>
-                        </div>
+                        {/* </div> */}
                       </li>
                     </ul>
                   </div>
@@ -754,6 +754,19 @@ const Sidebar = () => {
                           <span>Customer List</span>
                         </Link>
                       </li>
+                      <li>
+                        <Link
+                          to="/tramessy/route-pricing"
+                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
+                            isActive("/tramessy/route-pricing")
+                              ? "text-white bg-primary"
+                              : "text-gray-500 hover:text-primary"
+                          }`}
+                        >
+                          
+                          <span>Route Pricing</span>
+                        </Link>
+                      </li>
                     </ul>
                   </div>
                 </li>
@@ -770,8 +783,8 @@ const Sidebar = () => {
                     className="flex justify-between items-center py-3 px-2 cursor-pointer hover:bg-primary hover:text-white hover:rounded-sm duration-300 outline-none"
                   >
                     <span className="flex items-center gap-2">
-                      <FaBriefcase />
-                      <span>Business Model</span>
+                       <FaNewspaper />
+                      <span>Financial Report</span>
                     </span>
                     <span
                       className={`transform transition-transform duration-500 ${
@@ -802,19 +815,7 @@ const Sidebar = () => {
                           <span>Daily Income</span>
                         </Link>
                       </li>
-                      <li>
-                        <Link
-                          to="/tramessy/DailyExpense"
-                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
-                            isActive("/tramessy/DailyExpense")
-                              ? "text-white bg-primary"
-                              : "text-gray-500 hover:text-primary"
-                          }`}
-                        >
-                          
-                          <span>Daily Trip Expense</span>
-                        </Link>
-                      </li>
+                      
                       <li>
                         <Link
                           to="/tramessy/monthly-statement"
@@ -825,44 +826,9 @@ const Sidebar = () => {
                           }`}
                         >
                           
-                          <span>Monthly Statement</span>
+                          <span>Monthly Profit/loss</span>
                         </Link>
                       </li>
-                    </ul>
-                  </div>
-                </li>
-                {/* Reports */}
-                <li className="text-primary font-medium rounded-sm">
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => toggleMenu("reports")}
-                    onKeyDown={(e) =>
-                      (e.key === "Enter" || e.key === " ") &&
-                      toggleMenu("reports")
-                    }
-                    className="flex justify-between items-center py-3 px-2 cursor-pointer hover:bg-primary hover:text-white hover:rounded-sm duration-300 outline-none"
-                  >
-                    <span className="flex items-center gap-2">
-                      <FaNewspaper />
-                      <span>Reports</span>
-                    </span>
-                    <span
-                      className={`transform transition-transform duration-500 ${
-                        openMenu.reports ? "rotate-180" : ""
-                      }`}
-                    >
-                      <FaChevronDown />
-                    </span>
-                  </div>
-
-                  {/* Dropdown container with smooth expand/collapse */}
-                  <div
-                    className={`transition-all duration-700 ease-in-out overflow-hidden ${
-                      openMenu.reports ? "max-h-[500px]" : "max-h-0"
-                    }`}
-                  >
-                    <ul className="mt-2 space-y-3 px-2 text-sm">
                       {/* <li>
                         <Link
                           to="/tramessy/Reports/Employee-Report"
@@ -882,6 +848,19 @@ const Sidebar = () => {
                           <span>Employee Report</span>
                         </Link>
                       </li> */}
+                      <li>
+                        <Link
+                          to="/tramessy/Reports/vehicle-report"
+                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
+                            isActive("/tramessy/Reports/vehicle-report")
+                              ? "text-white bg-primary"
+                              : "text-gray-500 hover:text-primary"
+                          }`}
+                        >
+                         
+                          <span>Vehicle Report</span>
+                        </Link>
+                      </li>
                       <li>
                         <Link
                           to="/tramessy/Reports/Driver-Report"
@@ -921,6 +900,19 @@ const Sidebar = () => {
                           <span>Purchase Report</span>
                         </Link>
                       </li>
+                      <li>
+                        <Link
+                          to="/tramessy/DailyExpense"
+                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
+                            isActive("/tramessy/DailyExpense")
+                              ? "text-white bg-primary"
+                              : "text-gray-500 hover:text-primary"
+                          }`}
+                        >
+                          
+                          <span>Daily Trip Expense</span>
+                        </Link>
+                      </li>
                       {/* <li>
                         <Link
                           to="/tramessy/Reports/Inventory-Report"
@@ -940,7 +932,7 @@ const Sidebar = () => {
                           <span>Inventory Report</span>
                         </Link>
                       </li> */}
-                      <li>
+                      {/* <li>
                         <Link
                           to="/tramessy/Reports/Trip-Report"
                           className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
@@ -952,7 +944,7 @@ const Sidebar = () => {
                           
                           <span>Trip Report</span>
                         </Link>
-                      </li>
+                      </li> */}
                     </ul>
                   </div>
                 </li>

@@ -1,3 +1,4 @@
+
 import { InputField, SelectField } from "../components/Form/FormFields";
 import BtnSubmit from "../components/Button/BtnSubmit";
 import { FormProvider, useForm } from "react-hook-form";
@@ -6,22 +7,180 @@ import toast, { Toaster } from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
 import { FiCalendar } from "react-icons/fi";
 import useRefId from "../hooks/useRef";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const AddTripForm = () => {
+  const { id } = useParams(); // Get trip ID from URL params for update
   const dateRef = useRef(null);
   const methods = useForm();
   const { watch, handleSubmit, reset, register, setValue, control } = methods;
   const selectedCustomer = watch("customer");
   const selectedTransport = watch("transport_type");
+  const selectedLoadPoint = watch("load_point");
+  const selectedUnloadPoint = watch("unload_point");
   const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false); 
+  const [isFixedRateCustomer, setIsFixedRateCustomer] = useState(false);
+
+  // State for rates
+  const [rates, setRates] = useState([]);
+  const [isRateFound, setIsRateFound] = useState(false);
+
+  // Fetch trip data if ID exists (for update)
+  useEffect(() => {
+    if (id) {
+      setIsEditing(true);
+      fetchTripData(id);
+    }
+  }, [id]);
+
+  // Function to fetch trip data for editing
+  const [tripData, setTripData] = useState(null);
+  // const fetchTripData = async (tripId) => {
+  //   try {
+  //     const response = await axios.get(
+  //       `${import.meta.env.VITE_BASE_URL}/api/trip/show/${tripId}`
+  //     );
+  //     const tripData = response.data.data;
+  //     setTripData(tripData);
+  //     // Set form values with fetched data
+  //     Object.keys(tripData).forEach(key => {
+  //       setValue(key, tripData[key]);
+  //     });
+      
+  //     // toast.success("Trip data loaded successfully!");
+  //   } catch (error) {
+  //     console.error("Error fetching trip data:", error);
+  //     toast.error("Failed to load trip data");
+  //   }
+  // };
+
+  // Fetch rates from API
+  
+  const fetchTripData = async (tripId) => {
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_BASE_URL}/api/trip/show/${tripId}`
+    );
+    const tripData = response.data.data;
+    setTripData(tripData);
+
+    // Initialize form values, converting "null" or null to 0 for expense fields
+    const expenseFields = [
+      "driver_commission",
+      "road_cost",
+      "labor",
+      "parking_cost",
+      "night_guard",
+      "toll_cost",
+      "feri_cost",
+      "police_cost",
+      "chada",
+      "fuel_cost",
+      "callan_cost",
+      "others_cost",
+      "total_exp",
+      "advance",
+      "due_amount",
+      "total_rent", 
+      "no_of_trip", 
+      "per_truck_rent",
+    ];
+
+    const defaultValues = {
+      ...tripData,
+      // Set default 0 for expense fields if null or "null"
+      ...Object.fromEntries(
+        expenseFields.map(field => [
+          field,
+          tripData[field] === "null" || tripData[field] === null
+            ? 0
+            : parseFloat(tripData[field]) || 0,
+        ])
+      ),
+    };
+
+    // Set form values
+    Object.keys(defaultValues).forEach(key => {
+      setValue(key, defaultValues[key], { shouldValidate: true });
+    });
+
+    // toast.success("Trip data loaded successfully!");
+  } catch (error) {
+    console.error("Error fetching trip data:", error);
+    toast.error("Failed to load trip data");
+  }
+};
+
+  const [unloadpoints, setUnloadpoints] = useState([]);
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_BASE_URL}/api/rate/list`)
+      .then((response) => response.json())
+      .then((data) => {setRates(data.data);
+        setUnloadpoints(data.data.map(rate => rate.unload_point));
+      })
+      .catch((error) => console.error("Error fetching rates:", error));
+  }, []);
+    const unloadpointOptions = unloadpoints.map((unloadpoint) => ({
+    value: unloadpoint,
+    label: unloadpoint,
+  }));
+
+
+
+  // Calculate total_rent for Honda
+const noOfTrip = watch("no_of_trip") || 0;
+const perTruckRent = watch("per_truck_rent") || 0;
+useEffect(() => {
+  if (selectedCustomer === "Honda") {
+    const total = Number(noOfTrip) * Number(perTruckRent);
+    setValue("total_rent", Number(total.toFixed(2)), { shouldValidate: true });
+  }
+}, [noOfTrip, perTruckRent, selectedCustomer, setValue]);
+  useEffect(() => {
+  if (selectedLoadPoint && selectedUnloadPoint && rates.length > 0) {
+    const foundRate = rates.find(
+      (rate) =>
+        rate.load_point === selectedLoadPoint &&
+        rate.unload_point === selectedUnloadPoint
+    );
+    console.log("Rate Found:", foundRate, "Customer:", selectedCustomer);
+    if (foundRate) {
+      if (selectedCustomer === "Honda") {
+        const rateValue = parseFloat(foundRate.rate) || 0;
+        setValue("per_truck_rent", Number(rateValue.toFixed(2)), { shouldValidate: true });
+        const total = Number(noOfTrip) * rateValue;
+        setValue("total_rent", Number(total.toFixed(2)), { shouldValidate: true });
+      } else {
+        const rateValue = parseFloat(foundRate.rate) || 0;
+        setValue("total_rent", Number(rateValue.toFixed(2)), { shouldValidate: true });
+      }
+      setIsRateFound(true);
+    } else if (!isEditing) {
+      if (selectedCustomer === "Honda") {
+        setValue("per_truck_rent", "", { shouldValidate: true });
+        setValue("total_rent", Number((Number(noOfTrip) * 0).toFixed(2)), { shouldValidate: true });
+      } else {
+        setValue("total_rent", "", { shouldValidate: true });
+      }
+      setIsRateFound(false);
+    }
+    console.log("Form Values:", methods.getValues());
+  }
+}, [selectedLoadPoint, selectedUnloadPoint, rates, selectedCustomer, noOfTrip, setValue, isEditing]);
+
+
 
   // select customer from api
   const [customers, setCustomers] = useState([]);
+  const [loadpoint, setLoadpoint] = useState([]);
   useEffect(() => {
     fetch(`${import.meta.env.VITE_BASE_URL}/api/customer/list`)
       .then((response) => response.json())
-      .then((data) => setCustomers(data.data))
+      .then((data) => {
+        setCustomers(data.data);
+        setLoadpoint(data.data)
+      })
       .catch((error) => console.error("Error fetching customer data:", error));
   }, []);
 
@@ -29,6 +188,22 @@ const AddTripForm = () => {
     value: customer.customer_name,
     label: customer.customer_name,
   }));
+
+  const loadpointOptions = loadpoint.map((load) => ({
+    value: load.customer_name,
+    label: load.customer_name,
+  }));
+
+  // Watch customer selection and check if it's fixed rate
+  useEffect(() => {
+    if (selectedCustomer && customers.length > 0) {
+      const customer = customers.find(c => c.customer_name === selectedCustomer);
+      if (customer) {
+        const isFixed = customer.rate === "Fixed";
+        setIsFixedRateCustomer(isFixed);
+      }
+    }
+  }, [selectedCustomer, customers]);
 
    // select customer from api
   const [branch, setBranch] = useState([]);
@@ -43,6 +218,7 @@ const AddTripForm = () => {
     value: branch.branch_name,
     label: branch.branch_name,
   }));
+
   // select Vehicle No. from api
   const [vehicle, setVehicle] = useState([]);
   useEffect(() => {
@@ -108,99 +284,131 @@ const AddTripForm = () => {
     contact: dt.mobile,
   }));
 
-  // calculate Total Expense
-  const driverCommision = parseFloat(watch("driver_commission") || 0);
-  const roadCost = parseFloat(watch("road_cost") || 0);
-  const labourCost = parseFloat(watch("labor") || 0);
-  const parkingCost = parseFloat(watch("parking_cost") || 0);
-  const guardCost = parseFloat(watch("night_guard") || 0);
-  const tollCost = parseFloat(watch("toll_cost") || 0);
-  const feriCost = parseFloat(watch("feri_cost") || 0);
-  const policeCost = parseFloat(watch("police_cost") || 0);
-  const chadaCost = parseFloat(watch("chada") || 0);
-   const fuelCost = parseFloat(watch("fuel_cost") || 0);
-  const callanCost = parseFloat(watch("callan_cost") || 0);
-  const othersCost = parseFloat(watch("others_cost") || 0);
+  
 
-  const totalExpense =
-    driverCommision +
-    roadCost +
-    labourCost +
-    parkingCost +
-    guardCost +
-    tollCost +
-    feriCost +
-    policeCost +
-    chadaCost+
-    fuelCost +
-    callanCost +
-    othersCost;
+// Calculate total expense for own_transport
+const expenseFields = watch([
+  "driver_commission",
+  "road_cost",
+  "labor",
+  "parking_cost",
+  "night_guard",
+  "toll_cost",
+  "feri_cost",
+  "police_cost",
+  "chada",
+  "fuel_cost",
+  "callan_cost",
+  "others_cost",
+]);
 
-  useEffect(() => {
-    const total =
-      driverCommision +
-      roadCost +
-      labourCost +
-      parkingCost +
-      guardCost +
-      tollCost +
-      feriCost +
-      policeCost +
-      chadaCost+
-      fuelCost+
-    callanCost+
-    othersCost;
-    setValue("total_exp", total);
-  }, [
-    driverCommision,
-    roadCost,
-    labourCost,
-    parkingCost,
-    guardCost,
-    tollCost,
-    feriCost,
-    policeCost,
-    chadaCost,
-    fuelCost,
-    callanCost,
-    othersCost,
-    setValue,
-  ]);
+useEffect(() => {
+  if (selectedTransport === "own_transport") {
+    const total = expenseFields.reduce((sum, value) => {
+      // Handle "null" string, null, or invalid values
+      const num = value === "null" || value === null ? 0 : parseFloat(value) || 0;
+      return sum + num;
+    }, 0);
+
+    // Set total_exp with 2 decimal places
+    setValue("total_exp", Number(total.toFixed(2)), { shouldValidate: true });
+  }
+}, [selectedTransport, ...expenseFields, setValue]);
+
+// Preserve total_exp for vendor_transport when editing
+useEffect(() => {
+  if (isEditing && tripData && selectedTransport === "vendor_transport") {
+    const totalExp = tripData.total_exp === "null" || tripData.total_exp === null
+      ? 0
+      : parseFloat(tripData.total_exp) || 0;
+    setValue("total_exp", totalExp, { shouldValidate: true });
+  }
+}, [selectedTransport, isEditing, tripData, setValue]);
+
+// Calculate due_amount
+const totalExp = watch("total_exp") || 0;
+const advance = watch("advance") || 0;
+
+useEffect(() => {
+  const dueAmount = Number(totalExp) - Number(advance);
+  setValue("due_amount", dueAmount >= 0 ? Number(dueAmount.toFixed(2)) : 0, {
+    shouldValidate: true,
+  });
+}, [totalExp, advance, setValue]);
+
+
+   // When transport type changes, preserve the total_exp value for vendor transport
+  // useEffect(() => {
+  //   if (isEditing && tripData && selectedTransport === "vendor_transport") {
+  //     // If editing and switching to vendor transport, preserve the saved total_exp
+  //     setValue("total_exp", parseFloat(tripData.total_exp) || "");
+  //   }
+  // }, [selectedTransport, isEditing, tripData, setValue]);
+
   // calculate Total Expense of honda
-  const noOfTrip = watch("no_of_trip") || 0;
-  const perTruckRent = watch("per_truck_rent") || 0;
-  const totalRentHonda = Number(noOfTrip) * Number(perTruckRent);
-  useEffect(() => {
-    const total = Number(noOfTrip) * Number(perTruckRent);
-    setValue("total_rent", total || 0);
-  }, [noOfTrip, perTruckRent, setValue]);
+  // const noOfTrip = watch("no_of_trip") || 0;
+  // const perTruckRent = watch("per_truck_rent") || 0;
+  // const totalRentHonda = Number(noOfTrip) * Number(perTruckRent);
+  // useEffect(() => {
+  //   const total = Number(noOfTrip) * Number(perTruckRent);
+  //   setValue("total_rent", total || 0);
+  // }, [noOfTrip, perTruckRent, setValue]);
+
+  // Watch the total_exp and advance fields
+// const totalExp = watch("total_exp") || 0;
+// const advance = watch("advance") || 0;
+
+
+// Calculate due_amount whenever total_exp or advance changes
+// useEffect(() => {
+//   const dueAmount = Number(totalExp) - Number(advance);
+//   setValue("due_amount", dueAmount >= 0 ? dueAmount : 0); 
+// }, [totalExp, advance, setValue]);
 
   // post data on server
   const generateRefId = useRefId();
 
   const onSubmit = async (data) => {
-    const refId = generateRefId();
     try {
       const tripFormData = new FormData();
+      
       // Append form fields
       for (const key in data) {
         tripFormData.append(key, data[key]);
       }
-      // Additional fields
-      tripFormData.append("ref_id", refId);
-      // tripFormData.append("status", "Pending");
-      await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/api/trip/create`,
-        tripFormData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      toast.success("Trip submitted successfully!", { position: "top-right" });
-      reset();
-      navigate("/tramessy/TripList")
+      
+      if (isEditing) {
+        // Update existing trip
+        await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/api/trip/update/${id}`,
+          tripFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        toast.success("Trip updated successfully!", { position: "top-right" });
+        navigate("/tramessy/TripList");
+      } else {
+        // Create new trip
+        const refId = generateRefId();
+        tripFormData.append("ref_id", refId);
+        
+        await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/api/trip/create`,
+          tripFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        toast.success("Trip submitted successfully!", { position: "top-right" });
+        reset();
+      }
+      
+      // navigate("/tramessy/TripList");
     } catch (error) {
       console.error(error);
       const errorMessage =
@@ -208,11 +416,12 @@ const AddTripForm = () => {
       toast.error("Server issue: " + errorMessage);
     }
   };
+  
   return (
     <div className="md:p-2">
       <Toaster position="top-center" reverseOrder={false} />
       <h3 className="px-6 py-2 bg-primary text-white font-semibold rounded-t-md">
-        Add Trip
+        {isEditing ? "Update Trip" : "Add Trip"}
       </h3>
       <FormProvider {...methods}>
         <form
@@ -237,7 +446,7 @@ const AddTripForm = () => {
                       name="date"
                       label="Date"
                       type="date"
-                      required
+                      required={isEditing ? false : true}
                       inputRef={(e) => {
                         register("date").ref(e);
                         dateRef.current = e;
@@ -257,9 +466,10 @@ const AddTripForm = () => {
                     <SelectField
                       name="customer"
                       label="Customer"
-                      required={true}
+                      required={isEditing ? false : true}
                       options={customerOptions}
                       control={control}
+                      isCreatable={false} 
                     />
                   </div>
                   
@@ -267,23 +477,59 @@ const AddTripForm = () => {
                     <SelectField
                       name="branch_name"
                       label="Branch"
-                      required={true}
+                      required={isEditing ? false : true}
                       options={branchOptions}
                       control={control}
+                      isCreatable={false}
                     />
                   </div>
                 </div>
                 <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
-                  <div className="w-full">
-                    <InputField name="load_point" label="Load Point" required />
-                  </div>
-                  <div className="w-full">
-                    <InputField
-                      name="unload_point"
-                      label="Unload Point"
-                      required
+                  <div className="w-full relative">
+                    <SelectField
+                      name="load_point"
+                      label="Load Point"
+                      required={isEditing ? false : true}
+                      options={loadpointOptions}
+                      control={control}
+                       isCreatable={true}
                     />
                   </div>
+                  <div className="w-full relative">
+                    {/* <SelectField
+                      name="unload_point"
+                      label="Unload Point"
+                      required={isEditing ? false : true}
+                      options={unloadpointOptions}
+                      control={control}
+                       isCreatable={true}
+                    /> */}
+                    <div className="w-full relative">
+      <SelectField
+        name="unload_point"
+        label="Unload Point"
+        required={isEditing ? false : true}
+        options={unloadpointOptions}
+        control={control}
+        isCreatable={!isFixedRateCustomer} 
+      />
+    </div>
+                  </div>
+                  {selectedCustomer!=="Honda" && <div className="w-full">
+                    <InputField
+                      name="total_rent"
+                      label="Total Rent/Bill Amount"
+                      type="number"
+                      required={isEditing ? false : true}
+                      readOnly={isRateFound}
+                      className={isRateFound ? "bg-gray-100" : ""}
+                    />
+                    {/* {isRateFound && (
+                      <p className="text-xs text-green-600 mt-1">
+                        Rate automatically calculated from database
+                      </p>
+                    )} */}
+                  </div>}
                 </div>
               </div>
             </div>
@@ -302,7 +548,7 @@ const AddTripForm = () => {
                       <SelectField
                         name="transport_type"
                         label="Transport Type"
-                        required
+                        required={isEditing ? false : true}
                         options={[
                           { value: "own_transport", label: "Own Transport" },
                           {
@@ -310,6 +556,7 @@ const AddTripForm = () => {
                             label: "Vendor Transport",
                           },
                         ]}
+                        isCreatable={false}
                       />
                     </div>
                     {selectedTransport === "vendor_transport" ? (
@@ -317,9 +564,10 @@ const AddTripForm = () => {
                         <SelectField
                           name="vendor_name"
                           label="Vendor Name"
-                          required={true}
+                          required={isEditing ? false : true}
                           options={vendorOptions}
                           control={control}
+                          isCreatable={false}
                         />
                       </div>
                     ) : (
@@ -330,15 +578,16 @@ const AddTripForm = () => {
                         <SelectField
                           name="vehicle_no"
                           label="Vehicle No."
-                          required={true}
+                          required={isEditing ? false : true}
                           options={vehicleOptions}
                           control={control}
+                          isCreatable={false}
                         />
                       ) : selectedTransport === "vendor_transport" ? (
                         <SelectField
                           name="vehicle_no"
                           label="Vehicle No."
-                          required={true}
+                          required={isEditing ? false : true}
                           options={vendorVehicleOptions}
                           control={control}
                         />
@@ -347,7 +596,7 @@ const AddTripForm = () => {
                           name="vehicle_no"
                           label="Vehicle No."
                           defaultValue={"Please select transport first"}
-                          required={true}
+                          required={isEditing ? false : true}
                           options={[
                             {
                               label: "Please select transport first",
@@ -366,7 +615,7 @@ const AddTripForm = () => {
                         <SelectField
                           name="driver_name"
                           label="Driver Name"
-                          required
+                          required={isEditing ? false : true}
                           control={control}
                           options={ownDriverOptions}
                           onSelectChange={(selectedOption) => {
@@ -375,12 +624,13 @@ const AddTripForm = () => {
                               selectedOption?.contact || ""
                             );
                           }}
+                          isCreatable={false}
                         />
                       ) : selectedTransport === "vendor_transport" ? (
                         <SelectField
                           name="driver_name"
                           label="Driver Name"
-                          required
+                          required={isEditing ? false : true}
                           control={control}
                           options={vendorDriverOptions}
                         />
@@ -388,7 +638,7 @@ const AddTripForm = () => {
                         <SelectField
                           name="driver_name"
                           label="Driver Name"
-                          required
+                          required={isEditing ? false : true}
                           control={control}
                           options={[
                             {
@@ -405,11 +655,11 @@ const AddTripForm = () => {
                         name="driver_mobile"
                         label="Driver Mobile"
                         type="number"
-                        required
+                        required={isEditing ? false : true}
                       />
                     </div>
                     <div className="w-full">
-                      <InputField name="challan" label="Challan" required />
+                      <InputField name="challan" label="Challan" required={isEditing ? false : true} />
                     </div>
                   </div>
                 </div>
@@ -421,41 +671,25 @@ const AddTripForm = () => {
                   </h5>
                   <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
                     <div className="w-full">
-                      <InputField name="model_no" label="Model No." required />
+                      <InputField name="model_no" label="Model No." required={isEditing ? false : true} />
                     </div>
                     <div className="w-full">
                       <InputField
                         name="quantity"
-                        label="Quantity"
+                        label="NoOfUnit"
                         type="number"
-                        required
+                        required={isEditing ? false : true}
                       />
                     </div>
                   </div>
 
                   <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
-                    <div className="w-full">
-                      <InputField
-                        name="total_rent"
-                        label="Total Rent/Bill Amount"
-                        type="number"
-                        required
-                      />
-                    </div>
-                    {/* <div className="w-full">
-                      <InputField
-                        name="fuel_cost"
-                        label="Fuel Cost"
-                        type="number"
-                        required
-                      />
-                    </div> */}
-                    <div className="w-full">
+                    <div className="w-[50%]">
                       <InputField
                         name="body_fare"
                         label="Body Fare"
                         type="number"
-                        required
+                        required={isEditing ? false : true}
                       />
                     </div>
                   </div>
@@ -477,7 +711,7 @@ const AddTripForm = () => {
                     <SelectField
                       name="transport_type"
                       label="Transport Type"
-                      required
+                      required={isEditing ? false : true}
                       options={[
                         { value: "own_transport", label: "Own Transport" },
                         {
@@ -485,6 +719,8 @@ const AddTripForm = () => {
                           label: "Vendor Transport",
                         },
                       ]}
+                      isCreatable={false}
+                      control={control}
                     />
                   </div>
                   {selectedTransport === "vendor_transport" ? (
@@ -492,9 +728,10 @@ const AddTripForm = () => {
                       <SelectField
                         name="vendor_name"
                         label="Vendor Name"
-                        required={true}
+                        required={isEditing ? false : true}
                         options={vendorOptions}
                         control={control}
+                        isCreatable={false}
                       />
                     </div>
                   ) : (
@@ -505,15 +742,16 @@ const AddTripForm = () => {
                       <SelectField
                         name="vehicle_no"
                         label="Vehicle No."
-                        required={true}
+                        required={isEditing ? false : true}
                         options={vehicleOptions}
                         control={control}
+                        isCreatable={false}
                       />
                     ) : selectedTransport === "vendor_transport" ? (
                       <SelectField
                         name="vehicle_no"
                         label="Vehicle No."
-                        required={true}
+                        required={isEditing ? false : true}
                         options={vendorVehicleOptions}
                         control={control}
                       />
@@ -521,7 +759,7 @@ const AddTripForm = () => {
                       <SelectField
                         name="vehicle_no"
                         label="Vehicle No."
-                        required={true}
+                        required={isEditing ? false : true}
                         options={[
                           {
                             label: "Please select transport first",
@@ -540,7 +778,7 @@ const AddTripForm = () => {
                       <SelectField
                         name="driver_name"
                         label="Driver Name"
-                        required
+                        required={isEditing ? false : true}
                         control={control}
                         options={ownDriverOptions}
                         onSelectChange={(selectedOption) => {
@@ -549,12 +787,13 @@ const AddTripForm = () => {
                             selectedOption?.contact || ""
                           );
                         }}
+                        isCreatable={false}
                       />
                     ) : selectedTransport === "vendor_transport" ? (
                       <SelectField
                         name="driver_name"
                         label="Driver Name"
-                        required
+                        required={isEditing ? false : true}
                         control={control}
                         options={vendorDriverOptions}
                       />
@@ -562,7 +801,7 @@ const AddTripForm = () => {
                       <SelectField
                         name="driver_name"
                         label="Driver Name"
-                        required
+                        required={isEditing ? false : true}
                         control={control}
                         options={[
                           {
@@ -579,14 +818,14 @@ const AddTripForm = () => {
                       name="driver_mobile"
                       label="Driver Mobile"
                       type="number"
-                      required
+                      required={isEditing ? false : true}
                     />
                   </div>
                   <div className="w-full">
-                    <InputField name="challan" label="Challan" required />
+                    <InputField name="challan" label="Challan" required={isEditing ? false : true} />
                   </div>
                   <div className="w-full">
-                    <InputField name="goods" label="Goods" required />
+                    <InputField name="goods" label="Goods" required={isEditing ? false : true} />
                   </div>
                 </div>
                 <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
@@ -594,19 +833,11 @@ const AddTripForm = () => {
                     <InputField
                       name="distribution_name"
                       label="Distribution Name"
-                      required
+                      required={isEditing ? false : true}
                     />
                   </div>
                   <div className="w-full">
-                    <InputField
-                      name="total_rent"
-                      label="Total Rent/Bill Amount"
-                      type="number"
-                      required
-                    />
-                  </div>
-                  <div className="w-full">
-                    <InputField name="remarks" label="Remarks" required />
+                    <InputField name="remarks" label="Remarks" required={isEditing ? false : true} />
                   </div>
                 </div>
               </div>
@@ -620,7 +851,7 @@ const AddTripForm = () => {
                     <SelectField
                       name="transport_type"
                       label="Transport Type"
-                      required
+                      required={isEditing ? false : true}
                       options={[
                         { value: "own_transport", label: "Own Transport" },
                         {
@@ -628,6 +859,7 @@ const AddTripForm = () => {
                           label: "Vendor Transport",
                         },
                       ]}
+                      isCreatable={false}
                     />
                   </div>
                   {selectedTransport === "vendor_transport" ? (
@@ -635,9 +867,10 @@ const AddTripForm = () => {
                       <SelectField
                         name="vendor_name"
                         label="Vendor Name"
-                        required={true}
+                        required={isEditing ? false : true}
                         options={vendorOptions}
                         control={control}
+                        isCreatable={false}
                       />
                     </div>
                   ) : (
@@ -647,7 +880,7 @@ const AddTripForm = () => {
                     <InputField
                       name="dealer_name"
                       label="Dealer Name"
-                      required
+                      required={isEditing ? false : true}
                     />
                   </div>
                 </div>
@@ -657,15 +890,16 @@ const AddTripForm = () => {
                       <SelectField
                         name="vehicle_no"
                         label="Vehicle No."
-                        required={true}
+                        required={isEditing ? false : true}
                         options={vehicleOptions}
                         control={control}
+                        isCreatable={false}
                       />
                     ) : selectedTransport === "vendor_transport" ? (
                       <SelectField
                         name="vehicle_no"
                         label="Vehicle No."
-                        required={true}
+                        required={isEditing ? false : true}
                         options={vendorVehicleOptions}
                         control={control}
                       />
@@ -674,7 +908,7 @@ const AddTripForm = () => {
                         name="vehicle_no"
                         label="Vehicle No."
                         defaultValue={"Please select transport first"}
-                        required={true}
+                        required={isEditing ? false : true}
                         options={[
                           {
                             label: "Please select transport first",
@@ -691,7 +925,7 @@ const AddTripForm = () => {
                       <SelectField
                         name="driver_name"
                         label="Driver Name"
-                        required
+                        required={isEditing ? false : true}
                         control={control}
                         options={ownDriverOptions}
                         onSelectChange={(selectedOption) => {
@@ -700,12 +934,13 @@ const AddTripForm = () => {
                             selectedOption?.contact || ""
                           );
                         }}
+                        isCreatable={false}
                       />
                     ) : selectedTransport === "vendor_transport" ? (
                       <SelectField
                         name="driver_name"
                         label="Driver Name"
-                        required
+                        required={isEditing ? false : true}
                         control={control}
                         options={vendorDriverOptions}
                       />
@@ -713,7 +948,7 @@ const AddTripForm = () => {
                       <SelectField
                         name="driver_name"
                         label="Driver Name"
-                        required
+                        required={isEditing ? false : true}
                         control={control}
                         options={[
                           {
@@ -726,10 +961,10 @@ const AddTripForm = () => {
                     )}
                   </div>
                   <div className="w-full">
-                    <InputField name="do_si" label="Do(SI)" required />
+                    <InputField name="do_si" label="Do(SI)" required={isEditing ? false : true} />
                   </div>
                   <div className="w-full">
-                    <InputField name="co_u" label="CO(U)" required />
+                    <InputField name="co_u" label="CO(U)" required={isEditing ? false : true} />
                   </div>
                 </div>
                 <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
@@ -738,37 +973,28 @@ const AddTripForm = () => {
                       name="quantity"
                       label="Bike/Quantity"
                       type="number"
-                      required
+                      required={isEditing ? false : true}
                     />
                   </div>
                   <div className="w-full">
-                    <InputField name="masking" label="Masking" required />
+                    <InputField name="masking" label="Masking" required={isEditing ? false : true} />
                   </div>
                   <div className="w-full">
                     <InputField
                       name="unload_charge"
                       label="Unload Charge"
                       type="number"
-                      required
+                      required={isEditing ? false : true}
                     />
                   </div>
                 </div>
                 <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
-                  <div className="w-full">
+                  <div className="w-[50%]">
                     <InputField
                       name="extra_fare"
                       label="Extra Fare"
                       type="number"
-                      required
-                    />
-                  </div>
-
-                  <div className="w-full">
-                    <InputField
-                      name="total_rent"
-                      label="Total Rent/Bill Amount"
-                      type="number"
-                      required
+                      required={isEditing ? false : true}
                     />
                   </div>
                 </div>
@@ -783,7 +1009,7 @@ const AddTripForm = () => {
                     <SelectField
                       name="transport_type"
                       label="Transport Type"
-                      required
+                      required={isEditing ? false : true}
                       options={[
                         { value: "own_transport", label: "Own Transport" },
                         {
@@ -791,6 +1017,7 @@ const AddTripForm = () => {
                           label: "Vendor Transport",
                         },
                       ]}
+                      isCreatable={false}
                     />
                   </div>
                   {selectedTransport === "vendor_transport" ? (
@@ -798,9 +1025,10 @@ const AddTripForm = () => {
                       <SelectField
                         name="vendor_name"
                         label="Vendor Name"
-                        required={true}
+                        required={isEditing ? false : true}
                         options={vendorOptions}
                         control={control}
+                        isCreatable={false}
                       />
                     </div>
                   ) : (
@@ -810,7 +1038,7 @@ const AddTripForm = () => {
                     <InputField
                       name="dealer_name"
                       label="Dealer Name"
-                      required
+                      required={isEditing ? false : true}
                     />
                   </div>
                 </div>
@@ -820,15 +1048,16 @@ const AddTripForm = () => {
                       <SelectField
                         name="vehicle_no"
                         label="Vehicle No."
-                        required={true}
+                        required={isEditing ? false : true}
                         options={vehicleOptions}
                         control={control}
+                        isCreatable={false}
                       />
                     ) : selectedTransport === "vendor_transport" ? (
                       <SelectField
                         name="vehicle_no"
                         label="Vehicle No."
-                        required={true}
+                        required={isEditing ? false : true}
                         options={vendorVehicleOptions}
                         control={control}
                       />
@@ -837,7 +1066,7 @@ const AddTripForm = () => {
                         name="vehicle_no"
                         label="Vehicle No."
                         defaultValue={"Please select transport first"}
-                        required={true}
+                        required={isEditing ? false : true}
                         options={[
                           {
                             label: "Please select transport first",
@@ -854,7 +1083,7 @@ const AddTripForm = () => {
                       <SelectField
                         name="driver_name"
                         label="Driver Name"
-                        required
+                        required={isEditing ? false : true}
                         control={control}
                         options={ownDriverOptions}
                         onSelectChange={(selectedOption) => {
@@ -863,12 +1092,13 @@ const AddTripForm = () => {
                             selectedOption?.contact || ""
                           );
                         }}
+                        isCreatable={false}
                       />
                     ) : selectedTransport === "vendor_transport" ? (
                       <SelectField
                         name="driver_name"
                         label="Driver Name"
-                        required
+                        required={isEditing ? false : true}
                         control={control}
                         options={vendorDriverOptions}
                       />
@@ -876,7 +1106,7 @@ const AddTripForm = () => {
                       <SelectField
                         name="driver_name"
                         label="Driver Name"
-                        required
+                        required={isEditing ? false : true}
                         control={control}
                         options={[
                           {
@@ -893,23 +1123,23 @@ const AddTripForm = () => {
                       name="driver_mobile"
                       label="Driver Mobile"
                       type="number"
-                      required
+                      required={isEditing ? false : true}
                     />
                   </div>
                 </div>
                 <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
                   <div className="w-full">
-                    <InputField name="do_si" label="DO(SI)" required />
+                    <InputField name="do_si" label="DO(SI)" required={isEditing ? false : true} />
                   </div>
                   <div className="w-full">
-                    <InputField name="no_of_trip" label="No of Trip" required />
+                    <InputField name="no_of_trip" label="No of Trip" required={isEditing ? false : true} />
                   </div>
                   <div className="w-full">
                     <InputField
                       name="quantity"
                       label="Quantity"
                       type="number"
-                      required
+                      required={isEditing ? false : true}
                     />
                   </div>
                 </div>
@@ -918,31 +1148,41 @@ const AddTripForm = () => {
                     <InputField
                       name="vehicle_mode"
                       label="Vehicle Mode"
-                      required
+                      required={isEditing ? false : true}
                     />
                   </div>
-                  <div className="w-full">
+                  {/* <div className="w-full">
                     <InputField
                       name="per_truck_rent"
                       label="Per Truck Rent"
                       type="number"
-                      required
+                      required={isEditing ? false : true}
                     />
-                  </div>
+                  </div> */}
+                  <div className="w-full">
+        <InputField
+          name="per_truck_rent"
+          label="Per Truck Rent"
+          type="number"
+          required={isEditing ? false : true}
+          readOnly={isRateFound}
+          className={isRateFound ? "bg-gray-100" : ""}
+        />
+      </div>
                   <div className="w-full">
                     <InputField
                       name="total_rent"
                       label="Total Rent/Bill Amount"
                       type="number"
-                      required
+                      required={isEditing ? false : true}
                       readOnly
-                      defaultValue={totalRentHonda}
-                      value={totalRentHonda}
+                      // defaultValue={totalRentHonda}
+                      // value={totalRentHonda}
                     />
                   </div>
-                  <div className="w-full">
-                    <InputField name="vat" label="Vat" type="number" required />
-                  </div>
+                  {/* <div className="w-full">
+                    <InputField name="vat" label="Vat" type="number" required={isEditing ? false : true} />
+                  </div> */}
                 </div>
               </div>
             )}
@@ -954,7 +1194,7 @@ const AddTripForm = () => {
                     <SelectField
                       name="transport_type"
                       label="Transport Type"
-                      required
+                      required={isEditing ? false : true}
                       options={[
                         { value: "own_transport", label: "Own Transport" },
                         {
@@ -962,6 +1202,7 @@ const AddTripForm = () => {
                           label: "Vendor Transport",
                         },
                       ]}
+                      isCreatable={false}
                     />
                   </div>
                   <div className="w-full">
@@ -969,15 +1210,16 @@ const AddTripForm = () => {
                       <SelectField
                         name="vehicle_no"
                         label="Vehicle No."
-                        required={true}
+                        required={isEditing ? false : true}
                         options={vehicleOptions}
                         control={control}
+                        isCreatable={false}
                       />
                     ) : selectedTransport === "vendor_transport" ? (
                       <SelectField
                         name="vehicle_no"
                         label="Vehicle No."
-                        required={true}
+                        required={isEditing ? false : true}
                         options={vendorVehicleOptions}
                         control={control}
                       />
@@ -986,7 +1228,7 @@ const AddTripForm = () => {
                         name="vehicle_no"
                         label="Vehicle No."
                         defaultValue={"Please select transport first"}
-                        required={true}
+                        required={isEditing ? false : true}
                         options={[
                           {
                             label: "Please select transport first",
@@ -1005,7 +1247,7 @@ const AddTripForm = () => {
                       <SelectField
                         name="driver_name"
                         label="Driver Name"
-                        required
+                        required={isEditing ? false : true}
                         control={control}
                         options={ownDriverOptions}
                         onSelectChange={(selectedOption) => {
@@ -1014,12 +1256,13 @@ const AddTripForm = () => {
                             selectedOption?.contact || ""
                           );
                         }}
+                        isCreatable={false}
                       />
                     ) : selectedTransport === "vendor_transport" ? (
                       <SelectField
                         name="driver_name"
                         label="Driver Name"
-                        required
+                        required={isEditing ? false : true}
                         control={control}
                         options={vendorDriverOptions}
                       />
@@ -1027,7 +1270,7 @@ const AddTripForm = () => {
                       <SelectField
                         name="driver_name"
                         label="Driver Name"
-                        required
+                        required={isEditing ? false : true}
                         control={control}
                         options={[
                           {
@@ -1039,14 +1282,6 @@ const AddTripForm = () => {
                       />
                     )}
                   </div>
-                  {/* <div className="w-full">
-                    <InputField
-                      name="fuel_cost"
-                      label="Fuel Cost"
-                      type="number"
-                      required
-                    />
-                  </div> */}
                 </div>
               </div>
             )}
@@ -1058,7 +1293,7 @@ const AddTripForm = () => {
                     <InputField
                       name="driver_adv"
                       label="Driver Advance"
-                      required
+                      required={isEditing ? false : true}
                       type="number"
                     />
                   </div>
@@ -1066,7 +1301,7 @@ const AddTripForm = () => {
                     <InputField
                       name="driver_commission"
                       label="Driver Commission"
-                      required
+                      required={isEditing ? false : true}
                       type="number"
                     />
                   </div>
@@ -1119,13 +1354,13 @@ const AddTripForm = () => {
                   <div className="w-full">
                     <InputField name="chada" label="Chada" type="number" />
                   </div>
-                  <div className="w-full">
+                  {/* <div className="w-full">
           <InputField
             name="fuel_cost"
             label="Fuel Cost"
             type="number"
           />
-        </div>
+        </div> */}
         <div className="w-full">
           <InputField
             name="callan_cost"
@@ -1143,12 +1378,13 @@ const AddTripForm = () => {
 
                   <div className="w-full">
                     <InputField
+                    type="number"
                       name="total_exp"
                       label="Total Expense"
                       readOnly
-                      defaultValue={totalExpense}
-                      value={totalExpense}
-                      required
+                      // defaultValue={totalExpense}
+                      // value={totalExpense || 0}
+                      required={isEditing ? false : true}
                     />
                   </div>
                 </div>
@@ -1160,7 +1396,7 @@ const AddTripForm = () => {
                   <InputField
                     name="total_exp"
                     label="Trip Rent"
-                    required
+                    required={isEditing ? false : true}
                     type="number"
                   />
                 </div>
@@ -1169,7 +1405,7 @@ const AddTripForm = () => {
                     name="advance"
                     label="Advance"
                     type="number"
-                    required
+              required={isEditing ? false : true}
                   />
                 </div>
                 <div className="w-full">
@@ -1177,14 +1413,15 @@ const AddTripForm = () => {
                     name="due_amount"
                     label="Due Amount"
                     type="number"
-                    required
+                    required={isEditing ? false : true}
+                    readOnly
                   />
                 </div>
               </div>
             )}
             {/* Submit Button */}
             <div className="text-left p-5">
-              <BtnSubmit>Submit</BtnSubmit>
+              <BtnSubmit>{isEditing ? "Update Trip" : "Submit"}</BtnSubmit>
             </div>
           </div>
         </form>

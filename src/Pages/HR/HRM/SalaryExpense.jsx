@@ -351,7 +351,7 @@ setIsSubmitting(true);
                                       </button>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className=" gap-2">
             <span className="text-sm font-medium text-gray-700">Search:</span>
             <input
               type="text"
@@ -360,6 +360,18 @@ setIsSubmitting(true);
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {/*  Clear button */}
+    {searchTerm && (
+      <button
+        onClick={() => {
+          setSearchTerm("");
+          setCurrentPage(1);
+        }}
+        className="absolute right-7 top-[6rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+      >
+        ✕
+      </button>
+    )}
           </div>
         </div>
 

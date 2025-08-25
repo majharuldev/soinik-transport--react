@@ -100,13 +100,13 @@
 //       <div className="max-w-7xl mx-auto bg-white shadow-xl rounded-xl p-4 border border-gray-200">
 //         {/* Title */}
 //         <div className="md:flex items-center justify-between mb-6">
-//           <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
-//             <FaUserSecret className="text-[#11375B] text-2xl" />
+//           <h1 className="text-xl font-extrabold text-primary flex items-center gap-3">
+//             <FaUserSecret className="text-primary text-2xl" />
 //             Purchase Report
 //           </h1>
 //           <button
 //             onClick={() => setShowFilter(prev => !prev)}
-//             className="bg-gradient-to-r from-[#11375B] to-blue-800 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2"
+//             className="bg-gradient-to-r from-primary to-blue-800 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2"
 //           >
 //             <FaFilter /> Filter
 //           </button>
@@ -191,7 +191,7 @@
 //         {/* Table */}
 //         <div className="overflow-x-auto rounded-xl">
 //           <table className="min-w-full text-sm text-left ">
-//             <thead className="bg-[#11375B] text-white ">
+//             <thead className="bg-primary text-white ">
 //               <tr>
 //                 <th className="p-2">#</th>
 //                 <th className="p-2">Date</th>
@@ -204,7 +204,7 @@
 //                 {/* <th className="p-2">Bill</th> */}
 //               </tr>
 //             </thead>
-//             <tbody className="bg-gray-50 text-[#11375B] font-medium">
+//             <tbody className="bg-gray-50 text-primary font-medium">
 //               {currentPurchase.map((p, i) => (
 //                 <tr key={p.id} className="">
 //                   <td className="p-2">{i + 1}</td>
@@ -477,13 +477,13 @@ const PurchaseReport = () => {
       >
         {/* Title */}
         <div className="md:flex items-center justify-between mb-6">
-          <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
-            <FaUserSecret className="text-[#11375B] text-2xl" />
+          <h1 className="text-xl font-extrabold text-primary flex items-center gap-3">
+            <FaUserSecret className="text-primary text-2xl" />
             Purchase Report
           </h1>
           <button
             onClick={() => setShowFilter(prev => !prev)}
-            className="bg-gradient-to-r from-[#11375B] to-blue-800 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2"
+            className="bg-gradient-to-r from-primary to-blue-800 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2"
           >
             <FaFilter /> Filter
           </button>
@@ -583,7 +583,7 @@ const PurchaseReport = () => {
         {/* Table */}
         <div className="overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left ">
-            <thead className="bg-[#11375B] text-white ">
+            <thead className="bg-primary text-white ">
               <tr>
                 <th className="p-2">#</th>
                 <th className="p-2">Date</th>
@@ -595,7 +595,7 @@ const PurchaseReport = () => {
                 <th className="p-2">Total</th>
               </tr>
             </thead>
-            <tbody className="bg-gray-50 text-[#11375B] font-medium">
+            <tbody className=" text-primary ">
               {currentPurchase.map((p, i) => (
                 <tr key={p.id} className="">
                   <td className="p-2">{i + 1}</td>

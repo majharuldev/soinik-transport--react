@@ -598,7 +598,7 @@ const DriverLedger = () => {
                 <th rowSpan="2" className="border px-2 py-1">
                   Advance
                 </th>
-                <th colSpan="11" className="border px-2 py-1">
+                <th colSpan="10" className="border px-2 py-1">
                   Expense
                 </th>
                 <th rowSpan="2" className="border py-1">
@@ -622,7 +622,7 @@ const DriverLedger = () => {
                 <th className="border px-2 py-1">Ferry</th>
                 <th className="border px-2 py-1">Police</th>
                 <th className="border px-2 py-1">Chada</th>
-                <th className="border px-2 py-1">Fuel</th>
+                {/* <th className="border px-2 py-1">Fuel</th> */}
 <th className="border px-2 py-1">Callan</th>
 <th className="border px-2 py-1">Others</th>
                 <th className="border px-2 py-1">Total</th>
@@ -643,7 +643,7 @@ const DriverLedger = () => {
                   <td className="border px-2 py-1">{item.feri_cost}</td>
                   <td className="border px-2 py-1">{item.police_cost}</td>
                   <td className="border px-2 py-1">{item.chada}</td>
-                  <td className="border px-2 py-1">{item.fuel_cost}</td>
+                  {/* <td className="border px-2 py-1">{item.fuel_cost}</td> */}
 <td className="border px-2 py-1">{item.callan_cost}</td>
 <td className="border px-2 py-1">{item.others_cost}</td>
                   <td className="border px-2 py-1">{item.totalExpense}</td>
@@ -664,7 +664,7 @@ const DriverLedger = () => {
                 </td>
                 <td className="border px-2 py-1">{footerTotals.commission}</td>
                 <td className="border px-2 py-1">{footerTotals.advance}</td>
-                <td colSpan={10} className="border px-2 py-1"></td>
+                <td colSpan={9} className="border px-2 py-1"></td>
                 <td className="border px-2 py-1">
                   {footerTotals.totalExpense}
                 </td>
@@ -723,7 +723,7 @@ const DriverLedger = () => {
                     </tr>
                   )}
                   <tr className="font-bold bg-gray-100">
-                    <td colSpan={17} className="border px-2 py-1">
+                    <td colSpan={16} className="border px-2 py-1">
                       <div className="flex justify-between">
                         <span>Final Balance (After All Deductions):</span>
                         <span className={finalBalance < 0 ? "text-red-500" : ""}>

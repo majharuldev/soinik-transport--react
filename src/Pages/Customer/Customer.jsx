@@ -98,19 +98,20 @@ const Customer = () => {
         {/* Table */}
         <div className="mt-5 overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-primary text-white capitalize text-sm">
+            <thead className="bg-primary text-white capitalize text-xs">
               <tr>
                 <th className="p-2">SL.</th>
                 <th className="p-2">Name</th>
                 <th className="p-2">Mobile</th>
                 <th className="p-2">Email</th>
                 <th className="p-2">Address</th>
-                <th className="p-2">DueBalance</th>
+                <th className="p-2">Rate Status</th>
+                <th className="p-2">Opening Balance</th>
                 <th className="p-2">Status</th>
                 <th className="p-2 action_column">Action</th>
               </tr>
             </thead>
-            <tbody className="text-[#11375B] font-semibold bg-gray-100">
+            <tbody className="text-[#11375B] ">
               { currentCustomer.length === 0 ?(
                 <tr>
                   <td colSpan="8" className="text-center p-4 text-gray-500">
@@ -130,6 +131,7 @@ const Customer = () => {
                   <td className="p-2">{dt.mobile}</td>
                   <td className="p-2">{dt.email}</td>
                   <td className="p-2">{dt.address}</td>
+                  <td className="p-2">{dt.rate}</td>
                   <td className="p-2">{dt.due}</td>
                   <td className="p-2">{dt.status}</td>
                   <td className="px-2 action_column">

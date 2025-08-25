@@ -62,7 +62,7 @@ const CustomerLedger = () => {
         </div>
 
         {/* Table */}
-        <div className="w-[1030px] mt-5 overflow-x-auto">
+        <div className="w-[1050px] mt-5 overflow-x-auto">
           <div>{selectedCustomer === "Yamaha" && <YamahaLedger />}</div>
           <div>{selectedCustomer === "Hatim Rupgonj" && <HatimLedger />}</div>
           <div>{selectedCustomer === "Hatim Pubail" && <HatimPubaliLedger/>}</div>

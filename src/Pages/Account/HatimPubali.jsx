@@ -559,7 +559,7 @@ const HatimPubaliLedger = () => {
   return (
     <div className="">
       <Toaster />
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-2 border border-gray-200">
+      <div className=" md:w-full overflow-hidden overflow-x-auto  mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-2 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
             Hatim Pubail Ledger
@@ -691,7 +691,7 @@ const HatimPubaliLedger = () => {
                       {receivedAmount > 0 ? receivedAmount : ""}
                     </td>
                     <td className="border border-gray-700 p-1">
-                      {runningBalance.toFixed(2)}
+                      {runningBalance}
                     </td>
                   </tr>
                 );

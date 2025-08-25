@@ -117,19 +117,19 @@ const SupplierList = () => {
         </div>
         <div className="mt-5 overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-[#11375B] text-white capitalize text-sm">
+            <thead className="bg-primary text-white capitalize text-xs">
               <tr>
                 <th className="p-2">SL.</th>
                 <th className="p-2">Date</th>
                 <th className="p-2">Business Name</th>
                 <th className="p-2">Phone</th>
                 <th className="p-2">Address</th>
-                <th className="p-2">Due Balance</th>
+                <th className="p-2">Opening Balance</th>
                 <th className="p-2">Status</th>
                 <th className="p-2">Action</th>
               </tr>
             </thead>
-            <tbody className="text-[#11375B] font-semibold bg-gray-100">
+            <tbody className="text-primary">
               { currentSupplier.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="text-center p-4 text-gray-500">

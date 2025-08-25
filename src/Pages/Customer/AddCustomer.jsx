@@ -81,9 +81,6 @@ const AddCustomer = () => {
                   required
                 />
               </div>
-            </div>
-            {/*  */}
-            <div className="mt-1 md:flex justify-between gap-3">
               <div className="mt-3 md:mt-0 w-full relative">
                 <InputField
                   name="mobile"
@@ -92,19 +89,34 @@ const AddCustomer = () => {
                   required
                 />
               </div>
+            </div>
+            {/*  */}
+            <div className="mt-1 md:flex justify-between gap-3">
+              
               <div className="mt-3 md:mt-0 w-full relative">
                 <InputField name="email" label="Email" />
+              </div>
+              <div className="w-full relative">
+                <InputField name="address" label="Address" required />
               </div>
             </div>
             {/*  */}
             <div className="mt-1 md:flex justify-between gap-3">
-              <div className="w-full relative">
-                <InputField name="address" label="Address" required />
+              <div className="w-full">
+                <SelectField
+                  name="rate"
+                  label="Rate status"
+                  required
+                  options={[
+                    { value: "Fixed", label: "Fixed" },
+                    { value: "Unfixed", label: "Unfixed" },
+                  ]}
+                />
               </div>
               <div className="w-full relative">
                 <InputField
                   name="due"
-                  label="Due Balance"
+                  label="Opening Balance"
                   type="number"
                   required
                 />

@@ -279,7 +279,7 @@ const MonthlyStatement = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-primary flex items-center gap-2">
           <SlCalender className="text-lg" />
-          Monthly Statement
+          Monthly Profit/loss Statement
         </h2>
         <button
           onClick={() => setShowFilter(!showFilter)}

@@ -1,434 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-// import { FaTruck, FaFilter, FaPen } from "react-icons/fa";
-// import { GrFormNext, GrFormPrevious } from "react-icons/gr";
-// import { Link } from "react-router-dom";
-// // export
-// import { CSVLink } from "react-csv";
-// import * as XLSX from "xlsx";
-// import jsPDF from "jspdf";
-// import autoTable from "jspdf-autotable";
-// import { saveAs } from "file-saver";
-// import { IoIosRemoveCircle } from "react-icons/io";
-// const DailyIncome = () => {
-//   const [trips, setTrips] = useState([]);
-//   const [showFilter, setShowFilter] = useState(false);
-//   // Date filter state
-//   const [startDate, setStartDate] = useState("");
-//   const [endDate, setEndDate] = useState("");
-//   // search
-//   const [searchTerm, setSearchTerm] = useState("");
-//   // pagination
-//   const [currentPage, setCurrentPage] = useState(1);
-//   // Fetch data
-//   useEffect(() => {
-//     const fetchTrips = async () => {
-//       try {
-//         const res = await axios.get(
-//           "${import.meta.env.VITE_BASE_URL}/api/trip/list"
-//         );
-//         const sorted = res.data.data.sort(
-//           (a, b) => new Date(b.date) - new Date(a.date)
-//         );
-//         setTrips(sorted);
-//       } catch (err) {
-//         console.error("Error fetching trips:", err);
-//       }
-//     };
-//     fetchTrips();
-//   }, []);
-//   console.log("trips", trips);
-//   // search
-//   const filteredIncome = trips.filter((dt) => {
-//     const term = searchTerm.toLowerCase();
-//     const tripDate = dt.date;
-//     const matchesSearch =
-//       dt.date?.toLowerCase().includes(term) ||
-//       dt.trip_time?.toLowerCase().includes(term) ||
-//       dt.load_point?.toLowerCase().includes(term) ||
-//       dt.unload_point?.toLowerCase().includes(term) ||
-//       dt.driver_name?.toLowerCase().includes(term) ||
-//       dt.driver_contact?.toLowerCase().includes(term) ||
-//       String(dt.driver_percentage).includes(term) ||
-//       dt.fuel_price?.toLowerCase().includes(term) ||
-//       dt.gas_price?.toLowerCase().includes(term) ||
-//       dt.vehicle_no?.toLowerCase().includes(term) ||
-//       dt.other_expenses?.toLowerCase().includes(term) ||
-//       dt.total_rent?.toLowerCase().includes(term);
-//     const matchesDateRange =
-//       (!startDate || new Date(tripDate) >= new Date(startDate)) &&
-//       (!endDate || new Date(tripDate) <= new Date(endDate));
-//     return matchesSearch && matchesDateRange;
-//   });
-//   // ✅ Correct headers matching your table
-//   const headers = [
-//     { label: "#", key: "index" },
-//     { label: "তারিখ", key: "date" },
-//     { label: "গাড়ি", key: "vehicle_no" },
-//     { label: "লোড", key: "load_point" },
-//     { label: "আনলোড", key: "unload_point" },
-//     { label: "ট্রিপের ভাড়া", key: "total_rent" },
-//     { label: "চলমানখরচ", key: "totalCost" }, // corrected key
-//     { label: "লাভ", key: "profit" }, // corrected key
-//   ];
-
-//   // ✅ Correct CSV data mapping
-//   const csvData = trips.map((dt, index) => {
-//     const fuel = parseFloat(dt.fuel_price ?? "0") || 0;
-//     const gas = parseFloat(dt.gas_price ?? "0") || 0;
-//     const others = parseFloat(dt.other_expenses ?? "0") || 0;
-//     const commission = parseFloat(dt.driver_percentage ?? "0") || 0;
-//     const totalCost = (fuel + gas + others + commission).toFixed(2);
-//     const profit = (
-//       parseFloat(dt.total_rent ?? "0") - parseFloat(totalCost)
-//     ).toFixed(2);
-
-//     return {
-//       index: index + 1,
-//       date: new Date(dt.date).toLocaleDateString("en-GB"), // format date like in table
-//       vehicle_no: dt.vehicle_no,
-//       load_point: dt.load_point,
-//       unload_point: dt.unload_point,
-//       total_rent: dt.total_rent,
-//       totalCost, // ✅ use calculated total cost
-//       profit, // ✅ use calculated profit
-//     };
-//   });
-
-//   // ✅ Export Excel function
-//   const exportExcel = () => {
-//     const worksheet = XLSX.utils.json_to_sheet(csvData);
-//     const workbook = XLSX.utils.book_new();
-//     XLSX.utils.book_append_sheet(workbook, worksheet, "Trip Data");
-//     const excelBuffer = XLSX.write(workbook, {
-//       bookType: "xlsx",
-//       type: "array",
-//     });
-//     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-//     saveAs(data, "dailyincome_data.xlsx");
-//   };
-
-//   // ✅ Export PDF function
-//   const exportPDF = () => {
-//     const doc = new jsPDF();
-//     const tableColumn = headers.map((h) => h.label);
-//     const tableRows = csvData.map((row) => headers.map((h) => row[h.key]));
-
-//     autoTable(doc, {
-//       head: [tableColumn],
-//       body: tableRows,
-//       styles: { font: "helvetica", fontSize: 8 },
-//     });
-
-//     doc.save("dailyincome_data.pdf");
-//   };
-
-//   // ✅ Print function
-//   const printTable = () => {
-//     // hide specific column
-//     const actionColumns = document.querySelectorAll(".action_column");
-//     actionColumns.forEach((col) => {
-//       col.style.display = "none";
-//     });
-//     const printContent = document.querySelector("table").outerHTML;
-//     const WinPrint = window.open("", "", "width=900,height=650");
-//     WinPrint.document.write(`
-//     <html>
-//       <head>
-//         <title>Print</title>
-//         <style>
-//           table { width: 100%; border-collapse: collapse; }
-//           th, td { border: 1px solid #000; padding: 8px; text-align: center; }
-//         </style>
-//       </head>
-//       <body>${printContent}</body>
-//     </html>
-//   `);
-//     WinPrint.document.close();
-//     WinPrint.focus();
-//     WinPrint.print();
-//     WinPrint.close();
-//   };
-
-//   // pagination
-//   const itemsPerPage = 10;
-//   const indexOfLastItem = currentPage * itemsPerPage;
-//   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-//   const currentTrips = filteredIncome.slice(indexOfFirstItem, indexOfLastItem);
-//   const totalPages = Math.ceil(trips.length / itemsPerPage);
-//   const handlePrevPage = () => {
-//     if (currentPage > 1) setCurrentPage((currentPage) => currentPage - 1);
-//   };
-//   const handleNextPage = () => {
-//     if (currentPage < totalPages)
-//       setCurrentPage((currentPage) => currentPage + 1);
-//   };
-//   const handlePageClick = (number) => {
-//     setCurrentPage(number);
-//   };
-
-//   return (
-//     <main className="bg-gradient-to-br from-gray-100 to-white md:p-2">
-//       <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-2 border border-gray-200">
-//         {/* Header */}
-//         <div className="md:flex items-center justify-between mb-6">
-//           <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
-//             <FaTruck className="text-[#11375B] text-2xl" />
-//             Income List
-//           </h1>
-//           <div className="mt-3 md:mt-0 flex gap-2">
-//             <button
-//               onClick={() => setShowFilter((prev) => !prev)}
-//               className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
-//             >
-//               <FaFilter /> Filter
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* Export & Search */}
-//         <div className="md:flex justify-between items-center">
-//           <div className="flex gap-1 md:gap-3 text-primary font-semibold rounded-md">
-//             <button
-//               onClick={exportExcel}
-//               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-//             >
-//               Excel
-//             </button>
-//             <button
-//               onClick={exportPDF}
-//               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-//             >
-//               PDF
-//             </button>
-//             <button
-//               onClick={printTable}
-//               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-//             >
-//               Print
-//             </button>
-//           </div>
-//           {/* search */}
-//           <div className="mt-3 md:mt-0">
-//             <span className="text-primary font-semibold pr-3">Search: </span>
-//             <input
-//               type="text"
-//               value={searchTerm}
-//               onChange={(e) => {
-//                 setSearchTerm(e.target.value);
-//                 setCurrentPage(1);
-//               }}
-//               placeholder="Search..."
-//               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
-//             />
-//           </div>
-//         </div>
-//         {/* Conditional Filter Section */}
-//         {showFilter && (
-//           <div className="md:flex items-center gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-//             <div className="relative w-full">
-//               <input
-//                 type="date"
-//                 value={startDate}
-//                 onChange={(e) => setStartDate(e.target.value)}
-//                 placeholder="Start date"
-//                 className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-//               />
-//             </div>
-//             <div className="relative w-full">
-//               <input
-//                 type="date"
-//                 value={endDate}
-//                 onChange={(e) => setEndDate(e.target.value)}
-//                 placeholder="End date"
-//                 className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-//               />
-//             </div>
-//             <div className="w-xs">
-//               <button
-//                 onClick={() => {
-//                   setStartDate("");
-//                   setEndDate("");
-//                   setShowFilter(false);
-//                 }}
-//                 className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
-//               >
-//                 <IoIosRemoveCircle /> Clear Filter
-//               </button>
-//             </div>
-//           </div>
-//         )}
-//         {/* Table */}
-//         <div className="mt-5 overflow-x-auto rounded-xl">
-//           <table className="min-w-full text-sm text-left">
-//             <thead className="bg-[#11375B] text-white capitalize text-sm">
-//               <tr>
-//                 <th className="p-2">SL</th>
-//                 <th className="p-2">Date</th>
-//                 <th className="p-2">Vehicle</th>
-//                 <th className="p-2">Load</th>
-//                 <th className="p-2">Unload</th>
-//                 <th className="p-2">Trip Price</th>
-//                 <th className="p-2">Ongoing Expense</th>
-//                 <th className="p-2">Profit</th>
-//               </tr>
-//             </thead>
-//             <tbody className="text-[#11375B] font-semibold bg-gray-100">
-//               {currentTrips.map((trip, index) => (
-//                 <tr
-//                   key={trip.id || index}
-//                   className="hover:bg-gray-50 transition-all border border-gray-200"
-//                 >
-//                   <td className="p-2 font-bold">
-//                     {indexOfFirstItem + index + 1}
-//                   </td>
-//                   <td className="p-2">
-//                     {new Date(trip.date).toLocaleDateString("en-GB")}
-//                   </td>
-//                   <td className="p-2">{trip.vehicle_no}</td>
-//                   <td className="p-2">{trip.load_point}</td>
-//                   <td className="p-2">{trip.unload_point}</td>
-//                   <td className="p-2">{trip.total_rent}</td>
-//                   <td className="p-2">
-//                     {Number(trip.masking || 0) +
-//                       Number(trip.unload_charge || 0) +
-//                       Number(trip.extra_fare || 0) +
-//                       Number(trip.driver_commission || 0) +
-//                       Number(trip.road_cost || 0) +
-//                       Number(trip.food_cost || 0) +
-//                       Number(trip.parking_cost || 0) +
-//                       Number(trip.night_guard || 0) +
-//                       Number(trip.toll_cost || 0) +
-//                       Number(trip.feri_cost || 0) +
-//                       Number(trip.police_cost || 0) +
-//                       Number(trip.chada || 0) +
-//                       Number(trip.labor || 0)}
-//                   </td>
-//                   <td className="p-2">
-//                     {Number(trip.total_rent || 0) -
-//                       (Number(trip.masking || 0) +
-//                         Number(trip.unload_charge || 0) +
-//                         Number(trip.extra_fare || 0) +
-//                         Number(trip.driver_commission || 0) +
-//                         Number(trip.road_cost || 0) +
-//                         Number(trip.food_cost || 0) +
-//                         Number(trip.parking_cost || 0) +
-//                         Number(trip.night_guard || 0) +
-//                         Number(trip.toll_cost || 0) +
-//                         Number(trip.feri_cost || 0) +
-//                         Number(trip.police_cost || 0) +
-//                         Number(trip.chada || 0) +
-//                         Number(trip.labor || 0))}
-//                   </td>
-//                 </tr>
-//               ))}
-//             </tbody>
-//             {/* Table Footer */}
-//             <tfoot className="bg-[#EFF6FF] text-[#11375B] font-semibold border border-gray-200">
-//               <tr>
-//                 <td colSpan="5" className="p-2 text-right">
-//                   Total:
-//                 </td>
-//                 <td className="p-2">
-//                   {currentTrips
-//                     .reduce((sum, t) => sum + Number(t.total_rent || 0), 0)
-//                     .toFixed(2)}
-//                 </td>
-//                 <td className="p-2">
-//                   {currentTrips
-//                     .reduce(
-//                       (sum, trip) =>
-//                         sum +
-//                         (Number(trip.masking || 0) +
-//                           Number(trip.unload_charge || 0) +
-//                           Number(trip.extra_fare || 0) +
-//                           Number(trip.driver_commission || 0) +
-//                           Number(trip.road_cost || 0) +
-//                           Number(trip.food_cost || 0) +
-//                           Number(trip.parking_cost || 0) +
-//                           Number(trip.night_guard || 0) +
-//                           Number(trip.toll_cost || 0) +
-//                           Number(trip.feri_cost || 0) +
-//                           Number(trip.police_cost || 0) +
-//                           Number(trip.chada || 0) +
-//                           Number(trip.labor || 0)),
-//                       0
-//                     )
-//                     .toFixed(2)}
-//                 </td>
-//                 <td className="p-2">
-//                   {currentTrips
-//                     .reduce((sum, t) => {
-//                       const trip = Number(t.total_rent || 0);
-//                       const expense =
-//                         Number(t.masking || 0) +
-//                         Number(t.unload_charge || 0) +
-//                         Number(t.extra_fare || 0) +
-//                         Number(t.driver_commission || 0) +
-//                         Number(t.road_cost || 0) +
-//                         Number(t.food_cost || 0) +
-//                         Number(t.parking_cost || 0) +
-//                         Number(t.night_guard || 0) +
-//                         Number(t.toll_cost || 0) +
-//                         Number(t.feri_cost || 0) +
-//                         Number(t.police_cost || 0) +
-//                         Number(t.chada || 0) +
-//                         Number(t.labor || 0);
-//                       console.log("expense", expense);
-//                       return sum + (trip - expense);
-//                     }, 0)
-//                     .toFixed(2)}
-//                 </td>
-//                 {/* <td></td> */}
-//               </tr>
-//             </tfoot>
-//           </table>
-//         </div>
-//         {/* pagination */}
-//         <div className="mt-10 flex justify-center">
-//           <div className="space-x-2 flex items-center">
-//             <button
-//               onClick={handlePrevPage}
-//               className={`p-2 ${
-//                 currentPage === 1 ? "bg-gray-300" : "bg-primary text-white"
-//               } rounded-sm`}
-//               disabled={currentPage === 1}
-//             >
-//               <GrFormPrevious />
-//             </button>
-//             {[...Array(totalPages).keys()].map((number) => (
-//               <button
-//                 key={number + 1}
-//                 onClick={() => handlePageClick(number + 1)}
-//                 className={`px-3 py-1 rounded-sm ${
-//                   currentPage === number + 1
-//                     ? "bg-primary text-white hover:bg-gray-200 hover:text-primary transition-all duration-300 cursor-pointer"
-//                     : "bg-gray-200 hover:bg-primary hover:text-white transition-all cursor-pointer"
-//                 }`}
-//               >
-//                 {number + 1}
-//               </button>
-//             ))}
-//             <button
-//               onClick={handleNextPage}
-//               className={`p-2 ${
-//                 currentPage === totalPages
-//                   ? "bg-gray-300"
-//                   : "bg-primary text-white"
-//               } rounded-sm`}
-//               disabled={currentPage === totalPages}
-//             >
-//               <GrFormNext />
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//     </main>
-//   );
-// };
-
-// export default DailyIncome;
-
 
 import { useEffect, useState } from "react"
 import axios from "axios"
@@ -452,6 +21,8 @@ const DailyIncome = () => {
   const [searchTerm, setSearchTerm] = useState("")
   // pagination
   const [currentPage, setCurrentPage] = useState(1)
+  const [selectedVehicle, setSelectedVehicle] = useState("");
+
 
   // Fetch data
   useEffect(() => {
@@ -469,44 +40,57 @@ const DailyIncome = () => {
     fetchTrips()
   }, [])
 
-  // search and filter
-  const filteredIncome = trips.filter((dt) => {
-    const term = searchTerm.toLowerCase()
-    const tripDate = dt.date // Changed trip_date to date
-    const matchesSearch =
-      dt.date
-        ?.toLowerCase()
-        .includes(term) || // Changed trip_date to date
-      dt.trip_time?.toLowerCase().includes(term) ||
-      dt.load_point?.toLowerCase().includes(term) ||
-      dt.unload_point?.toLowerCase().includes(term) ||
-      dt.driver_name?.toLowerCase().includes(term) ||
-      dt.driver_mobile?.toLowerCase().includes(term) || // Changed driver_contact to driver_mobile
-      String(dt.driver_commission).includes(term) || // Changed driver_percentage to driver_commission
-      String(dt.fuel_cost).includes(term) || // Changed fuel_price to fuel_cost
-      // dt.gas_price?.toLowerCase().includes(term) || // Removed gas_price as it's not in AddTripForm
-      dt.vehicle_no
-        ?.toLowerCase()
-        .includes(term) || // Changed vehicle_number to vehicle_no
-      String(dt.others).includes(term) || // Changed other_expenses to others
-      String(dt.total_rent).includes(term) || // Changed trip_price to total_rent
-      String(dt.total_exp).includes(term) // Added total_exp for search
+   // customers data   
+  const [customers, setCustomers] = useState([]);
+    const [selectedCustomer, setSelectedCustomer] = useState("");
+  
+    useEffect(() => {
+      // Fetch customers data
+      axios
+        .get(`${import.meta.env.VITE_BASE_URL}/api/customer/list`)
+        .then((response) => {
+          if (response.data.status === "Success") {
+            setCustomers(response.data.data);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching customers:", error);
+        });
+    }, []);
 
-    const matchesDateRange =
-      (!startDate || new Date(tripDate) >= new Date(startDate)) && (!endDate || new Date(tripDate) <= new Date(endDate))
-    return matchesSearch && matchesDateRange
-  })
+  // search and filter
+ // search off, only filter by date + customer + vehicle
+const filteredIncome = trips.filter((dt) => {
+  const tripDate = dt.date;
+
+  // date range filter
+  const matchesDateRange =
+    (!startDate || new Date(tripDate) >= new Date(startDate)) &&
+    (!endDate || new Date(tripDate) <= new Date(endDate));
+
+  // customer filter
+  const matchesCustomer =
+    !selectedCustomer || dt.customer?.toLowerCase() === selectedCustomer.toLowerCase();
+
+  // vehicle filter (dropdown বা input field নিলে সেভাবে handle করতে হবে)
+  const matchesVehicle =
+    !selectedVehicle || dt.vehicle_no?.toLowerCase() === selectedVehicle.toLowerCase();
+
+  return matchesDateRange && matchesCustomer && matchesVehicle;
+});
+
 
   // Correct headers matching your table
   const headers = [
     { label: "#", key: "index" },
-    { label: "তারিখ", key: "date" }, // Changed trip_date to date
-    { label: "গাড়ি", key: "vehicle_no" }, // Changed vehicle_number to vehicle_no
-    { label: "লোড", key: "load_point" },
-    { label: "আনলোড", key: "unload_point" },
-    { label: "ট্রিপের ভাড়া", key: "total_rent" }, // Changed trip_price to total_rent
-    { label: "চলমানখরচ", key: "total_exp" }, // Changed totalCost to total_exp
-    { label: "লাভ", key: "profit" },
+    { label: "Date", key: "date" },
+    { label: "Customer", key: "customer" }, 
+    { label: "Vehicle", key: "vehicle_no" },
+    { label: "Load", key: "load_point" },
+    { label: "Unload", key: "unload_point" },
+    { label: "Trip Rent", key: "total_rent" }, 
+    { label: "Expense", key: "total_exp" }, 
+    { label: "Profit", key: "profit" },
   ]
 
   // Correct CSV data mapping
@@ -517,13 +101,14 @@ const DailyIncome = () => {
 
     return {
       index: index + 1,
-      date: new Date(dt.date).toLocaleDateString("en-GB"), // Changed trip_date to date
-      vehicle_no: dt.vehicle_no, // Changed vehicle_number to vehicle_no
+      date: new Date(dt.date).toLocaleDateString("en-GB"), 
+      customer: dt.customer,
+      vehicle_no: dt.vehicle_no,
       load_point: dt.load_point,
       unload_point: dt.unload_point,
-      total_rent: dt.total_rent, // Changed trip_price to total_rent
-      total_exp: totalExp, // Used calculated totalExp
-      profit: profit, // Used calculated profit
+      total_rent: dt.total_rent, 
+      total_exp: totalExp, 
+      profit: profit,
     }
   })
 
@@ -649,7 +234,7 @@ const DailyIncome = () => {
             </button>
           </div>
           {/* search */}
-          <div className="mt-3 md:mt-0">
+          {/* <div className="mt-3 md:mt-0">
             <span className="text-primary font-semibold pr-3">Search: </span>
             <input
               type="text"
@@ -661,7 +246,7 @@ const DailyIncome = () => {
               placeholder="Search..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
-          </div>
+          </div> */}
         </div>
         {/* Conditional Filter Section */}
         {showFilter && (
@@ -684,12 +269,48 @@ const DailyIncome = () => {
                 className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
               />
             </div>
+            <select
+  value={selectedCustomer}
+  onChange={(e) => {setSelectedCustomer(e.target.value)
+    setCurrentPage(1);
+  }}
+  className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
+>
+  <option value="">Select Customer</option>
+  {customers.map((c) => (
+    <option key={c.id} value={c.customer_name}>
+      {c.customer_name}
+    </option>
+  ))}
+</select>
+<select
+  value={selectedVehicle}
+  onChange={(e) => {
+    setSelectedVehicle(e.target.value);
+    setCurrentPage(1);
+  }}
+  className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
+>
+  <option value="">Select Vehicle</option>
+  {trips.map((t, i) => (
+    <option key={i} value={t.vehicle_no}>
+      {t.vehicle_no}
+    </option>
+  ))}
+</select>
+
             <div className="mt-3 md:mt-0 flex gap-2">
               <button
-                onClick={() => setCurrentPage(1)}
+                onClick={() => {setCurrentPage(1);
+                  setStartDate("");
+                  setEndDate("");
+                  setSelectedCustomer("");
+                  setShowFilter(false);
+                setSelectedVehicle(""); }
+                }
                 className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <FaFilter /> Filter
+                <FaFilter /> Clear
               </button>
             </div>
           </div>
@@ -701,6 +322,7 @@ const DailyIncome = () => {
               <tr>
                 <th className="px-4 py-3">#</th>
                 <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Customer</th>
                 <th className="px-4 py-3">Vehicle</th>
                 <th className="px-4 py-3">Load</th>
                 <th className="px-4 py-3">Unload</th>
@@ -739,14 +361,15 @@ const DailyIncome = () => {
                   <tr key={trip.id || index} className="hover:bg-gray-50 transition-all">
                     <td className="px-4 py-4 font-bold">{indexOfFirstItem + index + 1}</td>
                     <td className="px-4 py-4">
-                      {new Date(trip.date).toLocaleDateString("en-GB")} {/* Changed trip_date to date */}
+                      {new Date(trip.date).toLocaleDateString("en-GB")} 
                     </td>
-                    <td className="px-4 py-4">{trip.vehicle_no}</td> {/* Changed vehicle_number to vehicle_no */}
+                    <td className="px-4 py-4">{trip.customer}</td>
+                    <td className="px-4 py-4">{trip.vehicle_no}</td>
                     <td className="px-4 py-4">{trip.load_point}</td>
                     <td className="px-4 py-4">{trip.unload_point}</td>
-                    <td className="px-4 py-4">{trip.total_rent}</td> {/* Changed trip_price to total_rent */}
+                    <td className="px-4 py-4">{trip.total_rent}</td> 
                     <td className="px-4 py-4">
-                      {Number(trip.total_exp || 0).toFixed(2)} {/* Used total_exp directly */}
+                      {Number(trip.total_exp || 0).toFixed(2)} 
                     </td>
                     <td className="px-4 py-4">
                       {(Number(trip.total_rent || 0) - Number(trip.total_exp || 0)).toFixed(2)}{" "}

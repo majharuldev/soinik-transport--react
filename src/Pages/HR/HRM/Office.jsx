@@ -121,6 +121,18 @@ const Office = () => {
               placeholder="Search Office..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
+            {/*  Clear button */}
+    {searchTerm && (
+      <button
+        onClick={() => {
+          setSearchTerm("");
+          setCurrentPage(1);
+        }}
+        className="absolute right-7 top-[6rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+      >
+        ✕
+      </button>
+    )}
           </div>
         </div>
         <div className="mt-5 overflow-x-auto rounded-xl">
@@ -131,7 +143,7 @@ const Office = () => {
                 <th className="p-2">Date</th>
                 <th className="p-2">Branch</th>
                 <th className="p-2">Address</th>
-                 <th className="p-2">Due</th>
+                 <th className="p-2">Opening Balance</th>
                 <th className="p-2">Factory/CompanyName</th>
                 <th className="p-2">Action</th>
               </tr>

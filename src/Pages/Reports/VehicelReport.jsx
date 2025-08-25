@@ -1,0 +1,619 @@
+
+import { useState, useEffect } from "react"
+import { FiFilter } from "react-icons/fi"
+import * as XLSX from "xlsx"
+import jsPDF from "jspdf"
+import "jspdf-autotable"
+import autoTable from "jspdf-autotable"
+
+export default function VehicleProfitReport() {
+  const [tripData, setTripData] = useState([])
+  const [purchaseData, setPurchaseData] = useState([])
+  const [stockOutData, setStockOutData] = useState([])
+  const [profitData, setProfitData] = useState([])
+  const [selectedDate, setSelectedDate] = useState("")
+  const [fromDate, setFromDate] = useState("")
+  const [toDate, setToDate] = useState("")
+  const [selectedVehicle, setSelectedVehicle] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [showFilter, setShowFilter] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+
+  const fetchData = async () => {
+    setLoading(true)
+    try {
+      const tripResponse = await fetch(`${import.meta.env.VITE_BASE_URL}/api/trip/list`)
+      const tripResult = await tripResponse.json()
+
+      const purchaseResponse = await fetch(`${import.meta.env.VITE_BASE_URL}/api/purchase/list`)
+      const purchaseResult = await purchaseResponse.json()
+
+      const stockOutResponse = await fetch(`${import.meta.env.VITE_BASE_URL}/api/stockOutProduct/list`)
+      const stockOutResult = await stockOutResponse.json()
+
+      if (tripResult.status === "Success") {
+        setTripData(tripResult.data)
+      }
+
+      if (purchaseResult.status === "Success") {
+        setPurchaseData(purchaseResult.data)
+      }
+
+      if (stockOutResult.status === "Success") {
+        setStockOutData(stockOutResult.data)
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const calculateProfitByVehicle = () => {
+
+    const normalizeVehicleNo = (no) => {
+    return no?.replace(/\s+/g, " ")  
+              ?.replace(/-+/g, "-")  
+              ?.trim()
+  }
+
+    const vehicleDateMap = new Map()
+
+    // Process trip data
+    tripData
+      .filter((trip) => {
+        let dateMatch = true
+        // if (selectedDate) {
+        //   dateMatch = trip.date === selectedDate
+        // } else if (fromDate && toDate) {
+        //   dateMatch = trip.date >= fromDate && trip.date <= toDate
+        // } else if (fromDate) {
+        //   dateMatch = trip.date >= fromDate
+        // } else if (toDate) {
+        //   dateMatch = trip.date <= toDate
+        // }
+        if (fromDate && toDate) {
+  dateMatch = trip.date >= fromDate && trip.date <= toDate
+} else if (fromDate) {
+  dateMatch = trip.date === fromDate  // শুধু একদিন
+} else {
+  dateMatch = true
+}
+
+        const vehicleMatch = selectedVehicle === "" || trip.vehicle_no === selectedVehicle
+
+        return dateMatch && vehicleMatch && trip.vehicle_no
+      })
+      .forEach((trip) => {
+        // const key = `${trip.vehicle_no}-${trip.date}`
+        const key = `${normalizeVehicleNo(trip.vehicle_no)}-${trip.date}`
+
+        if (!vehicleDateMap.has(key)) {
+          vehicleDateMap.set(key, {
+            vehicle_no: trip.vehicle_no,
+            date: trip.date,
+            total_revenue: 0,
+            trip_expenses: 0,
+            parts_cost: 0,
+            fuel_cost: 0,
+            engine_oil_cost: 0,
+            net_profit: 0,
+            trip_count: 0,
+          })
+        }
+
+        const vehicleDate = vehicleDateMap.get(key)
+        vehicleDate.total_revenue += Number.parseFloat(trip.total_rent) || 0
+        vehicleDate.trip_expenses += Number.parseFloat(trip.total_exp || "0")
+        vehicleDate.trip_count += 1
+      })
+
+    // Process purchase data
+    purchaseData
+      .filter((purchase) => {
+        let dateMatch = true
+        // if (selectedDate) {
+        //   dateMatch = purchase.date === selectedDate
+        // } else if (fromDate && toDate) {
+        //   dateMatch = purchase.date >= fromDate && purchase.date <= toDate
+        // } else if (fromDate) {
+        //   dateMatch = purchase.date >= fromDate
+        // } else if (toDate) {
+        //   dateMatch = purchase.date <= toDate
+        // }
+        if (fromDate && toDate) {
+  dateMatch = purchase.date >= fromDate && purchase.date <= toDate
+} else if (fromDate) {
+  dateMatch = purchase.date === fromDate  // শুধু একদিন
+} else {
+  dateMatch = true
+}
+        const vehicleMatch = selectedVehicle === "" || purchase.vehicle_no === selectedVehicle
+
+        return dateMatch && vehicleMatch && purchase.vehicle_no
+      })
+      .forEach((purchase) => {
+        // const key = `${purchase.vehicle_no}-${purchase.date}`
+        const key = `${normalizeVehicleNo(purchase.vehicle_no)}-${purchase.date}`
+
+
+        if (!vehicleDateMap.has(key)) {
+          vehicleDateMap.set(key, {
+            vehicle_no: purchase.vehicle_no,
+            date: purchase.date,
+            total_revenue: 0,
+            trip_expenses: 0,
+            parts_cost: 0,
+            fuel_cost: 0,
+            engine_oil_cost: 0,
+            net_profit: 0,
+            trip_count: 0,
+          })
+        }
+
+        const vehicleDate = vehicleDateMap.get(key)
+        const purchaseAmount =
+          Number.parseFloat(purchase.purchase_amount || "0") ||
+          Number.parseFloat(purchase.quantity) * Number.parseFloat(purchase.unit_price)
+
+        if (purchase.category === "fuel") {
+          vehicleDate.fuel_cost += purchaseAmount
+        } else if (purchase.category === "parts") {
+          vehicleDate.parts_cost += purchaseAmount
+        } else if (purchase.category === "engine_oil") {
+          vehicleDate.engine_oil_cost += purchaseAmount
+        }
+      })
+
+    // Process stock out data for engine oil
+    stockOutData
+      .filter((stock) => {
+        let dateMatch = true
+        // if (selectedDate) {
+        //   dateMatch = stock.date === selectedDate
+        // } else if (fromDate && toDate) {
+        //   dateMatch = stock.date >= fromDate && stock.date <= toDate
+        // } else if (fromDate) {
+        //   dateMatch = stock.date >= fromDate
+        // } else if (toDate) {
+        //   dateMatch = stock.date <= toDate
+        // }
+        if (fromDate && toDate) {
+  dateMatch = stock.date >= fromDate && stock.date <= toDate
+} else if (fromDate) {
+  dateMatch = stock.date === fromDate  // শুধু একদিন
+} else {
+  dateMatch = true
+}
+
+        const vehicleMatch = selectedVehicle === "" || stock.vehicle_name === selectedVehicle
+        const isEngineOil = stock.product_category === "engine_oil"
+
+        return dateMatch && vehicleMatch && stock.vehicle_name && isEngineOil
+      })
+      .forEach((stock) => {
+        // const key = `${stock.vehicle_name}-${stock.date}`
+        const key = `${normalizeVehicleNo(stock.vehicle_name)}-${stock.date}`
+
+        if (!vehicleDateMap.has(key)) {
+          vehicleDateMap.set(key, {
+            vehicle_no: stock.vehicle_name,
+            date: stock.date,
+            total_revenue: 0,
+            trip_expenses: 0,
+            parts_cost: 0,
+            fuel_cost: 0,
+            engine_oil_cost: 0,
+            net_profit: 0,
+            trip_count: 0,
+          })
+        }
+
+        const vehicleDate = vehicleDateMap.get(key)
+        // Calculate engine oil cost from stock out
+        const stockOutAmount = Number.parseFloat(stock.stock_out || "0")
+        // You might need to adjust this calculation based on your actual data structure
+        vehicleDate.engine_oil_cost += stockOutAmount * 300 // Assuming average engine oil price
+      })
+
+    // Calculate net profit for each vehicle-date combination
+    const profitArray = Array.from(vehicleDateMap.values()).map((vehicleDate) => {
+      const totalExpenses = vehicleDate.trip_expenses + vehicleDate.parts_cost + 
+                           vehicleDate.fuel_cost + vehicleDate.engine_oil_cost
+      return {
+        ...vehicleDate,
+        net_profit: vehicleDate.total_revenue - totalExpenses
+      }
+    })
+
+    setProfitData(profitArray.sort((a, b) => new Date(b.date) - new Date(a.date) || b.net_profit - a.net_profit))
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  useEffect(() => {
+    calculateProfitByVehicle()
+  }, [tripData, purchaseData, stockOutData, selectedDate, fromDate, toDate, selectedVehicle])
+
+  const getUniqueVehicles = () => {
+    const vehicles = new Set()
+    tripData.forEach((trip) => trip.vehicle_no && vehicles.add(trip.vehicle_no))
+    purchaseData.forEach((purchase) => purchase.vehicle_no && vehicles.add(purchase.vehicle_no))
+    stockOutData.forEach((stock) => stock.vehicle_name && vehicles.add(stock.vehicle_name))
+    return Array.from(vehicles).sort()
+  }
+
+  const clearAllFilters = () => {
+    setSelectedDate("")
+    setFromDate("")
+    setToDate("")
+    setSelectedVehicle("")
+    setShowFilter(false)
+    setCurrentPage(1)
+  }
+
+  const totalPages = Math.ceil(profitData.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const currentData = profitData.slice(startIndex, endIndex)
+
+  const totalProfit = profitData.reduce((sum, vehicle) => sum + vehicle.net_profit, 0)
+  const totalRevenue = profitData.reduce((sum, vehicle) => sum + vehicle.total_revenue, 0)
+  const totalCosts = profitData.reduce((sum, vehicle) => sum + (vehicle.trip_expenses + vehicle.parts_cost + vehicle.fuel_cost + vehicle.engine_oil_cost), 0)
+
+  //   // ------------------- Export Functions -------------------
+  const exportToExcel = () => {
+  const worksheet = XLSX.utils.json_to_sheet(
+    profitData.map((d) => ({
+      Date: d.date,
+      "Vehicle No": d.vehicle_no,
+      Trips: d.trip_count,
+      "Trip Rent": d.total_revenue,
+      "Trip Cost": d.trip_expenses,
+      "Parts Cost": d.parts_cost,
+      "Fuel Cost": d.fuel_cost,
+      "Engine Oil": d.engine_oil_cost,
+      "Net Profit": d.net_profit,
+    }))
+  )
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Vehicle Profit")
+  XLSX.writeFile(workbook, "vehicle_profit_report.xlsx")
+}
+
+const exportToPDF = () => {
+  try {
+    const doc = new jsPDF()
+
+    // Title
+    doc.setFontSize(16)
+    doc.text("Vehicle Profit Report", 14, 15)
+    doc.setFontSize(10)
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22)
+
+    // Table Columns
+    const tableColumn = [
+      "Date",
+      "Vehicle No",
+      "Trips",
+      "Trip Rent",
+      "Trip Cost",
+      "Parts Cost",
+      "Fuel Cost",
+      "Engine Oil",
+      "Net Profit",
+    ]
+
+    // Table Rows
+    const tableRows = profitData.map((d) => [
+      d.date,
+      d.vehicle_no,
+      d.trip_count,
+      `${d.total_revenue.toLocaleString()}`,
+      `${d.trip_expenses.toLocaleString()}`,
+      `${d.parts_cost.toLocaleString()}`,
+      `${d.fuel_cost.toLocaleString()}`,
+      `${d.engine_oil_cost.toLocaleString()}`,
+      `${d.net_profit.toLocaleString()}`,
+    ])
+
+    // autoTable
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 30,
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [17, 55, 91] }, // #11375B
+    })
+
+    doc.save("vehicle_profit_report.pdf")
+  } catch (error) {
+    console.error("PDF generation error:", error)
+    alert("PDF ডাউনলোডে সমস্যা হচ্ছে। দয়া করে আবার চেষ্টা করুন।")
+  }
+}
+
+
+  const printTable = () => {
+  const printContent = document.getElementById("vehicleProfitTable");
+  const WinPrint = window.open("", "", "width=900,height=650");
+  
+  WinPrint.document.write(`
+    <html>
+      <head>
+        <title>Vehicle Profit Report</title>
+        <style>
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+          }
+          th {
+            background-color: #11375B;
+            color: white;
+          }
+          tr:nth-child(even) {
+            background-color: #f2f2f2;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Vehicle Profit Report</h1>
+        <p>Generated on: ${new Date().toLocaleDateString()}</p>
+        ${printContent.outerHTML}
+      </body>
+    </html>
+  `);
+  
+  WinPrint.document.close();
+  WinPrint.focus();
+  WinPrint.print();
+  WinPrint.close();
+}
+
+  return (
+    <main className="md:p-2">
+      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-4 border border-gray-200">
+        {/* Header and filter section remains the same */}
+        <div className="md:flex items-center justify-between mb-6">
+           <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
+             Vehicle Performance Report
+           </h1>
+           <div className="mt-3 md:mt-0 flex gap-2">
+             <button
+              onClick={() => setShowFilter((prev) => !prev)}
+              className="text-primary border border-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+            >
+              <FiFilter/> Filter
+            </button>
+            {/* <button
+              onClick={fetchData}
+              disabled={loading}
+              className="bg-[#11375B] text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer disabled:opacity-50"
+            >
+              {loading ? "Loading..." : "🔄 Refresh"}
+            </button> */}
+          </div>
+        </div>
+
+        <div className="flex gap-1 md:gap-3 text-primary font-semibold rounded-md">
+            <button
+              onClick={exportToExcel}
+              className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+            >
+              Excel
+            </button>
+            <button
+              onClick={exportToPDF}
+              className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+            >
+              PDF
+            </button>
+            <button
+              onClick={printTable}
+              className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+            >
+              Print
+            </button>
+          </div>
+
+        {showFilter && (
+          <div className="border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
+            <div className="flex flex-col md:flex-row gap-4 mb-4">
+              <div className="relative w-full">
+                <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => {
+                    setFromDate(e.target.value)
+                    if (e.target.value) setSelectedDate("")
+                  }}
+                  className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+                />
+              </div>
+
+              <div className="relative w-full">
+                <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => {
+                    setToDate(e.target.value)
+                    if (e.target.value) setSelectedDate("")
+                  }}
+                  className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+                />
+              </div>
+
+              <div className="relative w-full">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle No</label>
+                <select
+                  value={selectedVehicle}
+                  onChange={(e) => setSelectedVehicle(e.target.value)}
+                  className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+                >
+                  <option value="">All Vehicles</option>
+                  {getUniqueVehicles().map((vehicle) => (
+                    <option key={vehicle} value={vehicle}>
+                      {vehicle}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <div className="mt-5 flex gap-2">
+              <button
+                onClick={clearAllFilters}
+                className="bg-primary text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              >
+                <FiFilter/> Clear
+              </button>
+            </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+
+        <div id="vehicleProfitTable" className="mt-5 overflow-x-auto rounded-xl border border-gray-200">
+          <table className="min-w-full text-sm text-left">
+            <thead className="bg-[#11375B] text-white capitalize text-xs">
+              <tr>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Vehicle No</th>
+                <th className="px-4 py-3">Trips</th>
+                <th className="px-4 py-3">Trip Rent</th>
+                <th className="px-4 py-3">Trip Cost</th>
+                <th className="px-4 py-3">Parts Cost</th>
+                <th className="px-4 py-3">Fuel Cost</th>
+                <th className="px-4 py-3">Engine Oil</th>
+                <th className="px-4 py-3">Net Profit</th>
+              </tr>
+            </thead>
+            <tbody className="text-gray-700">
+              {currentData.length === 0 ? (
+                <tr>
+                  <td colSpan="9" className="text-center py-10 text-gray-500 italic">
+                    <div className="flex flex-col items-center">
+                      <svg
+                        className="w-12 h-12 text-gray-300 mb-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      No daily profit data found for the selected filters.
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                currentData.map((vehicleDate, index) => {
+                  const margin =
+                    vehicleDate.total_revenue > 0 ? (vehicleDate.net_profit / vehicleDate.total_revenue) * 100 : 0
+                  return (
+                    <tr
+                      key={`${vehicleDate.vehicle_no}-${vehicleDate.date}-${index}`}
+                      className="hover:bg-gray-50 transition-all"
+                    >
+                      <td className="px-4 py-4 font-medium text-[#11375B]">{vehicleDate.date}</td>
+                      <td className="px-4 py-4 font-bold">{vehicleDate.vehicle_no}</td>
+                      <td className="px-4 py-4 text-gray-700">{vehicleDate.trip_count}</td>
+                      <td className="px-4 py-4 text-gray-700 font-semibold">
+                        {vehicleDate.total_revenue.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-4 text-gray-700">
+                        {vehicleDate.trip_expenses.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-4 text-gray-700">
+                        {vehicleDate.parts_cost.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-4 text-gray-700">
+                        {vehicleDate.fuel_cost.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-4 text-gray-700">
+                        {vehicleDate.engine_oil_cost.toLocaleString()}
+                      </td>
+                      <td className={`px-4 py-4 font-bold ${vehicleDate.net_profit >= 0 ? "text-green-600" : "text-red-600"}`}>
+                         {vehicleDate.net_profit.toLocaleString()}
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+         {totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
+            <div className="text-sm text-gray-600">
+              Page {currentPage} of {totalPages}
+            </div>
+
+            <div className="flex items-center gap-2">
+
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+
+              {/* Page numbers */}
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum
+                if (totalPages <= 5) {
+                  pageNum = i + 1
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i
+                } else {
+                  pageNum = currentPage - 2 + i
+                }
+
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`px-3 py-1 text-sm border rounded ${
+                      currentPage === pageNum
+                        ? "bg-[#11375B] text-white border-[#11375B]"
+                        : "border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                )
+              })}
+
+              <button
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+  )
+}

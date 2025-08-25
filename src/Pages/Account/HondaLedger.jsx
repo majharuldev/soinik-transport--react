@@ -90,7 +90,17 @@ const HondaLedger = () => {
 
   /**  Excel Export */
   const handleExportExcel = () => {
-    const exportData = filteredLedgerEntries.map((dt, index) => ({
+  let runningBalance = customerOpeningBalance;
+
+  const exportData = filteredLedgerEntries.map((dt, index) => {
+    const billAmount = parseFloat(dt.bill_amount) || 0;
+    const receivedAmount = parseFloat(dt.rec_amount) || 0;
+    const vat = parseFloat(dt.vat) || 0;
+    const receivableAmount = billAmount - vat;
+
+    runningBalance = runningBalance + receivableAmount - receivedAmount;
+
+    return {
       SL: index + 1,
       Date: dt.bill_date,
       Do_Si: dt.do,
@@ -100,100 +110,107 @@ const HondaLedger = () => {
       NoOfUnit: dt.qty,
       VehicleMode: dt.vehicle_mode,
       PerTruckRent: dt.per_truck_rent,
-      Vat15: ((parseFloat(dt.bill_amount) || 0) * 0.15).toFixed(2),
-      TotalRent: dt.bill_amount,
-      ReceiveAmount: dt.rec_amount,
-      Balance: ""
-    }));
+      Vat15: vat.toFixed(2),
+      BillAmount: billAmount.toFixed(2),
+      ReceivableAmount: receivableAmount.toFixed(2),
+      ReceiveAmount: receivedAmount.toFixed(2),
+      Balance: runningBalance.toFixed(2)
+    };
+  });
 
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Honda Ledger");
-    XLSX.writeFile(wb, "Honda_Ledger.xlsx");
-  };
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Honda Ledger");
+  XLSX.writeFile(wb, "Honda_Ledger.xlsx");
+};
 
   /**  PDF Export */
   const handleExportPDF = () => {
-    const tableBody = [
-      [
-        "SL",
-        "Date",
-        "Do(Si)",
-        "DealerName",
-        "Address",
-        "NoOfTrip",
-        "NoOfUnit",
-        "VehicleMode",
-        "PerTruckRent",
-        "15%Vat",
-        "TotalRent",
-        "ReceiveAmount",
-        `OpeningBalance ${customerOpeningBalance}`,
-        "Balance"
-      ]
-    ];
+  let runningBalance = customerOpeningBalance;
 
-    runningBalance = customerOpeningBalance;
-    filteredLedgerEntries.forEach((dt, index) => {
-      const billAmount = parseFloat(dt.bill_amount) || 0;
-      const receivedAmount = parseFloat(dt.rec_amount) || 0;
-      const vatAmount = billAmount * 0.15;
-      runningBalance = runningBalance + billAmount - receivedAmount;
+  const tableBody = [
+    [
+      "SL", "Date", "Do(Si)", "DealerName", "Address", "NoOfTrip",
+      "NoOfUnit", "VehicleMode", "PerTruckRent", "15%Vat", "BillAmount",
+      "ReceivableAmount", "ReceiveAmount", "Balance"
+    ]
+  ];
 
-      tableBody.push([
-        index + 1,
-        dt.bill_date,
-        dt.do,
-        dt.delar_name,
-        dt.unload_point,
-        dt.no_of_trip,
-        dt.qty,
-        dt.vehicle_mode,
-        dt.per_truck_rent,
-        vatAmount.toFixed(2),
-        billAmount.toFixed(2),
-        receivedAmount.toFixed(2),
-        "",
-        runningBalance.toFixed(2)
-      ]);
-    });
+  filteredLedgerEntries.forEach((dt, index) => {
+    const billAmount = parseFloat(dt.bill_amount) || 0;
+    const receivedAmount = parseFloat(dt.rec_amount) || 0;
+    const vat = parseFloat(dt.vat) || 0;
+    const receivableAmount = billAmount - vat;
+
+    runningBalance = runningBalance + receivableAmount - receivedAmount;
 
     tableBody.push([
-      { text: "Total", colSpan: 9, alignment: "right" }, {}, {}, {}, {}, {}, {}, {}, {},
-      totalVatAmount.toFixed(2),
-      "",
-      totalReceivedAmount.toFixed(2),
-      "",
+      index + 1,
+      dt.bill_date,
+      dt.do,
+      dt.delar_name,
+      dt.unload_point,
+      dt.no_of_trip,
+      dt.qty,
+      dt.vehicle_mode,
+      dt.per_truck_rent,
+      vat.toFixed(2),
+      billAmount.toFixed(2),
+      receivableAmount.toFixed(2),
+      receivedAmount.toFixed(2),
       runningBalance.toFixed(2)
     ]);
+  });
 
-    const docDefinition = {
-      pageSize: "A4",
-      pageMargins: [20, 40, 20, 20],
-      content: [
-        { text: "Honda Ledger", style: "header", alignment: "center" },
-        {
-          table: {
-  headerRows: 1,
-  // Adjust widths so all columns fit A4
-  widths: [
-    15, 50, 30, 50, 50, 20, 20, 20, 40, 40, 45, 45, 45, 45
+  // Add total row
+  const totalVat = filteredLedgerEntries.reduce((sum, dt) => sum + (parseFloat(dt.vat) || 0), 0);
+  const totalReceived = filteredLedgerEntries.reduce((sum, dt) => sum + (parseFloat(dt.rec_amount) || 0), 0);
+
+  tableBody.push([
+    { text: "Total", colSpan: 9, alignment: "right" }, {}, {}, {}, {}, {}, {}, {}, {},
+    totalVat.toFixed(2),
+    "", "", totalReceived.toFixed(2),
+    runningBalance.toFixed(2)
+  ]);
+
+  const docDefinition = {
+    pageSize: "A4",
+    pageMargins: [15, 40, 15, 20],
+    content: [
+      { text: "Honda Ledger", style: "header", alignment: "center" },
+      {
+        table: {
+          headerRows: 1,
+          // widths: Array(14).fill("*"),
+          widths: [
+    12,  // SL
+    32,  // Date
+    20,  // Do(Si)
+    50,  // DealerName
+    50,  // Address
+    20,  // NoOfTrip
+    20,  // NoOfUnit
+    20,  // VehicleMode
+    40,  // PerTruckRent
+    30,  // 15% Vat
+    40,  // BillAmount
+    40,  // ReceivableAmount
+    40,  // ReceiveAmount
+    45   // Balance
   ],
-  body: tableBody
-}
+          body: tableBody
         }
-      ],
-      styles: {
-        header: { fontSize: 18, bold: true }
-      },
-      defaultStyle: {
-    fontSize: 6,   // ছোট করলে সব ডাটা ফিট হবে
-    noWrap: false  // wrap allow
-  }
-    };
-
-    pdfMake.createPdf(docDefinition).download("Honda_Ledger.pdf");
+      }
+    ],
+    styles: {
+      header: { fontSize: 16, bold: true }
+    },
+    defaultStyle: { fontSize: 6 }
   };
+
+  pdfMake.createPdf(docDefinition).download("Honda_Ledger.pdf");
+};
+
 
   /**  Print Function */
  const handlePrint = () => {
@@ -234,13 +251,13 @@ const HondaLedger = () => {
       <Toaster />
       <div className=" w-full overflow-hidden overflow-x-auto  mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10  border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
-          <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
+          <h1 className="text-xl font-extrabold text-primary flex items-center gap-3">
             Honda Ledger
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <button
               onClick={() => setShowFilter((prev) => !prev)}
-              className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              className="bg-gradient-to-r from-primary to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
               <FaFilter /> Filter
             </button>
@@ -289,7 +306,7 @@ const HondaLedger = () => {
                   setEndDate("");
                   setShowFilter(false);
                 }}
-                className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                className="bg-gradient-to-r from-primary to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
                 <IoIosRemoveCircle /> Clear Filter
               </button>
@@ -316,8 +333,10 @@ const HondaLedger = () => {
                   PerTruckRent
                 </th>
                     <th className="border border-gray-700 px-2 py-1">15%Vat</th>
-                <th className="border border-gray-700 px-2 py-1">TotalRent</th>
-            
+                <th className="border border-gray-700 px-2 py-1">BillAmount <p className="text-gray-400 text-xs">(with vat)</p></th>
+             <th className="border border-gray-700 p-1 text-center">
+                  ReceiableAmount <p className="text-xs text-gray-400">(Without vat)</p>
+                </th>
                
                 <th className="border border-gray-700 p-1 text-center">
                   ReceiveAmount
@@ -332,17 +351,14 @@ const HondaLedger = () => {
               {filteredLedgerEntries?.map((dt, index) => {
                 const billAmount = parseFloat(dt?.bill_amount) || 0;
                 const receivedAmount = parseFloat(dt?.rec_amount) || 0;
-                const noOfTrip = parseFloat(dt?.no_of_trip) || 0;
-                const perTruckRent = parseFloat(dt?.per_truck_rent) || 0;
-
-                // Total Rent calculation
-                const totalRent = noOfTrip * perTruckRent;
+                const vat = parseFloat(dt?.vat)|| 0;
+                const receiableAmount = billAmount - vat
 
                 // 15% VAT calculation (just the VAT amount)
-                const vatAmount = billAmount * 0.15;
+                // const vatAmount = billAmount * 0.15;
 
                 // Update running balance
-                runningBalance = runningBalance + billAmount - receivedAmount;
+                runningBalance = runningBalance + receiableAmount - receivedAmount;
 
                 return (
                   <tr key={index} className="hover:bg-gray-50 transition-all">
@@ -370,17 +386,20 @@ const HondaLedger = () => {
                       {dt.per_truck_rent}
                     </td>
                     <td className="border border-gray-700 p-1">
-                      {vatAmount > 0 ? vatAmount.toFixed(2) : ""}
+                      {dt.vat > 0 ? dt.vat : ""}
                     </td>
                     <td className="border border-gray-700 p-1">
-                     {billAmount > 0 ? billAmount.toFixed(2) : ""}
+                     {dt.bill_amount > 0 ? dt.bill_amount : ""}
+                    </td>
+                    <td className="border border-gray-700 p-1">
+                     {receiableAmount > 0 ? receiableAmount : ""}
                     </td>
                   
                     <td className="border border-gray-700 p-1">
-                      {receivedAmount > 0 ? receivedAmount.toFixed(2) : ""}
+                      {receivedAmount > 0 ? receivedAmount : ""}
                     </td>
                     <td className="border border-gray-700 p-1">
-                      {runningBalance.toFixed(2)}
+                      {runningBalance}
                     </td>
                   </tr>
                 );
@@ -395,14 +414,14 @@ const HondaLedger = () => {
                   Total
                 </td>
                 <td className="border border-black px-2 py-1">
-                  {totalVatAmount.toFixed(2)}
+                  {totalVatAmount}
                 </td>
                 
                 <td className="border border-black px-2 py-1">
-                  {totalReceivedAmount.toFixed(2)}
+                  {totalReceivedAmount}
                 </td>
                 <td className="border border-black px-2 py-1">
-                  {runningBalance.toFixed(2)} {/* Final balance */}
+                  {runningBalance} {/* Final balance */}
                 </td>
               </tr>
             </tfoot>

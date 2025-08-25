@@ -26,9 +26,10 @@ const UpdatePurchaseForm = () => {
     driver_name,
     branch_name,
     vehicle_no,
+    purchase_amount
   } = updatePurchaseLoaderData.data;
   const methods = useForm({
-    defaultValues: { category, branch_name, supplier_name },
+    defaultValues: { category, branch_name, supplier_name, driver_name, vehicle_no, purchase_amount  },
   });
   const { handleSubmit, register, watch, setValue, control } = methods;
   const purChaseDateRef = useRef(null);
@@ -44,7 +45,7 @@ const UpdatePurchaseForm = () => {
   const totalPrice = qty * unitPrice;
   useEffect(() => {
     const totalPrice = qty * unitPrice;
-    setValue("total", totalPrice);
+    setValue("purchase_amount", totalPrice);
   }, [qty, unitPrice, setValue]);
 
   // select driver from api
@@ -141,8 +142,12 @@ const UpdatePurchaseForm = () => {
       <FormProvider {...methods} className="">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="mx-auto p-6 bg-gray-100 rounded-md shadow space-y-4"
+          className="mx-auto p-6 rounded-md shadow space-y-4"
         >
+           <h5 className="text-2xl font-bold text-center text-[#EF9C07]">
+              {selectedCategory=== "fuel"
+                ? "Fuel Purchase": selectedCategory === "engine_oil" || selectedCategory === "parts"? "Maintenance": "Office Purchase"}
+            </h5>
           {/*  */}
           <div className="md:flex justify-between gap-3">
             <div className="w-full">
@@ -171,9 +176,9 @@ const UpdatePurchaseForm = () => {
                 label="Category"
                 defaultValue={category}
                 options={[
-                  { value: "Fuel", label: "Fuel" },
+                  { value: "fuel", label: "Fuel" },
                   { value: "engine_oil", label: "Engine Oil" },
-                  { value: "Parts", label: "Parts" },
+                  { value: "parts", label: "Parts" },
                   { value: "Stationary", label: "Stationary" },
                   { value: "Snacks", label: "Snacks" },
                   { value: "Electronics", label: "Electronics" },
@@ -190,7 +195,7 @@ const UpdatePurchaseForm = () => {
             </div>
           </div>
           {/* Engine Oil category */}
-          {selectedCategory === "Engine Oil" && (
+          {(selectedCategory === "fuel" ||selectedCategory === "parts") && (
             <div className="md:flex justify-between gap-3">
               <div className="w-full">
                 <SelectField
@@ -252,7 +257,7 @@ const UpdatePurchaseForm = () => {
             </div>
             <div className="w-full">
               <InputField
-                name="total"
+                name="purchase_amount"
                 label="Total"
                 readOnly
                 defaultValue={total}

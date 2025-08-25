@@ -4,7 +4,6 @@ import toast from "react-hot-toast";
 import { FaEye, FaFilter, FaPen, FaTrashAlt } from "react-icons/fa";
 import { FaPlus, FaUserSecret } from "react-icons/fa6";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
-import { IoIosRemoveCircle } from "react-icons/io";
 import { Link } from "react-router-dom";
 
 const PurchaseList = () => {
@@ -35,24 +34,45 @@ const PurchaseList = () => {
         setLoading(false);
       });
   }, []);
-  // Filter by date
-  const filtered = purchase.filter((dt) => {
-    const dtDate = new Date(dt.date);
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
-    if (start && end) {
-      return dtDate >= start && dtDate <= end;
-    } else if (start) {
-      return dtDate.toDateString() === start.toDateString();
-    } else {
-      return true; // no filter applied
-    }
-  });
-  // search
-  const filteredPurchase = filtered.filter((dt) => {
-    const term = searchTerm.toLowerCase();
-    return dt.id?.toString().toLowerCase().includes(term);
-  });
+ // state
+const [vehicleFilter, setVehicleFilter] = useState("");
+
+// Filter by date
+const filtered = purchase.filter((dt) => {
+  const dtDate = new Date(dt.date);
+  const start = startDate ? new Date(startDate) : null;
+  const end = endDate ? new Date(endDate) : null;
+
+  if (start && end) {
+    return dtDate >= start && dtDate <= end;
+  } else if (start) {
+    return dtDate.toDateString() === start.toDateString();
+  } else {
+    return true; // no filter applied
+  }
+});
+
+// Vehicle filter apply
+const vehicleFiltered = filtered.filter((dt) => {
+  if (vehicleFilter) {
+    return dt.vehicle_no === vehicleFilter;
+  }
+  return true;
+});
+
+// Search (Product ID, Supplier, Vehicle, Driver)
+const filteredPurchase = vehicleFiltered.filter((dt) => {
+  const term = searchTerm.toLowerCase();
+  return (
+    dt.id?.toString().toLowerCase().includes(term) ||
+    dt.supplier_name?.toLowerCase().includes(term) ||
+    dt.vehicle_no?.toLowerCase().includes(term) ||
+    dt.driver_name?.toLowerCase().includes(term)
+  );
+});
+
+// Vehicle No dropdown unique values
+const uniqueVehicles = [...new Set(purchase.map((p) => p.vehicle_no))];
   // view car by id
   const handleViewCar = async (id) => {
     try {
@@ -94,19 +114,19 @@ const PurchaseList = () => {
     <div className=" md:p-2">
       <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-2 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
-          <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
-            <FaUserSecret className="text-[#11375B] text-2xl" />
+          <h1 className="text-xl font-extrabold text-primary flex items-center gap-3">
+            <FaUserSecret className="text-primary text-2xl" />
             Purchase List
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <button
               onClick={() => setShowFilter((prev) => !prev)}
-              className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
               <FaFilter /> Filter
             </button>
             <Link to="/tramessy/Purchase/PurchaseForm">
-              <button className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
+              <button className="bg-gradient-to-r from-primary to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <FaPlus /> Purchase
               </button>
             </Link>
@@ -144,7 +164,7 @@ const PurchaseList = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search by Product ID..."
+              placeholder="Search by Product ..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
           </div>
@@ -170,27 +190,45 @@ const PurchaseList = () => {
                 className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
               />
             </div>
-            <div className="w-xs">
+            <select
+  value={vehicleFilter}
+  onChange={(e) => {
+    setVehicleFilter(e.target.value);
+    setCurrentPage(1);
+  }}
+  className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
+>
+  <option value="">All Vehicle No</option>
+  {uniqueVehicles.map((v, index) => (
+    <option key={index} value={v}>
+      {v}
+    </option>
+  ))}
+</select>
+            <div className="">
               <button
                 onClick={() => {
                   setStartDate("");
                   setEndDate("");
+                  setVehicleFilter("");
                   setShowFilter(false);
                 }}
-                className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-2 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <IoIosRemoveCircle /> Clear Filter
+                <FaFilter /> Clear 
               </button>
             </div>
           </div>
         )}
         <div className="mt-5 overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-[#11375B] text-white capitalize text-sm border border-gray-600">
+            <thead className="bg-primary text-white capitalize text-xs border border-gray-600">
               <tr>
                 <th className="p-2">SL.</th>
                 <th className="p-2">Product ID</th>
                 <th className="p-2">Supplier Name</th>
+                <th className="px-2 py-2">Driver </th>
+                <th className="px-2 py-2">Vehicle No</th>
                 <th className="p-2">Category</th>
                 <th className="p-2">Item Name</th>
                 <th className="p-2">Quantity</th>
@@ -200,7 +238,7 @@ const PurchaseList = () => {
                 <th className="p-2">Action</th>
               </tr>
             </thead>
-            <tbody className="text-[#11375B] font-semibold bg-gray-100">
+            <tbody className="text-primary">
               { currentPurchase.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="text-center p-4 text-gray-500">
@@ -217,6 +255,8 @@ const PurchaseList = () => {
                   </td>
                   <td className="p-2">{dt.id}</td>
                   <td className="p-2">{dt.supplier_name}</td>
+                  <td className="px-2 py-2">{dt.driver_name?dt.driver_name: "N/A"}</td>
+                  <td className="px-2 py-2">{dt.vehicle_no?dt.vehicle_no:"N/A"}</td>
                   <td className="p-2">{dt.category}</td>
                   <td className="p-2">{dt.item_name}</td>
                   <td className="p-2">{dt.quantity}</td>

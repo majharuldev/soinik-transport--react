@@ -1011,6 +1011,7 @@ const SuzukiLedger = () => {
                 <th className="border border-gray-700 p-1 text-center ">
                   BillAmount
                 </th>
+                <th className="border border-gray-700 p-1 text-center ">ReceivableAmount</th>
                 <th className="border border-gray-700 p-1 text-center ">ReceiveAmount</th>
                 <th className="text-center border border-black py-1 ">
                   <p className="border-b">OpeningBalance {openingBalance.toFixed(2)}</p>
@@ -1028,7 +1029,8 @@ const SuzukiLedger = () => {
                   <td className="border border-gray-700 p-1">{dt.do}</td>
                   <td className="border border-gray-700 p-1">{dt.co}</td>
                   <td className="border border-gray-700 p-1">{dt.unload_point}</td>
-                  <td className="border border-gray-700 p-1">{dt._billAmount.toFixed(2)}</td>
+                  <td className="border border-gray-700 p-1">{dt._billAmount}</td>
+                  <td className="border border-gray-700 p-1">{dt._billAmount}</td>
                   <td className="border border-gray-700 p-1">{Number.parseFloat(dt.rec_amount || "0").toFixed(2)}</td>
                   <td className="border border-gray-700 p-1">{dt._calculatedBalance.toFixed(2)}</td>
                 </tr>

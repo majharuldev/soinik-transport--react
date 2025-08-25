@@ -735,7 +735,7 @@ const DriverReport = () => {
                 <th className="px-2 py-3">Driver</th>
                 <th className="px-2 py-3">Mobile</th>
                 <th className="px-2 py-3">Trips</th>
-                <th className="px-2 py-3">Rent</th>
+                <th className="px-2 py-3">Income</th>
                 <th className="px-2 py-3">Expense</th>
                 <th className="px-2 py-3">Profit</th>
               </tr>

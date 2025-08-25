@@ -27,13 +27,13 @@ const StockOut = () => {
     <div className=" md:p-2">
       <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
-          <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
-            <MdShop className="text-[#11375B] text-2xl" />
+          <h1 className="text-xl font-extrabold text-primary flex items-center gap-3">
+            <MdShop className="text-primary text-2xl" />
             Stock Out List
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <Link to="/tramessy/Inventory/StockOutForm">
-              <button className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
+              <button className="bg-gradient-to-r from-primary to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <FaPlus /> Stock Out
               </button>
             </Link>
@@ -41,7 +41,7 @@ const StockOut = () => {
         </div>
         <div className="mt-5 overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-[#11375B] text-white capitalize text-sm">
+            <thead className="bg-primary text-white capitalize text-xs">
               <tr>
                 <th className="p-2">SL.</th>
                 <th className="p-2">Product ID</th>
@@ -55,7 +55,7 @@ const StockOut = () => {
                 <th className="p-2">Action</th>
               </tr>
             </thead>
-            <tbody className="text-[#11375B] font-semibold bg-gray-100">
+            <tbody className="text-primary">
               {stock?.map((dt, i) => (
                 <tr
                   key={i}

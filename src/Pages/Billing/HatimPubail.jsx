@@ -6,6 +6,7 @@ import { HiCurrencyBangladeshi } from "react-icons/hi2";
 import { toWords } from "number-to-words";
 import { IoIosRemoveCircle } from "react-icons/io";
 import jsPDF from "jspdf";
+import * as XLSX from "xlsx";
 
 const HatimPubail = () => {
   const [hatim, setHatim] = useState([]);
@@ -502,6 +503,35 @@ const handleDownloadPDF = () => {
   doc.save("hatim_carrying_bill.pdf");
 };
 
+const handleDownloadExcel = () => {
+  const selectedData = hatimTrip.filter((_, i) => selectedRows[i]);
+  if (!selectedData.length) {
+    return toast.error("Please select at least one bill to download Excel.", {
+      position: "top-right",
+    });
+  }
+
+  // Convert selected data into sheet format
+  const sheetData = selectedData.map((trip, index) => ({
+    "SL No": index + 1,
+    "Date": trip.date,
+    "Vehicle No": trip.vehicle_no,
+    "Distribution Name": trip.distribution_name,
+    "Destination": trip.unload_point,
+    "Total Amount": trip.total_rent,
+    "Status": trip.status,
+  }));
+
+  // Create worksheet & workbook
+  const worksheet = XLSX.utils.json_to_sheet(sheetData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Hatim Pubail Bill");
+
+  // Generate Excel file & download
+  XLSX.writeFile(workbook, "hatim_pubail_bill.xlsx");
+};
+
+
   if (loading) return <p className="text-center mt-16">Loading Hatim...</p>;
   return (
     <div className=" md:p-2">
@@ -522,6 +552,12 @@ const handleDownloadPDF = () => {
           </div>
         </div>
         <div className="flex gap-1 md:gap-3 text-primary font-semibold rounded-md">
+          <button
+    onClick={handleDownloadExcel}
+    className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+  >
+    Excel
+  </button>
             <button
               onClick={handleDownloadPDF}
               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"

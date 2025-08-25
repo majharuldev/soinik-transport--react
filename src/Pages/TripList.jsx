@@ -350,6 +350,18 @@ const TripList = () => {
               placeholder="Search..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
+             {/*  Clear button */}
+    {searchTerm && (
+      <button
+        onClick={() => {
+          setSearchTerm("");
+          setCurrentPage(1);
+        }}
+        className="absolute right-5 top-[5.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+      >
+        ✕
+      </button>
+    )}
           </div>
         </div>
         {/* Conditional Filter Section */}
@@ -415,8 +427,8 @@ const TripList = () => {
                 <th className="p-2">Customer</th>
                 <th className="p-2">DriverInfo</th>
                 <th className="p-2">Trip&Destination</th>
-                <th className="p-2">TripCost</th>
-                <th className="p-2">TripFare</th>
+                <th className="p-2">Trip Rent</th>
+                <th className="p-2">Trip Cost</th>
                 {/* <th className="p-2">TotalProfit</th> */}
                 <th className="p-2 action_column">Action</th>
               </tr>
@@ -453,8 +465,9 @@ const TripList = () => {
                       <p>Load Point: {dt.load_point}</p>
                       <p>Unload Point: {dt.unload_point}</p>
                     </td>
-                    <td className="p-2">{dt.total_exp}</td>
+                    
                     <td className="p-2">{dt.total_rent}</td>
+                    <td className="p-2">{dt.total_exp}</td>
                     {/* <td className="p-2">
                       {parseFloat(dt.total_rent || 0) -
                         parseFloat(dt.total_exp || 0)}

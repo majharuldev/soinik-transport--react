@@ -77,7 +77,6 @@ const PurchaseForm = () => {
   }));
   // post data on server
   const onSubmit = async (data) => {
-    console.log("purchase", data);
     try {
       const purchaseFormData = new FormData();
       for (const key in data) {
@@ -115,8 +114,12 @@ const PurchaseForm = () => {
       <FormProvider {...methods} className="">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="mx-auto p-6 bg-gray-100 rounded-md shadow space-y-4"
+          className="mx-auto p-6  rounded-md shadow space-y-4"
         >
+          <h5 className="text-2xl font-bold text-center text-[#EF9C07]">
+              {selectedCategory=== "fuel"
+                ? "Fuel Purchase": selectedCategory === "engine_oil" || selectedCategory === "parts"? "Maintenance": "Office Purchase"}
+            </h5>
           {/*  */}
           <div className="md:flex justify-between gap-3">
             <div className="w-full">
@@ -145,9 +148,9 @@ const PurchaseForm = () => {
                 label="Category"
                 required
                 options={[
-                  { value: "Fuel", label: "Fuel" },
+                  { value: "fuel", label: "Fuel" },
                   { value: "engine_oil", label: "Engine Oil" },
-                  { value: "Parts", label: "Parts" },
+                  { value: "parts", label: "Parts" },
                   { value: "It item", label: "It item" },
                   { value: "Stationary", label: "Stationary" },
                   { value: "Snacks", label: "Snacks" },
@@ -157,11 +160,11 @@ const PurchaseForm = () => {
               />
             </div>
             <div className="w-full">
-              <InputField name="item_name" label="Item Name" required />
+              <InputField name="item_name" label="Item Name"  />
             </div>
           </div>
           {/* Engine Oil category */}
-          {selectedCategory === "engine_oil" && (
+          {(selectedCategory === "fuel" || selectedCategory === "parts") && (
             <div className="md:flex justify-between gap-3">
               <div className="w-full">
                 <SelectField
@@ -256,7 +259,7 @@ const PurchaseForm = () => {
                   <div className="relative">
                     <label
                       htmlFor="bill_image"
-                      className="border p-2 rounded w-full block bg-white text-gray-300 text-sm cursor-pointer"
+                      className="border p-2 rounded w-[50%] block bg-white text-gray-300 text-sm cursor-pointer"
                     >
                       {previewImage ? "Image selected" : "Choose image"}
                     </label>

@@ -52,7 +52,7 @@ const UpdateCustomerForm = () => {
     <div className="mt-10 md:p-2">
       <Toaster />
       <h3 className="px-6 py-2 bg-primary text-white font-semibold rounded-t-md">
-        Add Customer information
+       Update Customer information
       </h3>
       <div className="mx-auto p-6 bg-gray-100 rounded-md shadow">
         <FormProvider {...methods} className="">
@@ -85,9 +85,6 @@ const UpdateCustomerForm = () => {
                   defaultValue={customer_name}
                 />
               </div>
-            </div>
-            {/*  */}
-            <div className="mt-1 md:flex justify-between gap-3">
               <div className="mt-3 md:mt-0 w-full relative">
                 <InputField
                   name="mobile"
@@ -95,21 +92,37 @@ const UpdateCustomerForm = () => {
                   defaultValue={mobile}
                 />
               </div>
-              <div className="mt-3 md:mt-0 w-full relative">
-                <InputField name="email" label="Email" defaultValue={email} />
-              </div>
             </div>
             {/*  */}
             <div className="mt-1 md:flex justify-between gap-3">
-              <div className="w-full relative">
+              
+              <div className="mt-3 md:mt-0 w-full relative">
+                <InputField name="email" label="Email" defaultValue={email} />
+              </div>
+               <div className="w-full relative">
                 <InputField
                   name="address"
                   label="Address"
                   defaultValue={address}
                 />
               </div>
+            </div>
+            {/*  */}
+            <div className="mt-1 md:flex justify-between gap-3">
+             
+              <div className="w-full">
+                <SelectField
+                  name="rate"
+                  label="Rate status"
+                  required
+                  options={[
+                    { value: "Fixed", label: "Fixed" },
+                    { value: "Unfixed", label: "Unfixed" },
+                  ]}
+                />
+              </div>
               <div className="w-full relative">
-                <InputField name="due" label="Due Balance" defaultValue={due} />
+                <InputField name="due" label="Opening Balance" defaultValue={due} />
               </div>
               <div className="w-full">
                 <SelectField

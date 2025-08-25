@@ -283,6 +283,18 @@ const CarList = () => {
               placeholder="Search Vehicle..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
+            {/*  Clear button */}
+    {searchTerm && (
+      <button
+        onClick={() => {
+          setSearchTerm("");
+          setCurrentPage(1);
+        }}
+        className="absolute right-8 top-[6.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+      >
+        ✕
+      </button>
+    )}
           </div>
         </div>
 
