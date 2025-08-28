@@ -913,7 +913,7 @@ const Sidebar = () => {
                           <span>Purchase Report</span>
                         </Link>
                       </li>
-                      <li>
+                      {/* <li>
                         <Link
                           to="/tramessy/DailyExpense"
                           className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
@@ -925,7 +925,7 @@ const Sidebar = () => {
                           
                           <span>Daily Trip Expense</span>
                         </Link>
-                      </li>
+                      </li> */}
                       {/* <li>
                         <Link
                           to="/tramessy/Reports/Inventory-Report"
@@ -1196,169 +1196,7 @@ const Sidebar = () => {
               </>
             ) : (
               <>
-                {/* private route */}
-                {/* Fleet Management */}
-                <li className="text-primary font-medium rounded-sm">
-                  <div
-                    onClick={() => toggleMenu("fleet")}
-                    className="flex justify-between items-center py-3 px-2 cursor-pointer hover:bg-primary hover:text-white hover:rounded-sm duration-900"
-                  >
-                    <span className="flex items-center gap-2">
-                      <FaCarRear />
-                      <span>ফ্লীট ম্যানেজমেন্ট</span>
-                    </span>
-                    {openMenu.fleet ? <FaChevronUp /> : <FaChevronDown />}
-                  </div>
-
-                  {openMenu.fleet && (
-                    <ul className="space-y-0 px-2 text-sm mt-2">
-                      <li>
-                        <Link
-                          to="/CarList"
-                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
-                            isActive("/CarList")
-                              ? "text-white bg-primary"
-                              : "text-gray-500 hover:text-primary"
-                          }`}
-                        >
-                          <div
-                            className={`w-[6px] h-[6px] rounded-full bg-primary ${
-                              isActive("/CarList") ? "bg-white" : "bg-primary"
-                            }`}
-                          ></div>
-                          <span>গাড়ি তালিকা</span>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/DriverList"
-                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
-                            isActive("/DriverList")
-                              ? "text-white bg-primary"
-                              : "text-gray-500 hover:text-primary"
-                          }`}
-                        >
-                          <div
-                            className={`w-[6px] h-[6px] rounded-full bg-primary ${
-                              isActive("/DriverList")
-                                ? "bg-white"
-                                : "bg-primary"
-                            }`}
-                          ></div>
-                          <span>ড্রাইভার তালিকা</span>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/TripList"
-                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
-                            isActive("/TripList")
-                              ? "text-white bg-primary"
-                              : "text-gray-500 hover:text-primary"
-                          }`}
-                        >
-                          <div
-                            className={`w-[6px] h-[6px] rounded-full bg-primary ${
-                              isActive("/TripList") ? "bg-white" : "bg-primary"
-                            }`}
-                          ></div>
-                          <span>ট্রিপ হিসাব</span>
-                        </Link>
-                      </li>
-                      {/* <li>
-                        <Link
-                          to="/Fuel"
-                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
-                            isActive("/Fuel")
-                              ? "text-white bg-primary"
-                              : "text-gray-500 hover:text-primary"
-                          }`}
-                        >
-                          <div
-                            className={`w-[6px] h-[6px] rounded-full bg-primary ${
-                              isActive("/Fuel") ? "bg-white" : "bg-primary"
-                            }`}
-                          ></div>
-                          <span>ফুয়েল হিসাব</span>
-                        </Link>
-                      </li> */}
-                      <li>
-                        <Link
-                          to="/Parts"
-                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
-                            isActive("/Parts")
-                              ? "text-white bg-primary"
-                              : "text-gray-500 hover:text-primary"
-                          }`}
-                        >
-                          <div
-                            className={`w-[6px] h-[6px] rounded-full bg-primary ${
-                              isActive("/Parts") ? "bg-white" : "bg-primary"
-                            }`}
-                          ></div>
-                          <span>পার্টস এন্ড স্পায়ারস</span>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/Maintenance"
-                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
-                            isActive("/Maintenance")
-                              ? "text-white bg-primary"
-                              : "text-gray-500 hover:text-primary"
-                          }`}
-                        >
-                          <div
-                            className={`w-[6px] h-[6px] rounded-full bg-primary ${
-                              isActive("/Maintenance")
-                                ? "bg-white"
-                                : "bg-primary"
-                            }`}
-                          ></div>
-                          <span>মেইনটেনেন্স</span>
-                        </Link>
-                      </li>
-                    </ul>
-                  )}
-                </li>
-
-                {/* Business Reports */}
-                <li className="text-primary font-medium rounded-sm">
-                  <div
-                    onClick={() => toggleMenu("business")}
-                    className="flex justify-between items-center py-3 px-2 cursor-pointer hover:bg-primary hover:text-white hover:rounded-sm duration-300"
-                  >
-                    <span className="flex items-center gap-2">
-                      <FaBriefcase />
-                      <span>বিজনেসের বিবরণ</span>
-                    </span>
-                    {openMenu.business ? <FaChevronUp /> : <FaChevronDown />}
-                  </div>
-
-                  {openMenu.business && (
-                    <ul className="space-y-3 px-2 text-sm mt-2">
-                      <li>
-                        <Link
-                          to="/DailyExpense"
-                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
-                            isActive("/DailyExpense")
-                              ? "text-white bg-primary"
-                              : "text-gray-500 hover:text-primary"
-                          }`}
-                        >
-                          <div
-                            className={`w-[6px] h-[6px] rounded-full bg-primary ${
-                              isActive("/DailyExpense")
-                                ? "bg-white"
-                                : "bg-primary"
-                            }`}
-                          ></div>
-                          <span>দৈনিক ব্যয়</span>
-                        </Link>
-                      </li>
-                    </ul>
-                  )}
-                </li>
+                
               </>
             )}
           </ul>

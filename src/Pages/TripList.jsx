@@ -567,6 +567,14 @@ const TripList = () => {
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Trip type</p> <p>{selectedTrip.trip_type}</p>
+                </li>
+                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Additional Load</p> <p>{selectedTrip.additional_load}</p>
+                </li>
+              </ul>
+              <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Driver Name</p>{" "}
                   <p>{selectedTrip.driver_name}</p>
                 </li>
@@ -627,11 +635,11 @@ const TripList = () => {
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Goods</p> <p>{selectedTrip.goods}</p>
+                  <p className="w-48">Additional Cost</p> <p>{selectedTrip.additional_cost}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Advance</p> <p>{selectedTrip.advance}</p>
-                </li>
+                </li>               
               </ul>
               <div className="flex justify-end mt-10">
                 <button

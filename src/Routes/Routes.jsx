@@ -19,10 +19,8 @@ import AddUserForm from "../Pages/AddUserForm";
 import Login from "../components/Form/Login";
 import ResetPass from "../components/Form/ResetPass";
 import PrivateRoute from "./PrivateRoute";
-import UpdateTripForm from "../Pages/updateForm/UpdateTripForm";
 import UpdateFuelForm from "../Pages/updateForm/UpdateFuelForm";
 import UpdatePartsForm from "../Pages/updateForm/UpdatePartsForm";
-import UpdateUsersForm from "../Pages/updateForm/UpdateUsersForm";
 import UpdateMaintenanceForm from "../Pages/updateForm/UpdateMaintenanceForm";
 import UpdateDriverForm from "../Pages/updateForm/UpdateDriverForm";
 import UpdateDailyIncomeForm from "../Pages/updateForm/UpdateDailyIncomeForm";
@@ -60,10 +58,6 @@ import InventorySupplier from "../Pages/Inventory/InventorySupplier";
 import InventorySupplierForm from "../Pages/Inventory/InventorySupplierForm";
 import GenerateSalaryForm from "../Pages/HR/Payroll/GenerateSalaryForm";
 import GenerateSalary from "../Pages/HR/Payroll/GenerateSalary";
-import Yamaha from "../Pages/Billing/Yamaha";
-import Hatim from "../Pages/Billing/Hatim";
-import Suzuki from "../Pages/Billing/Suzuki";
-import Honda from "../Pages/Billing/Honda";
 import CashDispatch from "../Pages/Account/CashDispatch";
 import Office from "../Pages/HR/HRM/Office";
 import CashDispatchForm from "../Pages/Account/CashDispatchForm";
@@ -75,10 +69,8 @@ import PaymentList from "../Pages/Account/PaymentList";
 import PaymentReceiveForm from "../Pages/Account/PaymentReceiveForm";
 import PaymentReceive from "../Pages/Account/PaymentReceive";
 import DriverLedger from "../Pages/Account/DriverLedger";
-import HatimPubail from "../Pages/Billing/HatimPubail";
 import UpdateCarForm from "../Pages/UpdateCarForm";
 import UpdateCustomerForm from "../Pages/Customer/UpdateCustomerForm";
-import UpdatePurchaseForm from "../Pages/Purchase/UpdatePurchaseForm";
 import UpdateEmployeeForm from "../Pages/HR/HRM/UpdateEmployeeForm";
 import UpdateSupplyForm from "../Pages/Purchase/UpdateSupplyForm";
 import UpdateRentVehicleForm from "../Pages/UpdateRentVehicleForm";
@@ -89,7 +81,6 @@ import HelperList from "../Pages/HelperList";
 import AddHelper from "../Pages/AddHelper";
 import VendorLedger from "../Pages/Account/VendorLedger";
 import UpdateStockOutForm from "../Pages/updateForm/UpdateStockOutForm";
-import OfficeExpense from "../Pages/HR/HRM/SalaryExpense";
 import SalaryExpense from "../Pages/HR/HRM/SalaryExpense";
 import OfficialExpense from "../Pages/HR/HRM/OfficialExpense";
 import MonthlyStatement from "../Pages/MonthlyStatement";
@@ -295,17 +286,17 @@ export const router = createBrowserRouter([
       {
         path: "/tramessy/VendorList",
         element: (
-          // <AdminRoute>
+          <PrivateRoute>
           <VendorList />
-          // </AdminRoute>
+          </PrivateRoute>
         ),
       },
       {
         path: "/tramessy/AddVendorForm",
         element: (
-          // <AdminRoute>
+           <PrivateRoute>
           <AddVendorForm />
-          // </AdminRoute>
+          </PrivateRoute>
         ),
       },
       {
@@ -323,17 +314,17 @@ export const router = createBrowserRouter([
       {
         path: "/tramessy/RentList",
         element: (
-          // <AdminRoute>
+          <PrivateRoute>
           <RentList />
-          // </AdminRoute>
+          </PrivateRoute>
         ),
       },
       {
         path: "/tramessy/AddRentVehicleForm",
         element: (
-          // <AdminRoute>
+          <PrivateRoute>
           <AddRentVehicleForm />
-          // </AdminRoute>
+          </PrivateRoute>
         ),
       },
       {
@@ -367,9 +358,9 @@ export const router = createBrowserRouter([
       {
         path: "/tramessy/monthly-statement",
         element: (
-          <PrivateRoute>
+          <AdminRoute>
             <MonthlyStatement />
-          </PrivateRoute>
+          </AdminRoute>
         ),
       },
       {
@@ -391,9 +382,9 @@ export const router = createBrowserRouter([
       {
         path: "/tramessy/update-user/:id",
         element: (
-          <PrivateRoute>
+          <AdminRoute>
             <AddUserForm />
-          </PrivateRoute>
+          </AdminRoute>
         ),
       },
       {
@@ -544,14 +535,6 @@ export const router = createBrowserRouter([
         path: "/tramessy/Purchase/update-officialProduct/:id",
         element: <OfficialProductForm />,
       },
-      // {
-      //   path: "/tramessy/Purchase/UpdatePurchaseForm/:id",
-      //   element: <UpdatePurchaseForm />,
-      //   loader: ({ params }) =>
-      //     fetch(
-      //       `${import.meta.env.VITE_BASE_URL}/api/purchase/show/${params.id}`
-      //     ),
-      // },
       {
         path: "/tramessy/Purchase/SupplierList",
         element: <SupplierList />,
@@ -652,26 +635,6 @@ export const router = createBrowserRouter([
         element: <TripReport />,
       },
       // billing
-      // {
-      //   path: "/tramessy/billing/Yamaha",
-      //   element: <Yamaha />,
-      // },
-      // {
-      //   path: "/tramessy/billing/Hatim",
-      //   element: <Hatim />,
-      // },
-      // {
-      //   path: "/tramessy/billing/HatimPubail",
-      //   element: <HatimPubail />,
-      // },
-      // {
-      //   path: "/tramessy/billing/Suzuki",
-      //   element: <Suzuki />,
-      // },
-      // {
-      //   path: "/tramessy/billing/Honda",
-      //   element: <Honda />,
-      // },
       {
         path: "/tramessy/billing/bill",
         element: <Bill />,

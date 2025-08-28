@@ -6,6 +6,7 @@ import { InputField, SelectField } from "../components/Form/FormFields";
 import useRefId from "../hooks/useRef";
 import BtnSubmit from "../components/Button/BtnSubmit";
 import { FiCalendar } from "react-icons/fi";
+import { add } from "date-fns";
 export default function AddTripForm() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export default function AddTripForm() {
       police_cost: "",
       driver_commission: "",
       labor: "",
-      others: "",
+      others_cost: "",
       d_day: "",
       d_amount: "",
       d_total: 0,
@@ -56,6 +57,8 @@ export default function AddTripForm() {
       due_amount: "",
       customer_mobile: "",
       driver_adv: "",
+      additional_load: "",
+      additional_cost: "",
     },
   });
 const { watch, handleSubmit, reset, setValue, control } = methods;
@@ -100,13 +103,14 @@ const selectedLoadPoint = watch("load_point");
     foodCost,
     d_day,
     d_amount,
+    additional_cost,
   ] = watch([
     "fuel_cost",
     "toll_cost",
     "police_cost",
     "driver_commission",
     "labor",
-    "others",
+    "others_cost",
     "parking_cost",
     "night_guard",
     "feri_cost",
@@ -114,6 +118,7 @@ const selectedLoadPoint = watch("load_point");
     "food_cost",
     "d_day",
     "d_amount",
+    "additional_cost",
   ]);
 
   // Calculate totals
@@ -130,6 +135,7 @@ const selectedLoadPoint = watch("load_point");
       (Number(foodCost) || 0) +
       (Number(chadaCost) || 0) +
       (Number(fuelCost) || 0) +
+      (Number(additional_cost) || 0) +
       (Number(othersCost) || 0);
 
     setValue("total_exp", totalExp);
@@ -151,6 +157,7 @@ const selectedLoadPoint = watch("load_point");
     othersCost,
     d_day,
     d_amount,
+    additional_cost,
     setValue,
   ]);
 
@@ -224,7 +231,7 @@ useEffect(() => {
               police_cost: Number(tripData.police_cost) || 0,
               driver_commission: Number(tripData.driver_commission) || 0,
               labor: Number(tripData.labor) || 0,
-              others: Number(tripData.others) || 0,
+              others_cost: Number(tripData.others_cost) || 0,
               parking_cost: Number(tripData.parking_cost) || 0,
               night_guard: Number(tripData.night_guard) || 0,
               feri_cost: Number(tripData.feri_cost) || 0,
@@ -284,8 +291,8 @@ useEffect(() => {
 
   // Generate options for dropdowns
   const vehicleOptions = vehicle.map((v) => ({
-    value: v.vehicle_name,
-    label: v.vehicle_name,
+    value: `${v.registration_zone} ${v.registration_serial} ${v.registration_number}`,
+    label: `${v.registration_zone} ${v.registration_serial} ${v.registration_number}`,
   }));
 
   const driverOptions = driver.map((d) => ({
@@ -423,6 +430,7 @@ const loadpointOptions = loadpoint.map((load) => ({
                   options={customerOptions}
                   control={control}
                   required={!id}
+                  isCreatable={false}
                 />
                 {/* <InputField name="customer_mobile" label="Customer Mobile"  /> */}
                 <div className="w-full relative">
@@ -471,9 +479,6 @@ const loadpointOptions = loadpoint.map((load) => ({
               </div>
               <div className="flex gap-x-6 mt-2">
                 <div className="w-full">
-                  <InputField name="additional_load" label="Additional Load point"  />
-                </div>
-                <div className="w-full">
                   <SelectField
                   name="trip_type"
                   label="Trip Type"
@@ -485,6 +490,10 @@ const loadpointOptions = loadpoint.map((load) => ({
                   required={!id}
                 />
                 </div>
+                <div className="w-full">
+                  <InputField name="additional_load" label="Additional Load point"  />
+                </div>
+                
               </div>
             </div>
 
@@ -633,7 +642,11 @@ const loadpointOptions = loadpoint.map((load) => ({
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <InputField name="chada" label="Chada" type="number" />
                   <InputField name="food_cost" label="Food Cost" type="number" />
-                  <InputField name="others" label="Other Costs" type="number" />
+                  <InputField name="others_cost" label="Other Costs" type="number" />
+                    <InputField name="additional_cost" label="Additional Load Cost" type="number" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                
                   <InputField name="total_exp" label="Total Expense" readOnly />
                 </div>
               </div>

@@ -50,6 +50,10 @@ const CashDispatch = () => {
     });
   }, [account, startDate, endDate]);
 
+  const totalAmount = useMemo(() => {
+  return filteredAccounts.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+}, [filteredAccounts]);
+
   // pagination
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -71,8 +75,8 @@ const CashDispatch = () => {
     <div className=" md:p-2">
       <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
-          <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
-            <HiCurrencyBangladeshi className="text-[#11375B] text-2xl" />
+          <h1 className="text-xl font-extrabold text-primary flex items-center gap-3">
+            <HiCurrencyBangladeshi className="text-primary text-2xl" />
             Fund Transfer
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
@@ -85,7 +89,7 @@ const CashDispatch = () => {
                         </button>
                       </div>
             <Link to="/tramessy/account/CashDispatchForm">
-              <button className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
+              <button className="bg-gradient-to-r from-primary to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <FaPlus /> Dispatch
               </button>
             </Link>
@@ -121,7 +125,7 @@ const CashDispatch = () => {
                           setEndDate("");
                           setShowFilter(false);
                         }}
-                        className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                        className="bg-gradient-to-r from-primary to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
                       >
                         <FiFilter/> Clear
                       </button>
@@ -131,7 +135,7 @@ const CashDispatch = () => {
 
         <div className="mt-5 overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-[#11375B] text-white capitalize text-sm">
+            <thead className="bg-primary text-white capitalize text-xs">
               <tr>
                 <th className="p-2">SL</th>
                 <th className="p-2">Date</th>
@@ -144,7 +148,7 @@ const CashDispatch = () => {
                 <th className="p-2">Action</th>
               </tr>
             </thead>
-            <tbody className="text-[#11375B] font-semibold bg-gray-100">
+            <tbody className="text-primary ">
               { currentCash.length === 0?(
                 <tr>
                   <td colSpan="8" className="text-center p-4 text-gray-500">
@@ -184,6 +188,15 @@ const CashDispatch = () => {
               )))
               }
             </tbody>
+            {currentCash.length > 0 && (
+      <tfoot className="bg-gray-100 font-bold">
+        <tr>
+          <td colSpan="5" className="p-2 text-right">Total:</td>
+          <td className="p-2">{totalAmount}</td>
+          <td colSpan="2"></td>
+        </tr>
+      </tfoot>
+    )}
           </table>
         </div>
         {/* pagination */}

@@ -350,21 +350,7 @@ const exportPDF = () => {
                 className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
               />
             </div>
-            <select
-  value={vehicleFilter}
-  onChange={(e) => {
-    setVehicleFilter(e.target.value);
-    setCurrentPage(1);
-  }}
-  className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
->
-  <option value="">All Vehicle No</option>
-  {uniqueVehicles.map((v, index) => (
-    <option key={index} value={v}>
-      {v}
-    </option>
-  ))}
-</select>
+           
             <div className="">
               <button
                 onClick={() => {
@@ -387,8 +373,7 @@ const exportPDF = () => {
                 <th className="p-2">SL.</th>
                 <th className="p-2">Product ID</th>
                 <th className="p-2">Supplier Name</th>
-                <th className="px-2 py-2">Driver </th>
-                <th className="px-2 py-2">Vehicle No</th>
+              
                 <th className="p-2">Category</th>
                 <th className="p-2">Item Name</th>
                 <th className="p-2">Quantity</th>
@@ -415,8 +400,7 @@ const exportPDF = () => {
                   </td>
                   <td className="p-2">{dt.id}</td>
                   <td className="p-2">{dt.supplier_name}</td>
-                  <td className="px-2 py-2">{dt.driver_name?dt.driver_name: "N/A"}</td>
-                  <td className="px-2 py-2">{dt.vehicle_no?dt.vehicle_no:"N/A"}</td>
+                
                   <td className="p-2">{dt.category}</td>
                   <td className="p-2">{dt.item_name}</td>
                   <td className="p-2">{dt.quantity}</td>
@@ -474,40 +458,40 @@ const exportPDF = () => {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800">
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between p-4">
                 <span className="font-medium w-1/2">Product ID:</span>
                 <span>{selectedPurchase.id}</span>
               </div>
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between p-4">
                 <span className="font-medium w-1/2">Supplier Name:</span>
                 <span>{selectedPurchase.supplier_name}</span>
               </div>
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between p-4">
                 <span className="font-medium w-1/2">Category:</span>
                 <span>{selectedPurchase.category}</span>
               </div>
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between p-4">
                 <span className="font-medium w-1/2">Item Name:</span>
                 <span>{selectedPurchase.item_name}</span>
               </div>
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between p-4">
                 <span className="font-medium w-1/2">Quantity:</span>
                 <span>{selectedPurchase.quantity}</span>
               </div>
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between  p-4 ">
                 <span className="font-medium w-1/2">Unit Price:</span>
                 <span>{selectedPurchase.unit_price}</span>
               </div>
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between  p-4 ">
                 <span className="font-medium w-1/2">Total:</span>
                 <span>{selectedPurchase.purchase_amount}</span>
               </div>
-              <div className="flex flex-col items-start border p-4 rounded-lg bg-gray-50">
+              <div className="flex flex-col items-start  p-4 ">
                 <span className="font-medium mb-2">Bill Image:</span>
                 <img
                   src={`${import.meta.env.VITE_BASE_URL}/public/uploads/purchase/${selectedPurchase.bill_image}`}
                   alt="Bill"
-                  className="w-32 h-32 object-cover rounded-lg border"
+                  className="w-32 h-32 object-cover "
                 />
               </div>
             </div>

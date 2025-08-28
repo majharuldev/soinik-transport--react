@@ -219,6 +219,12 @@ const DriverReport = () => {
     w.close();
   };
 
+  // Grand Totals
+const totalTrips = monthlyDriverStats.reduce((sum, d) => sum + d.totalTrips, 0);
+const totalRent = monthlyDriverStats.reduce((sum, d) => sum + d.totalRent, 0);
+const totalExp = monthlyDriverStats.reduce((sum, d) => sum + d.totalExp, 0);
+const totalProfit = monthlyDriverStats.reduce((sum, d) => sum + d.totalProfit, 0);
+
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -396,6 +402,20 @@ const DriverReport = () => {
                 ))
               )}
             </tbody>
+            {/* Total Row */}
+  {currentDriverReport.length > 0 && (
+    <tfoot className="bg-gray-100 font-bold">
+      <tr>
+        <td colSpan="4" className="text-right px-4 py-3">Total:</td>
+        <td className="px-4 py-3">{totalTrips}</td>
+        <td className="px-4 py-3">{totalRent}</td>
+        <td className="px-4 py-3">{totalExp}</td>
+        <td className={`px-4 py-3 ${totalProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
+          {totalProfit}
+        </td>
+      </tr>
+    </tfoot>
+  )}
           </table>
         </div>
 

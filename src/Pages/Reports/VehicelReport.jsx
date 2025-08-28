@@ -256,6 +256,18 @@ export default function VehicleProfitReport() {
     setCurrentPage(1)
   }
 
+useEffect(() => {
+  calculateProfitByVehicle()
+  setCurrentPage(1)  // filter change হলে currentPage reset
+}, [tripData, purchaseData, stockOutData, selectedDate, fromDate, toDate, selectedVehicle])
+
+// চাইলে আলাদা আলাদা বের করতে পারেন
+const totalTrip = profitData.reduce((sum, v) => sum + v.trip_count, 0)
+const totalTripCost = profitData.reduce((sum, v) => sum + v.trip_expenses, 0)
+const totalPartsCost = profitData.reduce((sum, v) => sum + v.parts_cost, 0)
+const totalFuelCost = profitData.reduce((sum, v) => sum + v.fuel_cost, 0)
+const totalEngineOil = profitData.reduce((sum, v) => sum + v.engine_oil_cost, 0)
+
   const totalPages = Math.ceil(profitData.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
@@ -556,6 +568,22 @@ const exportToPDF = () => {
                 })
               )}
             </tbody>
+            {currentData.length > 0 && (
+  <tfoot className="bg-gray-100 font-bold">
+    <tr>
+      <td colSpan="2" className="text-right px-4 py-3">Total:</td>
+      <td className="px-4 py-3">{totalTrip}</td>
+      <td className="px-4 py-3">{totalRevenue.toLocaleString()}</td>
+      <td className="px-4 py-3">{totalTripCost.toLocaleString()}</td>
+      <td className="px-4 py-3">{totalPartsCost.toLocaleString()}</td>
+      <td className="px-4 py-3">{totalFuelCost.toLocaleString()}</td>
+      <td className="px-4 py-3">{totalEngineOil.toLocaleString()}</td>
+      <td className={`px-4 py-3 ${totalProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
+        {totalProfit.toLocaleString()}
+      </td>
+    </tr>
+  </tfoot>
+)}
           </table>
         </div>
 

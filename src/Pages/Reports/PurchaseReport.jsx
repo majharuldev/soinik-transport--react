@@ -35,14 +35,14 @@ const PurchaseReport = () => {
     const dateMatch =
       (!startDate || new Date(p.date) >= new Date(startDate)) &&
       (!endDate || new Date(p.date) <= new Date(endDate));
-    const supplierMatch = !supplierFilter || p.supplier_name === supplierFilter;
-    const categoryMatch = !categoryFilter || p.category === categoryFilter;
-    const searchMatch =
-      !searchTerm ||
-      p.supplier_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.item_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.category.toLowerCase().includes(searchTerm.toLowerCase());
-    return dateMatch && supplierMatch && categoryMatch && searchMatch;
+     const supplierMatch = !supplierFilter || p.supplier_name === supplierFilter;
+  const categoryMatch = !categoryFilter || p.category === categoryFilter;
+  const searchMatch =
+    !searchTerm ||
+    p.supplier_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.item_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.category?.toLowerCase().includes(searchTerm.toLowerCase());
+  return dateMatch && supplierMatch && categoryMatch && searchMatch;
   });
 
   // Summary calculations
@@ -70,6 +70,8 @@ const PurchaseReport = () => {
     });
     return Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
   })();
+
+
 
   // Export to Excel
   const exportExcel = () => {
@@ -136,41 +138,67 @@ const PurchaseReport = () => {
     doc.save('purchase_report.pdf');
   };
 
-  // Print functionality
-  const handlePrint = useReactToPrint({
-    content: () => reportRef.current,
-    pageStyle: `
-      @page { 
-        size: auto;  
-        margin: 10mm;
-      }
-      @media print {
-        body { 
-          -webkit-print-color-adjust: exact; 
-        }
-        table { 
-          width: 100%; 
-          border-collapse: collapse; 
-        }
-        th { 
-          background-color: #11375B !important; 
-          color: white !important; 
-        }
-        .summary-cards {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 1rem;
-          margin-bottom: 1.5rem;
-        }
-        .summary-card {
-          background-color: #f8fafc;
-          padding: 1rem;
-          border-radius: 0.5rem;
-          text-align: center;
-        }
-      }
-    `
-  });
+    // Simple print function
+ const handlePrint = () => {
+  const printContent = document.getElementById("purchaseReport");
+  const WinPrint = window.open("", "", "width=900,height=650");
+  
+  WinPrint.document.write(`
+    <html>
+      <head>
+        <title>Purchase Report</title>
+        <style>
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+          }
+          th {
+            background-color: #11375B;
+            color: white;
+          }
+          tr:nth-child(even) {
+            background-color: #f2f2f2;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Purchase Report</h1>
+        <p>Generated on: ${new Date().toLocaleDateString()}</p>
+        ${printContent.outerHTML}
+      </body>
+    </html>
+  `);
+  
+  WinPrint.document.close();
+  WinPrint.focus();
+  WinPrint.print();
+  WinPrint.close();
+}
+  // Grand totals for all filtered purchases
+// Grand totals for all filtered purchases
+const totalQty = filteredPurchases.reduce(
+  (sum, p) => sum + (Number(p.quantity) || 0),
+  0
+);
+const totalUnitPrice  = filteredPurchases.reduce(
+  (sum, p) => sum + (Number(p.unit_price) || 0),
+  0
+);
+
+const totalAmountOverall = filteredPurchases.reduce(
+  (sum, p) =>
+    sum +
+    ((Number(p.quantity) || 0) * (Number(p.unit_price) || 0)),
+  0
+);
+
+// Weighted average unit price (if totalQty > 0)
+
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -305,7 +333,7 @@ const PurchaseReport = () => {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto rounded-xl">
+        <div id="purchaseReport" className="overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left ">
             <thead className="bg-primary text-white ">
               <tr>
@@ -338,6 +366,14 @@ const PurchaseReport = () => {
                 </tr>
               )}
             </tbody>
+            {currentPurchase.length>0 &&<tfoot className="bg-gray-100 font-bold">
+  <tr>
+    <td colSpan="5" className="text-right p-2">Total:</td>
+    <td className="p-2">{totalQty}</td>
+    <td className="p-2">{totalUnitPrice}</td>
+    <td className="p-2">{totalAmountOverall}</td>
+  </tr>
+</tfoot>}
           </table>
         </div>
         

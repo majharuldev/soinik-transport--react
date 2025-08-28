@@ -474,35 +474,35 @@ const exportPDF = () => {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800">
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between p-4">
                 <span className="font-medium w-1/2">Product ID:</span>
                 <span>{selectedPurchase.id}</span>
               </div>
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between p-4">
                 <span className="font-medium w-1/2">Supplier Name:</span>
                 <span>{selectedPurchase.supplier_name}</span>
               </div>
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between p-4">
                 <span className="font-medium w-1/2">Category:</span>
                 <span>{selectedPurchase.category}</span>
               </div>
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between p-4">
                 <span className="font-medium w-1/2">Item Name:</span>
                 <span>{selectedPurchase.item_name}</span>
               </div>
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between p-4">
                 <span className="font-medium w-1/2">Quantity:</span>
                 <span>{selectedPurchase.quantity}</span>
               </div>
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between p-4">
                 <span className="font-medium w-1/2">Unit Price:</span>
                 <span>{selectedPurchase.unit_price}</span>
               </div>
-              <div className="flex justify-between border p-4 rounded-lg bg-gray-50">
+              <div className="flex justify-between p-4">
                 <span className="font-medium w-1/2">Total:</span>
                 <span>{selectedPurchase.purchase_amount}</span>
               </div>
-              <div className="flex flex-col items-start border p-4 rounded-lg bg-gray-50">
+              <div className="flex flex-col items-start p-4">
                 <span className="font-medium mb-2">Bill Image:</span>
                 <img
                   src={`${import.meta.env.VITE_BASE_URL}/public/uploads/purchase/${selectedPurchase.bill_image}`}

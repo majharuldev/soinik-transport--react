@@ -10,6 +10,13 @@ import Pagination from "../../../components/Shared/Pagination";
 const EmployeeList = () => {
   const [employee, setEmployee] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewModal, setViewModal] = useState(false);
+const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+const handleView = (employee) => {
+  setSelectedEmployee(employee);
+  setViewModal(true);
+};
   // delete modal
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => setIsOpen(!isOpen);
@@ -186,7 +193,7 @@ const EmployeeList = () => {
                           </button>
                         </Link>
                         <button
-                          // onClick={() => handleView(driver.id)}
+                           onClick={() => handleView(dt)}
                           className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                         >
                           <FaEye className="text-[12px]" />
@@ -256,6 +263,55 @@ const EmployeeList = () => {
           </div>
         )}
       </div>
+
+      {/* view modal */}
+      {viewModal && selectedEmployee && (
+  <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+    <div className="relative bg-white rounded-lg shadow-lg p-6 w-[500px] max-w-2xl border border-gray-300">
+      <button
+        onClick={() => setViewModal(false)}
+        className="text-2xl absolute top-2 right-2 text-white bg-gray-200 hover:bg-red-700 cursor-pointer rounded-sm"
+      >
+        <IoMdClose />
+      </button>
+
+      <h2 className="text-xl font-bold text-center text-primary mb-4">
+        Employee Details
+      </h2>
+
+      <div className="flex items-center gap-4 mb-4">
+        <img
+          src={
+            selectedEmployee.image
+              ? `${import.meta.env.VITE_BASE_URL}/public/uploads/employee/${selectedEmployee.image}`
+              : "https://via.placeholder.com/100"
+          }
+          alt={selectedEmployee.full_name}
+          className="w-24 h-24 rounded-full border"
+        />
+        <div>
+          <p><span className="font-semibold">Name:</span> {selectedEmployee.full_name}</p>
+          <p><span className="font-semibold">Email:</span> {selectedEmployee.email}</p>
+          <p><span className="font-semibold">Mobile:</span> {selectedEmployee.mobile}</p>
+          <p><span className="font-semibold">Designation:</span> {selectedEmployee.designation}</p>
+          <p><span className="font-semibold">Join Date:</span> {selectedEmployee.join_date}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <p><span className="font-semibold">Gender:</span> {selectedEmployee.gender}</p>
+        <p><span className="font-semibold">Blood Group:</span> {selectedEmployee.blood_group}</p>
+        <p><span className="font-semibold">NID:</span> {selectedEmployee.nid}</p>
+        <p><span className="font-semibold">Salary:</span> {selectedEmployee.salary}</p>
+        <p><span className="font-semibold">Branch:</span> {selectedEmployee.branch_name}</p>
+        <p><span className="font-semibold">Status:</span> {selectedEmployee.status}</p>
+      </div>
+
+      <p className="mt-4"><span className="font-semibold">Address:</span> {selectedEmployee.address}</p>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

@@ -166,12 +166,25 @@ const filteredIncome = trips.filter((dt) => {
     WinPrint.close()
   }
 
+  // মোট যোগফল বের করা
+const totalRent = filteredIncome.reduce(
+  (sum, trip) => sum + Number(trip.total_rent || 0),
+  0
+);
+
+const totalExpense = filteredIncome.reduce(
+  (sum, trip) => sum + Number(trip.total_exp || 0),
+  0
+);
+
+const totalProfit = totalRent - totalExpense;
+
   // pagination
   const itemsPerPage = 10
   const indexOfLastItem = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentTrips = filteredIncome.slice(indexOfFirstItem, indexOfLastItem)
-  const totalPages = Math.ceil(trips.length / itemsPerPage)
+  const totalPages = Math.ceil(filteredIncome.length / itemsPerPage)
 
   const handlePrevPage = () => {
     if (currentPage > 1) setCurrentPage((currentPage) => currentPage - 1)
@@ -389,6 +402,17 @@ const filteredIncome = trips.filter((dt) => {
                 ))
               )}
             </tbody>
+            {/* ✅ মোট যোগফল row */}
+{currentTrips.length > 0 && (
+  <tfoot className="bg-gray-100 font-bold">
+    <tr>
+      <td colSpan="6" className="text-right px-4 py-3">Total:</td>
+      <td className="px-4 py-3">{totalRent.toFixed(2)}</td>
+      <td className="px-4 py-3">{totalExpense.toFixed(2)}</td>
+      <td className="px-4 py-3">{totalProfit.toFixed(2)}</td>
+    </tr>
+  </tfoot>
+)}
           </table>
         </div>
         {/* pagination */}

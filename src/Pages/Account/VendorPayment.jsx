@@ -25,6 +25,12 @@ const VendorPayment = () => {
       });
   }, []);
 
+  // মোট যোগফল বের করা
+const totalAmount = payment.reduce(
+  (sum, item) => sum + Number(item.amount || 0),
+  0
+);
+
   // pagination
   const [currentPage, setCurrentPage] = useState([1]);
   const itemsPerPage = 10;
@@ -134,6 +140,16 @@ const VendorPayment = () => {
               )))
               }
             </tbody>
+            {/* ✅ মোট যোগফল row */}
+    {currentPayment.length > 0 && (
+      <tfoot className="bg-gray-100 font-bold">
+        <tr>
+          <td colSpan="4" className="text-right p-2">Total:</td>
+          <td className="p-2">{totalAmount}</td>
+          <td colSpan="3"></td>
+        </tr>
+      </tfoot>
+    )}
           </table>
         </div>
         {/* pagination */}

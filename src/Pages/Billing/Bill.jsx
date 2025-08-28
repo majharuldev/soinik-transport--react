@@ -7,6 +7,7 @@ import saveAs from "file-saver"
 import pdfMake from "pdfmake/build/pdfmake"
 import pdfFonts from "pdfmake/build/vfs_fonts"
 import Pagination from "../../components/Shared/Pagination"
+import CreatableSelect from "react-select/creatable"
 
 pdfMake.vfs = pdfFonts.vfs
 
@@ -27,7 +28,7 @@ const Bill = () => {
 
   // fetch all trip data from server
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_BASE_URL}/laksham/api/trip/list`)
+    fetch(`${import.meta.env.VITE_BASE_URL}/api/trip/list`)
       .then((response) => response.json())
       .then((data) => {
         if (data.status === "Success") {
@@ -52,6 +53,11 @@ const Bill = () => {
       })
       .catch((error) => console.error("Error fetching customer list:", error))
   }, [])
+
+  const customerOptions = customerList.map((customer) => ({
+  value: customer.customer_name,
+  label: customer.customer_name,
+}))
 
   // Handle click outside the customer search input to close suggestions
   useEffect(() => {
@@ -384,20 +390,6 @@ const Bill = () => {
           <div style="margin-top: 20px;">
             <strong>In words: ${totalInWords}</strong>
           </div>
-
-          <div class="signature-section">
-            <div>
-              <div style="margin-top: 60px; border-top: 1px solid #000; width: 200px; text-align: center;">
-                Received by
-              </div>
-            </div>
-            <div>
-              <div style="margin-top: 60px; border-top: 1px solid #000; width: 200px; text-align: center;">
-                Signature from<br>
-                Laksham Poribohan Songstha
-              </div>
-            </div>
-          </div>
         </body>
       </html>`
 
@@ -408,16 +400,20 @@ const Bill = () => {
   }
 
   const handleSubmit = async () => {
-    const selectedData = filteredTrips.filter((trip) => selectedRows[trip.id])
+    const selectedData = filteredTrips.filter(
+    (dt, i) => selectedRows[dt.id] && dt.status === "Pending"
+  );
     if (!selectedData.length) {
-      return toast.error("Please select at least one row.")
+      return toast.error("Please select at least one row for Not submitted.", {
+        position: "top-right",
+      });
     }
     try {
       const loadingToast = toast.loading("Submitting selected rows...")
 
       // Create array of promises for all updates
       const updatePromises = selectedData.map((dt) =>
-        fetch("https://api.tramessy.com/laksham/api/customerLedger/create", {
+        fetch(`${import.meta.env.VITE_BASE_URL}/api/customerLedger/create`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -434,7 +430,7 @@ const Bill = () => {
             bill_amount: dt.total_rent,
           }),
         }).then(() =>
-          fetch(`https://api.tramessy.com/laksham/api/trip/update/${dt.id}`, {
+          fetch(`${import.meta.env.VITE_BASE_URL}/api/trip/update/${dt.id}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -485,6 +481,9 @@ const Bill = () => {
               driver_adv: dt.driver_adv,
               chada: dt.chada,
               labor: dt.labor,
+              additional_load: dt.additional_load,
+              trip_type: dt.trip_type,
+              additional_cost: dt.additional_cost,
             }),
           }),
         ),
@@ -516,7 +515,7 @@ const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
   if (loading) return <p className="text-center mt-16">Loading...</p>
 
   return (
-    <div className="">
+    <div className="p-2">
       <Toaster />
       <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
@@ -562,7 +561,7 @@ const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
 
           {/* Customer Search Input */}
           <div className="mt-3 md:mt-0">
-            <div className="relative mt-3 md:mt-0" ref={customerSearchRef}>
+            {/* <div className="relative mt-3 md:mt-0" ref={customerSearchRef}>
               <input
                 type="text"
                 placeholder="Search customer..."
@@ -626,7 +625,7 @@ const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
                   )}
                 </ul>
               )}
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -680,6 +679,24 @@ const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
                 </button>
               )}
             </div>
+            <div className="w-full relative">
+  <CreatableSelect
+    isClearable
+    placeholder="Select or create customer..."
+    value={selectedCustomer ? { value: selectedCustomer, label: selectedCustomer } : null}
+    options={customerOptions}
+    onChange={(newValue) => {
+      setSelectedCustomer(newValue ? newValue.value : "")
+      setCurrentPage(1)
+    }}
+    onCreateOption={(inputValue) => {
+      const newCustomer = { value: inputValue, label: inputValue }
+      setCustomerList((prev) => [...prev, { customer_name: inputValue }])
+      setSelectedCustomer(inputValue)
+    }}
+    className="text-sm"
+  />
+</div>
           </div>
         )}
 
@@ -695,7 +712,7 @@ const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
                 <th className="border border-gray-700 px-2 py-1">Load Point</th>
                 <th className="border border-gray-700 px-2 py-1">Unload Point</th>
                 <th className="border border-gray-700 px-2 py-1">Bill Amount</th>
-                <th className="border border-gray-700 px-2 py-1">Demurrage</th>
+                {/* <th className="border border-gray-700 px-2 py-1">Demurrage</th> */}
                 <th className="border border-gray-700 px-2 py-1">Total</th>
                 <th className="border border-gray-700 px-2 py-1">BillStatus</th>
               </tr>
@@ -711,11 +728,11 @@ const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
                   <td className="border border-gray-700 p-1">{dt.load_point}</td>
                   <td className="border border-gray-700 p-1">{dt.unload_point}</td>
                   <td className="border border-gray-700 p-1">{dt.total_rent}</td>
-                  <td className="border border-gray-700 p-1">{dt.d_total || 0}</td>
+                  {/* <td className="border border-gray-700 p-1">{dt.d_total || 0}</td> */}
                   <td className="border border-gray-700 p-1">
                     {(Number.parseFloat(dt.total_rent) || 0) + (Number.parseFloat(dt.d_total) || 0)}
                   </td>
-                  <td className="border border-gray-700 p-1 text-center">
+                  {/* <td className="border border-gray-700 p-1 text-center">
                     {dt.status === "Pending" ? (
                       <input
                         type="checkbox"
@@ -725,7 +742,27 @@ const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
                       />
                     ) : (
                       <span className="inline-block px-2 py-1 text-xs text-green-700 rounded">Submitted</span>
-                    )}
+                    )} */}
+                    <td className="border border-gray-700 p-1 text-center ">
+  <div className="flex items-center">
+    <input
+    type="checkbox"
+    className="w-4 h-4"
+    checked={!!selectedRows[dt.id]}
+                        onChange={() => handleCheckBox(dt.id)}
+    disabled={false} 
+  />
+  {dt.status === "Pending" && (
+    <span className=" inline-block px-2  text-xs text-yellow-600 rounded">
+      Not Submitted
+    </span>
+  )}
+  {dt.status === "Approved" && (
+    <span className=" inline-block px-2  text-xs text-green-700 rounded">
+      Submitted
+    </span>
+  )}
+  </div>
                   </td>
                 </tr>
               ))}
@@ -736,7 +773,7 @@ const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
                   Total
                 </td>
                 <td className="border border-black px-2 py-1">{totalRent}</td>
-                <td className="border border-black px-2 py-1">{totalDemurrage}</td>
+                {/* <td className="border border-black px-2 py-1">{totalDemurrage}</td> */}
                 <td className="border border-black px-2 py-1">{grandTotal}</td>
                 <td className="border border-black px-2 py-1"></td>
               </tr>
