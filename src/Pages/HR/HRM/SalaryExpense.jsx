@@ -109,7 +109,7 @@ useEffect(() => {
         paid_to: "",
         pay_amount: "",
         payment_category: "",
-        branch_name: data?.branch_name || "",
+        branch_name: "",
         remarks: "",
       })
       setEditingId(null)

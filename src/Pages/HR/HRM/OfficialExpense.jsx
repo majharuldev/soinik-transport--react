@@ -50,8 +50,8 @@ const OfficialExpense = () => {
     const fetchBranches = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/office/list`);
-        if (response.data.status === "Success") {
-          setBranches(response.data.data);
+        if (response?.data?.status === "Success") {
+          setBranches(response?.data?.data);
         }
       } catch (err) {
         console.error("Error fetching branches:", err);
@@ -199,12 +199,12 @@ setIsSubmitting(true);
 // excel
   const exportExcel = () => {
     const data = filteredData.map((item, i) => ({
-      ক্রমিক: i + 1,
-      তারিখ: item.date,
-      "যাকে প্রদান": item.paid_to,
-      পরিমাণ: item.pay_amount,
-      ক্যাটাগরি: item.payment_category,
-      মন্তব্য: item.remarks,
+      SL: i + 1,
+      Date: item.date,
+      PaidTo: item.paid_to,
+      Amount: item.pay_amount,
+      Category: item.payment_category,
+      Notes: item.remarks,
     }))
 
     const ws = XLSX.utils.json_to_sheet(data)
