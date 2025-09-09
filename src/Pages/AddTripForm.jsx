@@ -464,7 +464,7 @@ export default function AddTripForm() {
       <Toaster />
       <form onSubmit={handleSubmit(onSubmit)} className="min-h-screen mt-5 p-2">
 
-        <div className="rounded-md shadow border border-gray-200">
+        <div className="rounded-md shadow border-t-2 border-primary">
           {/* Form Header */}
           <div className=" text-primary px-4 py-2 rounded-t-md">
             <h2 className="text-lg font-medium">{id ? "Update Trip" : "Create Trip"}</h2>
@@ -472,7 +472,7 @@ export default function AddTripForm() {
           <div className="p-4 space-y-2">
             {/* Trip & Destination Section */}
             <div className="bg-white rounded-lg border border-gray-300 p-4">
-              <h3 className="text-orange-500 font-medium text-center mb-6">
+              <h3 className="text-secondary font-medium text-center mb-6">
                 Trip & Destination
               </h3>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-6">
@@ -498,7 +498,7 @@ export default function AddTripForm() {
                 <div className="relative w-full">
                   <InputField
                     name="end_date"
-                    label="Start Date"
+                    label="End Date"
                     type="date"
                     required={!id}
                     inputRef={(e) => {
@@ -565,7 +565,7 @@ export default function AddTripForm() {
                       { value: "round trip", label: "Round Trip" },
                     ]}
                     control={control}
-                    required={!id}
+                    // required={!id}
                   />
                 </div>
                 <div className="w-full">
@@ -583,7 +583,7 @@ export default function AddTripForm() {
 
             {/* Vehicle & Driver Information */}
             <div className="bg-white rounded-lg border border-gray-300 p-4">
-              <h3 className="text-orange-500 font-medium text-center mb-6">
+              <h3 className="text-secondary font-medium text-center mb-6">
                 Vehicle & Driver Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6">
@@ -693,7 +693,7 @@ export default function AddTripForm() {
             {/* Own Transport Expenses Section */}
             {selectedTransport === "own_transport" && (
               <div className="border border-gray-300 p-5 rounded-md mt-5">
-                <h3 className="text-orange-500 font-medium text-center mb-6">
+                <h3 className="text-secondary font-medium text-center mb-6">
                   Expense Details
                 </h3>
 
@@ -726,7 +726,7 @@ export default function AddTripForm() {
             {/* Vendor Transport Section */}
             {selectedTransport === "vendor_transport" && (
               <div className="border border-gray-300 p-5 rounded-md mt-5">
-                <h3 className="text-orange-500 font-medium text-center mb-6">
+                <h3 className="text-secondary font-medium text-center mb-6">
                   Vendor Payment Details
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -737,7 +737,7 @@ export default function AddTripForm() {
               </div>
             )}
            <div className="mt-4">
-  <h3 className="text-orange-500 font-medium mb-2">SMS Sent</h3>
+  <h3 className="text-secondary font-medium mb-2">SMS Sent</h3>
   <div className="flex gap-6">
     <label className="flex items-center gap-2">
       <input

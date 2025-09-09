@@ -19,11 +19,16 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
 import { BiPrinter } from "react-icons/bi";
 import useAdmin from "../hooks/useAdmin";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import ChallanInvoicePrint from "../components/modal/ChallanInvoicePrint";
+import { useReactToPrint } from "react-to-print";
 const TripList = () => {
   const [trip, setTrip] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showFilter, setShowFilter] = useState(false);
   const isAdmin = useAdmin()
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const printRef = useRef();
   // delete modal
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTripId, setselectedTripId] = useState(null);
@@ -51,12 +56,22 @@ const TripList = () => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Check if click is outside any dropdown
-      const isOutside = Object.values(dropdownRefs.current).every(ref => {
-        return ref && !ref.contains(event.target);
+      // Check if click is inside any dropdown
+      const dropdownElements = document.querySelectorAll('.dropdown-menu');
+      let isInsideDropdown = false;
+
+      dropdownElements.forEach(element => {
+        if (element.contains(event.target)) {
+          isInsideDropdown = true;
+        }
       });
 
-      if (isOutside) {
+      // Check if click is on a toggle button
+      const isToggleButton = event.target.closest('button') &&
+        (event.target.closest('button').textContent === '•••' ||
+          event.target.closest('button').querySelector('svg'));
+
+      if (!isInsideDropdown && !isToggleButton) {
         setOpenDropdown(null);
       }
     };
@@ -111,6 +126,46 @@ const TripList = () => {
         console.error("Error fetching customers:", error);
       });
   }, []);
+
+  // challan print func
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: "Invoice Print",
+    onAfterPrint: () => {
+      console.log("Print completed")
+      setSelectedInvoice(null)
+    },
+    onPrintError: (error) => {
+      console.error("Print error:", error)
+    },
+  })
+
+  const handlePrintClick = (tripData) => {
+    const formatted = {
+      voucherNo: tripData.id,
+      receiver: tripData.customer,
+      address: tripData.unload_point,
+      truckNo: tripData.vehicle_no,
+      dln: tripData.date,
+      driverName: tripData.driver_name,
+      loadingPoint: tripData.load_point,
+      unloadingPoint: tripData.unload_point,
+      rent: tripData.total_rent,
+      loadingDemurrage: tripData.labor,
+      inTime: tripData.start_date,
+      outTime: tripData.end_date,
+      totalDemurrage: tripData.labor,
+      others: tripData.remarks || "N/A",
+      productDetails: tripData?.product_details
+    }
+
+    setSelectedInvoice(formatted)
+
+    // Use setTimeout to ensure the component is rendered before printing
+    setTimeout(() => {
+      handlePrint()
+    }, 100)
+  }
 
   // Fetch trips data
   useEffect(() => {
@@ -170,7 +225,7 @@ const TripList = () => {
       "Load Point",
       "Unload Point",
       "Trip Cost",
-      "Trip Fare",
+      "Trip Rent",
       "Profit",
     ];
 
@@ -208,28 +263,64 @@ const TripList = () => {
   };
   // print
   const printTripsTable = () => {
+    // Hide action column for printing
     const actionColumns = document.querySelectorAll(".action_column");
     actionColumns.forEach((col) => (col.style.display = "none"));
 
-    const printContent = document.querySelector("table").outerHTML;
-    const WinPrint = window.open("", "", "width=900,height=650");
+    let tableHTML = `
+    <table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse;">
+      <thead style="background:#11375B; color:white;">
+        <tr>
+          <th>SL.</th>
+          <th>StartDate</th>
+          <th>EndDate</th>
+          <th>customer</th>
+          <th>Driver</th>
+          <th>VehicleNo</th>
+          <th>Commiss.</th>
+          <th>LoadPoint</th>
+          <th>UnloadPoint</th>
+          <th>TripCost</th>
+          <th>TripRent</th>
+          <th>Profit</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filteredTrips.map((dt, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${dt.start_date}</td>
+            <td>${dt.end_date}</td>
+            <td>${(dt.customer || "N/A") + " " + (dt.transport_type || "")}</td>
+            <td>${dt.driver_name || "N/A"}</td>
+            <td>${dt.vehicle_no || "N/A"}</td>
+            <td>${dt.driver_commission || "0"}</td>
+            <td>${dt.load_point}</td>
+            <td>${dt.unload_point}</td>
+            <td>${dt.total_exp || 0}</td>
+            <td>${dt.total_rent || 0}</td>
+            <td>${parseFloat(dt.total_rent || 0) - parseFloat(dt.total_exp || 0)}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
 
+    const WinPrint = window.open("", "", "width=900,height=650");
     WinPrint.document.write(`
     <html>
-    <head>
-      <title>Print</title>
-      <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-        thead { background-color: #11375B; color: white; }
-        tbody tr:nth-child(even) { background-color: #f3f4f6; }
-      </style>
-    </head>
-    <body>
-      <h3>Trip Report</h3>
-      ${printContent}
-    </body>
+      <head>
+        <title>Print Trip Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+        </style>
+      </head>
+      <body>
+        <h3>Trip Report</h3>
+        ${tableHTML}
+      </body>
     </html>
   `);
 
@@ -238,8 +329,10 @@ const TripList = () => {
     WinPrint.print();
     WinPrint.close();
 
+    // Restore action columns
     actionColumns.forEach((col) => (col.style.display = ""));
   };
+
 
   // delete by id
   const handleDelete = async (id) => {
@@ -314,6 +407,7 @@ const TripList = () => {
     return (
       dt.customer?.toLowerCase().includes(term) ||
       dt.date?.toLowerCase().includes(term) ||
+      (dt.id !== undefined && dt.id !== null && dt.id.toString() === term)||
       dt.driver_name?.toLowerCase().includes(term) ||
       dt.transport_type?.replace("_", " ").toLowerCase().includes(term) ||
       dt.driver_mobile?.toLowerCase().includes(term) ||
@@ -462,19 +556,20 @@ const TripList = () => {
         )}
 
         {/* Table */}
-        <div className="mt-5 overflow-x-auto rounded-md">
+        <div className="mt-5 overflow-x-auto rounded-md z-50">
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr>
                 <th className="px-2 py-4">SL.</th>
                 <th className="px-2 py-4">StartDate</th>
-                {/* <th className="px-2 py-4">TransportType</th> */}
+                {/*  */}
                 <th className="px-2 py-4">EndDate</th>
+                <th className="px-2 py-4">TripId</th>
                 <th className="px-2 py-4">Customer</th>
-                <th className="px-2 py-4">Driver</th>
+                <th className="px-2 py-4">Driver/vehicle</th>
                 <th className="px-2 py-4">Trip&Destination</th>
                 <th className="px-2 py-4">TripRent</th>
-                <th className="px-2 py-4">TripCost</th>
+                <th className="px-2 py-4">TripExpense</th>
                 <th className="p-2">Profit</th>
                 <th className="p-2">Status</th>
                 <th className="p-2 action_column">Action</th>
@@ -501,14 +596,14 @@ const TripList = () => {
                         </td>
                         <td className="p-2">{dt?.start_date}</td>
                         <td className="p-2">{dt?.end_date}</td>
-                        {/* <td className="p-2">{dt?.transport_type?.replace("_", " ")}</td> */}
+                        <td className="p-2">{dt?.id}</td>
                         <td className="p-2">
-                          <p><span className="hidden md:block">name:</span> {dt.customer}</p>
-                          <p><span className="hidden md:block">Type:</span> {dt?.transport_type?.replace("_", " ")}</p>
+                          <p><span className="">name:</span> {dt.customer}</p>
+                          <p><span className="">Type:</span> {dt?.transport_type?.replace("_", " ")}</p>
                         </td>
                         <td className="p-2">
-                          <p><span className="hidden md:block">name:</span> {dt.driver_name}</p>
-                          <p><span className="hidden md:block">vehicle:</span> {dt.vehicle_no}</p>
+                          <p><span className="">name:</span> {dt.driver_name}</p>
+                          <p><span className="">vehicle:</span> {dt.vehicle_no}</p>
                         </td>
                         <td className="p-2">
                           <p>Load: {dt.load_point}</p>
@@ -556,58 +651,61 @@ const TripList = () => {
                               onClick={() => toggleDropdown(rowIndex)}
                               className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                             >
-                              •••
+                              {/* ••• */}
+                              <BsThreeDotsVertical />
                             </button>
 
-                            {/* Dropdown menu */}
-                            {isOpen && (
-                              <div
-                                ref={el => dropdownRefs.current[rowIndex] = el}
-                                className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10 border border-gray-200"
-                              >
-                                <div className="py-1">
-                                  <Link
-                                    to={`/tramessy/UpdateTripForm/${dt.id}`}
-                                    onClick={() => setOpenDropdown(null)}
-                                  >
-                                    <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                      <FaPen className="mr-2 text-[12px]" />
-                                      Edit
-                                    </button>
-                                  </Link>
-                                  <button
-                                    onClick={() => {
-                                      handleView(dt.id);
-                                      setOpenDropdown(null);
-                                    }}
-                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                  >
-                                    <FaEye className="mr-2 text-[12px]" />
-                                    View
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      handlePrintClick(dt);
-                                      setOpenDropdown(null);
-                                    }}
-                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                  >
-                                    <BiPrinter className="mr-2 h-4 w-4" />
-                                    Print
-                                  </button>
-                                  {isAdmin && (
-                                    <button
-                                      onClick={() => handleApproveClick(dt)}
-                                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    >
-                                      Approved
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            )}
                           </div>
                         </td>
+                        {/* Dropdown menu */}
+                        {isOpen && (
+                          <div
+                            ref={el => dropdownRefs.current[rowIndex] = el}
+                            style={{ position: "absolute" }}
+                            className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-[9999] border border-gray-200"
+                          >
+                            <div className="py-1">
+                              <Link
+                                to={`/tramessy/UpdateTripForm/${dt.id}`}
+                                onClick={() => setOpenDropdown(null)}
+                              >
+                                <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                  <FaPen className="mr-2 text-[12px]" />
+                                  Edit
+                                </button>
+                              </Link>
+                              <button
+                                onClick={() => {
+                                  handleView(dt.id);
+                                  setOpenDropdown(null);
+                                }}
+                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              >
+                                <FaEye className="mr-2 text-[12px]" />
+                                View
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setSelectedInvoice(dt);
+                                  handlePrintClick(dt);
+                                  setOpenDropdown(null);
+                                }}
+                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              >
+                                <BiPrinter className="mr-2 h-4 w-4" />
+                                Print
+                              </button>
+                              {isAdmin && (
+                                <button
+                                  onClick={() => handleApproveClick(dt)}
+                                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                >
+                                  Approved
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </tr>
                     );
                   }))}
@@ -623,6 +721,10 @@ const TripList = () => {
             maxVisible={8}
           />
         )}
+      </div>
+      {/* Hidden Component for Printing */}
+      <div style={{ display: "none" }} >
+        {selectedInvoice && <ChallanInvoicePrint ref={printRef} data={selectedInvoice} />}
       </div>
 
       {/* Delete Modal */}
@@ -664,100 +766,100 @@ const TripList = () => {
       {viewModalOpen && selectedTrip && (
         <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-[#000000ad] z-50">
           <div className="w-4xl p-5 bg-gray-100 rounded-xl mt-10">
-            <h3 className="text-primary font-semibold">Trip Info</h3>
+            <h3 className="text-gray-700 font-semibold">Trip Info</h3>
             <div className="mt-5">
               <ul className="flex border border-gray-300">
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Customer</p>{" "}
                   <p>{selectedTrip.customer}</p>
                 </li>
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2">
                   <p className="w-48">Trip Date</p> <p>{selectedTrip.date}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Load Point</p>{" "}
                   <p>{selectedTrip.load_point}</p>
                 </li>
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2">
                   <p className="w-48">Unload Point</p>{" "}
                   <p>{selectedTrip.unload_point}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Trip type</p> <p>{selectedTrip.trip_type}</p>
                 </li>
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Additional Load</p> <p>{selectedTrip.additional_load}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Driver Name</p>{" "}
                   <p>{selectedTrip.driver_name}</p>
                 </li>
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2">
                   <p className="w-48">Driver Mobile</p>{" "}
                   <p>{selectedTrip.driver_mobile}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Driver Commission</p>{" "}
                   <p>{selectedTrip.driver_commission}</p>
                 </li>
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Fuel Cost</p>{" "}
                   <p>{selectedTrip.fuel_cost}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Callan cost</p>{" "}
                   <p>{selectedTrip.callan_cost}</p>
                 </li>
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Others Cost</p>{" "}
                   <p>{selectedTrip.others_cost}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Total Rent</p>{" "}
-                  <p>{selectedTrip.total_rent}</p>
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">TransportType</p>{" "}
+                  <p>{selectedTrip.transport_type}</p>
                 </li>
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Vehicle Number</p>{" "}
                   <p>{selectedTrip.vehicle_no}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Model No</p>{" "}
                   <p>{selectedTrip.model_no}</p>
                 </li>
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Unload Charge</p>{" "}
                   <p>{selectedTrip.unload_charge} </p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Total Rent/Bill Amount</p>{" "}
                   <p>{selectedTrip.total_rent}</p>
                 </li>
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Distribution Name</p>{" "}
                   <p>{selectedTrip.distribution_name}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Additional Cost</p> <p>{selectedTrip.additional_cost}</p>
                 </li>
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Advance</p> <p>{selectedTrip.advance}</p>
                 </li>
               </ul>
@@ -769,6 +871,40 @@ const TripList = () => {
                   Close
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Approve Confirmation Modal */}
+      {showApproveConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+          <div className="relative bg-white rounded-lg shadow-lg p-6 w-80 max-w-sm border border-gray-300">
+            <button
+              onClick={cancelApprove}
+              className="text-2xl absolute top-2 right-2 text-white bg-red-500 hover:bg-red-700 cursor-pointer rounded-sm"
+            >
+              <IoMdClose />
+            </button>
+            <div className="flex justify-center mb-4 text-green-600 text-4xl">
+              ✅
+            </div>
+            <p className="text-center text-gray-700 font-medium mb-6">
+              Are you sure you want to approve this trip?
+            </p>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={cancelApprove}
+                className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
+              >
+                No
+              </button>
+              <button
+                onClick={confirmApprove}
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 cursor-pointer"
+              >
+                Yes
+              </button>
             </div>
           </div>
         </div>

@@ -299,7 +299,7 @@ const printTable = () => {
         </div>
         {/* export */}
         <div className="md:flex justify-between items-center">
-          <div className="flex gap-1 md:gap-3 text-primary font-semibold rounded-md">
+          <div className="flex gap-1 md:gap-3 text-gray-700 font-semibold rounded-md">
             <button
               onClick={exportExcel}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
@@ -402,16 +402,19 @@ const printTable = () => {
             <thead className="bg-gray-200 text-primary capitalize text-xs ">
               <tr>
                 <th className="px-2 py-4">SL.</th>
-                <th className="px-2 py-4">Product ID</th>
-                <th className="px-2 py-4">Supplier Name</th>
+                <th className="px-2 py-4">Date</th>
+                <th className="px-2 py-4">Prod.ID</th>
+                <th className="px-2 py-4">Supplier</th>
                 <th className="px-2 py-2">Driver </th>
-                <th className="px-2 py-2">Vehicle No</th>
+                <th className="px-2 py-2">VehicleCategory</th>
+                <th className="px-2 py-2">VehicleNo</th>
+                
                 <th className="px-2 py-4">Category</th>
-                <th className="px-2 py-4">Item Name</th>
+                <th className="px-2 py-4">ItemName</th>
                 <th className="px-2 py-4">Quantity</th>
-                <th className="px-2 py-4">Unit Price</th>
+                <th className="px-2 py-4">UnitPrice</th>
                 <th className="px-2 py-4">Total</th>
-                <th className="px-2 py-4">Bill Image</th>
+                {/* <th className="px-2 py-4">Bill Image</th> */}
                 <th className="px-2 py-4">Action</th>
               </tr>
             </thead>
@@ -430,22 +433,25 @@ const printTable = () => {
                   <td className="p-2 font-bold">
                     {indexOfFirstItem + index + 1}.
                   </td>
+                  <td className="p-2">{dt.date}</td>
                   <td className="p-2">{dt.id}</td>
                   <td className="p-2">{dt.supplier_name}</td>
                   <td className="px-2 py-2">{dt.driver_name!== "null"?dt.driver_name: "N/A"}</td>
+                  <td className="px-2 py-2">{dt.vehicle_category!== "null"?dt.vehicle_category:"N/A"}</td>
                   <td className="px-2 py-2">{dt.vehicle_no!== "null"?dt.vehicle_no:"N/A"}</td>
+                  
                   <td className="p-2">{dt.category}</td>
                   <td className="p-2">{dt.item_name}</td>
                   <td className="p-2">{dt.quantity}</td>
                   <td className="p-2">{dt.unit_price}</td>
                   <td className="p-2">{dt.purchase_amount}</td>
-                  <td className="p-2">
+                  {/* <td className="p-2">
                     <img
                       src={`${import.meta.env.VITE_BASE_URL}/public/uploads/purchase/${dt.bill_image}`}
                       alt=""
                       className="w-20 h-20 rounded-xl"
                     />
-                  </td>
+                  </td> */}
                   <td className="px-2 action_column">
                     <div className="flex gap-1">
                       <Link
@@ -485,41 +491,53 @@ const printTable = () => {
       </div>
       {viewModalOpen && selectedPurchase && (
         <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50 p-4">
-          <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-8 relative">
-            <h2 className="text-2xl font-bold text-primary border-b pb-4 mb-6">
+          <div className="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-5 relative">
+            <h2 className="text-xl font-bold text-primary border-b pb-4 mb-6">
               Purchase Information
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800">
-              <div className="flex justify-between p-4">
+              <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Product ID:</span>
                 <span>{selectedPurchase.id}</span>
               </div>
-              <div className="flex justify-between p-4">
+              <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Supplier Name:</span>
                 <span>{selectedPurchase.supplier_name}</span>
               </div>
-              <div className="flex justify-between p-4">
+              <div className="flex justify-between p-2">
+                <span className="font-medium w-1/2">Vehicle No:</span>
+                <span>{selectedPurchase.vehicle_no}</span>
+              </div>
+              <div className="flex justify-between p-2">
+                <span className="font-medium w-1/2">Driver:</span>
+                <span>{selectedPurchase.driver_name}</span>
+              </div>
+              <div className="flex justify-between p-2">
+                <span className="font-medium w-1/2">Vehicle Category:</span>
+                <span>{selectedPurchase.vehicle_category}</span>
+              </div>
+              <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Category:</span>
                 <span>{selectedPurchase.category}</span>
               </div>
-              <div className="flex justify-between p-4">
+              <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Item Name:</span>
                 <span>{selectedPurchase.item_name}</span>
               </div>
-              <div className="flex justify-between p-4">
+              <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Quantity:</span>
                 <span>{selectedPurchase.quantity}</span>
               </div>
-              <div className="flex justify-between p-4">
+              <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Unit Price:</span>
                 <span>{selectedPurchase.unit_price}</span>
               </div>
-              <div className="flex justify-between p-4">
+              <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Total:</span>
                 <span>{selectedPurchase.purchase_amount}</span>
               </div>
-              <div className="flex flex-col items-start p-4">
+              <div className="flex flex-col items-start p-2">
                 <span className="font-medium mb-2">Bill Image:</span>
                 <img
                   src={`${import.meta.env.VITE_BASE_URL}/public/uploads/purchase/${selectedPurchase.bill_image}`}
@@ -529,10 +547,10 @@ const printTable = () => {
               </div>
             </div>
 
-            <div className="flex justify-end mt-8">
+            <div className="flex justify-end mt-5">
               <button
                 onClick={() => setViewModalOpen(false)}
-                className="bg-primary text-white px-5 py-2 rounded-md hover:bg-secondary transition"
+                className="bg-primary text-white px-5 py-2 rounded-md hover:bg-primary/80 transition"
               >
                 Close
               </button>

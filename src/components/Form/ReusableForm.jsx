@@ -179,7 +179,7 @@ const ReusableForm = ({ children, onSubmit }) => {
       <div className="flex justify-center mt-10">
         <button
           type="submit"
-          className="font-semibold uppercase text-sm bg-primary text-white px-16 py-2 rounded hover:bg-secondary cursor-pointer transition-all duration-700"
+          className="font-semibold uppercase text-sm bg-primary text-white px-16 py-2 rounded hover:bg-primary cursor-pointer transition-all duration-700"
         >
           Login
         </button>

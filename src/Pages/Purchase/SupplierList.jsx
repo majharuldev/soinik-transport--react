@@ -270,24 +270,30 @@ const SupplierList = () => {
             </h3>
             <div className="mt-5">
               <ul className="flex border border-gray-300">
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Business Name:</p>{" "}
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Supplier Name:</p>{" "}
                   <p>{selectedSupply?.supplier_name}</p>
                 </li>
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Phone:</p> <p>{selectedSupply.phone}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Address:</p>{" "}
                   <p>{selectedSupply.address}</p>
                 </li>
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Status:</p> <p>{selectedSupply.status}</p>
                 </li>
               </ul>
-
+              <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Business Category:</p>{" "}
+                  <p>{selectedSupply.business_category}</p>
+                </li>
+               
+              </ul>
               <div className="flex justify-end mt-10">
                 <button
                   onClick={() => setViewModalOpen(false)}

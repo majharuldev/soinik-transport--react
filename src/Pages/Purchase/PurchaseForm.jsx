@@ -26,7 +26,7 @@ const PurchaseForm = () => {
   const [existingImage, setExistingImage] = useState(null);
 
   const selectedCategory = watch("category");
-  
+  const selectedVehicle = watch("vehicle_no");
   // Calculate Total Expense
   const quantity = parseFloat(watch("quantity") || 0);
   const unitPrice = parseFloat(watch("unit_price") || 0);
@@ -36,6 +36,30 @@ const PurchaseForm = () => {
     const totalPrice = quantity * unitPrice;
     setValue("purchase_amount", totalPrice);
   }, [quantity, unitPrice, setValue]);
+
+   // Set vehicle category when vehicle is selected
+ useEffect(() => {
+  if (selectedVehicle) {
+    const selectedVehicleData = vehicle.find(
+      (v) =>
+        `${v.registration_zone} ${v.registration_serial} ${v.registration_number}`.trim() ===
+        selectedVehicle.trim()
+    );
+    if (selectedVehicleData) {
+      console.log("Setting vehicle_category:", selectedVehicleData.vehicle_category); // Debug
+      setValue("vehicle_category", selectedVehicleData.vehicle_category, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    } else {
+      console.log("No vehicle data found, setting vehicle_category to empty"); // Debug
+      setValue("vehicle_category", "");
+    }
+  } else {
+    console.log("No vehicle selected, setting vehicle_category to empty"); // Debug
+    setValue("vehicle_category", "");
+  }
+}, [selectedVehicle, vehicle, setValue]);
   
   // Preview image
   const [previewImage, setPreviewImage] = useState(null);
@@ -83,6 +107,7 @@ const PurchaseForm = () => {
           setValue("category", purchaseData.category);
           setValue("item_name", purchaseData.item_name);
           setValue("driver_name", purchaseData.driver_name);
+          setValue("vehicle_category", purchaseData.vehicle_category);
           setValue("vehicle_no", purchaseData.vehicle_no);
           setValue("branch_name", purchaseData.branch_name);
           setValue("supplier_name", purchaseData.supplier_name);
@@ -268,6 +293,16 @@ const PurchaseForm = () => {
                 control={control}
               />
             </div>
+            {/* Hidden field for vehicle category */}
+       <div className="w-full hidden">
+            <InputField
+              name="vehicle_category"
+              label="Vehicle Category"
+              value={watch("vehicle_category") || ""}
+              readOnly
+              {...register("vehicle_category")}
+            />
+          </div>
             <div className="w-full">
               <SelectField
                 name="vehicle_no"

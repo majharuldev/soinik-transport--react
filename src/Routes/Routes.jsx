@@ -591,7 +591,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/tramessy/route-pricing",
-        element: <RoutePricing />,
+        element: <AdminRoute><RoutePricing /></AdminRoute>,
       },
       {
         path: "/tramessy/AddCustomer",

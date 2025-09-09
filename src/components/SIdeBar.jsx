@@ -778,7 +778,7 @@ const Sidebar = () => {
                           <span>Customer List</span>
                         </Link>
                       </li>
-                      <li>
+                      {isAdmin&&<li>
                         <Link
                           to="/tramessy/route-pricing"
                           className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
@@ -790,7 +790,7 @@ const Sidebar = () => {
                           
                           <span>Route Pricing</span>
                         </Link>
-                      </li>
+                      </li>}
                     </ul>
                   </div>
                 </li>

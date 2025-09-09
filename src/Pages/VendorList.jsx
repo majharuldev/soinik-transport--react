@@ -239,12 +239,12 @@ const VendorList = () => {
             All vender information
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
-            <button
+            {/* <button
               onClick={() => setShowFilter((prev) => !prev)}
               className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
               <FaFilter /> Filter
-            </button>
+            </button> */}
             <Link to="/tramessy/AddVendorForm">
               <button className="bg-gradient-to-r from-primary to-[#115e15]  text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <FaPlus /> Add Vendor

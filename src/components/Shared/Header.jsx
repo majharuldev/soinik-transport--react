@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useRef, useEffect } from "react";
 import { FaBars } from "react-icons/fa6";
 import avatar from "../../assets/man-noimage.png";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ const Header = ({ setMobileSidebarOpen }) => {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+   const dropdownRef = useRef(null);
 
   // handle signout
   const handleSignout = () => {
@@ -15,9 +16,31 @@ const Header = ({ setMobileSidebarOpen }) => {
     navigate("/tramessy");
   };
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
+        setIsAdminOpen(false);
+      }
+    };
+
+    if (isAdminOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isAdminOpen]);
+
   return (
     // Header
-    <div className="flex justify-between items-center px-5 py-2 border-b border-gray-300 relative z-40 bg-white">
+    <div className="fixed top-0  w-full md:w-[calc(100%-16rem)] flex justify-between items-center px-5 py-2 border-b border-gray-300  z-40 bg-white">
       {/* Title */}
       <div className="flex items-center gap-3 cursor-pointer">
         {/* Toggle sidebar on mobile */}
@@ -53,7 +76,7 @@ const Header = ({ setMobileSidebarOpen }) => {
         </div> */}
 
       {/* Admin Dropdown */}
-      <div className="relative bg-white p-2 rounded-md flex gap-2 items-center">
+      <div className="relative bg-white p-2 rounded-md flex gap-2 items-center" ref={dropdownRef}>
         <div
           className="flex items-center gap-2 cursor-pointer"
           onClick={() => setIsAdminOpen(!isAdminOpen)}

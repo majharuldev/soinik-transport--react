@@ -398,6 +398,7 @@ const exportPDF = () => {
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr>
                 <th className="p-2">SL.</th>
+                <th className="p-2">Date</th>
                 <th className="p-2">Product ID</th>
                 <th className="p-2">Supplier Name</th>
               
@@ -425,6 +426,7 @@ const exportPDF = () => {
                   <td className="p-2 font-bold">
                     {indexOfFirstItem + index + 1}.
                   </td>
+                  <td className="p-2">{dt.date}</td>
                   <td className="p-2">{dt.id}</td>
                   <td className="p-2">{dt.supplier_name}</td>
                 
@@ -479,41 +481,41 @@ const exportPDF = () => {
       </div>
       {viewModalOpen && selectedPurchase && (
         <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50 p-4">
-          <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-8 relative">
-            <h2 className="text-2xl font-bold text-primary border-b pb-4 mb-6">
+          <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-5 relative">
+            <h2 className="text-xl font-bold text-primary border-b pb-4 mb-6">
               Purchase Information
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800">
-              <div className="flex justify-between p-4">
+              <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Product ID:</span>
                 <span>{selectedPurchase.id}</span>
               </div>
-              <div className="flex justify-between p-4">
+              <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Supplier Name:</span>
                 <span>{selectedPurchase.supplier_name}</span>
               </div>
-              <div className="flex justify-between p-4">
+              <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Category:</span>
                 <span>{selectedPurchase.category}</span>
               </div>
-              <div className="flex justify-between p-4">
+              <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Item Name:</span>
                 <span>{selectedPurchase.item_name}</span>
               </div>
-              <div className="flex justify-between p-4">
+              <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Quantity:</span>
                 <span>{selectedPurchase.quantity}</span>
               </div>
-              <div className="flex justify-between  p-4 ">
+              <div className="flex justify-between  p-2">
                 <span className="font-medium w-1/2">Unit Price:</span>
                 <span>{selectedPurchase.unit_price}</span>
               </div>
-              <div className="flex justify-between  p-4 ">
+              <div className="flex justify-between  p-2">
                 <span className="font-medium w-1/2">Total:</span>
                 <span>{selectedPurchase.purchase_amount}</span>
               </div>
-              <div className="flex flex-col items-start  p-4 ">
+              <div className="flex flex-col items-start  p-2">
                 <span className="font-medium mb-2">Bill Image:</span>
                 <img
                   src={`${import.meta.env.VITE_BASE_URL}/public/uploads/purchase/${selectedPurchase.bill_image}`}
@@ -523,7 +525,7 @@ const exportPDF = () => {
               </div>
             </div>
 
-            <div className="flex justify-end mt-8">
+            <div className="flex justify-end mt-5">
               <button
                 onClick={() => setViewModalOpen(false)}
                 className="bg-primary text-white px-5 py-2 rounded-md hover:bg-secondary transition"

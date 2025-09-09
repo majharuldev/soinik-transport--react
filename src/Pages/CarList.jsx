@@ -245,7 +245,7 @@ const CarList = () => {
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <Link to="/tramessy/AddCarForm">
-              <button className="bg-black text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
+              <button className="bg-gradient-to-r from-primary to-[#115e15] text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <FaPlus /> Vehicle
               </button>
             </Link>
@@ -346,7 +346,7 @@ const CarList = () => {
                   {/* <td className="px-2 py-4">0</td> */}
                   {/* <td className="px-2 py-4">{vehicle.registration_number}</td> */}
                   <td className="p-2">
-                    <span className="text-green-400 bg-green-100 px-3 py-1 rounded-md text-xs font-semibold">
+                    <span className={` px-3 py-1 rounded-md text-xs font-semibold ${vehicle.status==="Active"? "text-green-400": "text-red-400"}`}>
                       {vehicle?.status}
                     </span>
                   </td>
@@ -432,61 +432,61 @@ const CarList = () => {
             <h3 className="text-primary font-semibold">Vehicle Information</h3>
             <div className="mt-5">
               <ul className="flex border border-gray-300">
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Driver Name</p>{" "}
                   <p>{selectedCar.driver_name}</p>
                 </li>
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Vehicle Name</p>{" "}
                   <p>{selectedCar.vehicle_name}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Vehicle Category</p>{" "}
                   <p>{selectedCar.vehicle_category}</p>
                 </li>
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Vehicle Size</p>{" "}
                   <p>{selectedCar.vehicle_size}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Registration Number</p>{" "}
                   <p>{selectedCar.registration_number}</p>
                 </li>
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Registration Serial</p>{" "}
                   <p>{selectedCar.registration_serial}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Registration Area</p>{" "}
                   <p>{selectedCar.registration_zone}</p>
                 </li>
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Registration Date</p>{" "}
                   <p>{selectedCar.registration_date}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Tax Expiry Date</p>{" "}
                   <p>{selectedCar.text_date || "N/A"}</p>
                 </li>
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Road Permit Date</p>{" "}
                   <p>{selectedCar.road_permit_date}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Fitness Expiry Date</p>{" "}
                   <p>{selectedCar.fitness_date}</p>
                 </li>
-                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2 border-r border-gray-300">
+                <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Insurance Expiry Date</p>{" "}
                   <p>{selectedCar.insurance_date}</p>
                 </li>
@@ -494,7 +494,7 @@ const CarList = () => {
               <div className="flex justify-end mt-10">
                 <button
                   onClick={() => setViewModalOpen(false)}
-                  className="text-white bg-primary py-1 px-2 rounded-md cursor-pointer hover:bg-secondary"
+                  className="text-white bg-primary py-1 px-2 rounded-md cursor-pointer hover:bg-primary/80"
                 >
                   Close
                 </button>
