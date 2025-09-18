@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import autoTable from "jspdf-autotable";
+import Pagination from "../../../components/Shared/Pagination";
 
 const AttendanceList = () => {
   const [employee, setEmployee] = useState([]);
@@ -124,16 +125,16 @@ const AttendanceList = () => {
   };
 
   return (
-    <div className=" md:p-2">
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
-        <div className="md:flex items-center justify-between mb-6">
-          <h1 className="text-xl font-extrabold text-primary flex items-center gap-3">
-            <FaUserSecret className="text-primary text-2xl" />
+    <div className=" p-2">
+      <div className="w-[22rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-xl text-gray-800 font-bold flex items-center gap-3">
+            <FaUserSecret className="text-gray-800 text-xl" />
             Attendance List
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
-            <Link to="/tramessy/HR/HRM/Attendance/AttendanceForm">
-              <button className="bg-gradient-to-r from-primary to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
+            <Link to="/tramessy/HR/Attendance/AttendanceForm">
+              <button className="bg-gradient-to-r from-primary to-[#085011] text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <FaPlus /> Attendance
               </button>
             </Link>
@@ -142,7 +143,7 @@ const AttendanceList = () => {
 
         <div className="mt-5 overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-primary text-white capitalize text-sm">
+            <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr>
                 <th className="p-2">SL.</th>
                 <th className="p-2">Name</th>
@@ -151,7 +152,15 @@ const AttendanceList = () => {
               </tr>
             </thead>
             <tbody className="text-primary">
-              {employee.map((emp, index) => (
+              {  employee.length === 0 ?(
+                <tr>
+                  <td colSpan="8" className="text-center p-4 text-gray-500">
+                    No Employee Attendence found
+                  </td>
+                  </tr>
+              )
+              :
+              (employee.map((emp, index) => (
                 <tr
                   key={emp.id}
                   className="hover:bg-gray-50 transition-all border border-gray-200"
@@ -175,10 +184,20 @@ const AttendanceList = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+              )))
+              }
             </tbody>
           </table>
         </div>
+        {/* pagination */}
+        {employee.length > 0 && totalPages >= 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+          maxVisible={8} 
+        />
+      )}
       </div>
 
       {/* Modal */}

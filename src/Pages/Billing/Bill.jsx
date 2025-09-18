@@ -518,7 +518,7 @@ const Bill = () => {
   return (
     <div className="p-2">
       <Toaster />
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
+      <div className="w-[24rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-6 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-gray-800 flex items-center gap-3">
             <HiCurrencyBangladeshi className="text-gray-800 text-2xl" />

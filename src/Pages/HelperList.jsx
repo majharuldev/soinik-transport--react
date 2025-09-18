@@ -11,6 +11,7 @@ import autoTable from "jspdf-autotable";
 import { saveAs } from "file-saver";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
+import api from "../../utils/axiosConfig";
 const HelperList = () => {
   const [helper, setHelper] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,8 +27,8 @@ const HelperList = () => {
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/helper/list`)
+    api
+      .get(`/helper`)
       .then((response) => {
         if (response.data.status === "Success") {
           setHelper(response.data.data);
@@ -45,8 +46,8 @@ const HelperList = () => {
   // delete by id
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/helper/delete/${id}`,
+      const response = await api.delete(
+        `/helper/${id}`,
         {
           method: "DELETE",
         }
@@ -235,14 +236,14 @@ const HelperList = () => {
   const totalPages = Math.ceil(filteredHelper.length / itemsPerPage);
 
   return (
-    <main className=" md:p-2">
+    <main className=" p-2">
       <Toaster />
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
+      <div className="w-[22rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaTruck className="text-gray-800 text-2xl" />
-            Helper List
+            Helper Information
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <Link to="/tramessy/AddHelper">

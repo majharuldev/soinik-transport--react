@@ -322,13 +322,13 @@ const OfficialExpense = () => {
 
 
   return (
-    <div className="p-2 min-h-screen">
+    <div className="p-2 ">
       <Toaster />
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 p-4">
+      <div className="w-[22rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
-            <FaTruck className="text-gray-800 text-2xl" />
+            <FaTruck className="text-gray-800 text-xl" />
             Daily Office Expense
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">

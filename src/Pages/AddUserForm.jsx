@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import BtnSubmit from "../components/Button/BtnSubmit";
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import { InputField, SelectField } from "../components/Form/FormFields";
+import api from "../../utils/axiosConfig";
 
 const AddUserForm = () => {
   const navigate = useNavigate()
@@ -21,8 +22,8 @@ const AddUserForm = () => {
     if (isEditMode) {
       const fetchUserData = async () => {
         try {
-          const response = await axios.get(
-            `${import.meta.env.VITE_BASE_URL}/users/${id}`
+          const response = await api.get(
+            `/users/${id}`
           );
           const userData = response.data.data;
           
@@ -52,19 +53,19 @@ const AddUserForm = () => {
 
       const method = isEditMode ? 'put' : 'post';
 
-      const response = await axios[method](url, submitData);
+      const response = await api[method](url, submitData);
       const resData = response.data;
 
-      if (resData.status === "success") {
+      // if (resData.status === "success") {
         toast.success(
           `User ${isEditMode ? 'updated' : 'created'} successfully!`, 
           { position: "top-right" }
         );
         if (!isEditMode) reset();
         navigate("/tramessy/AllUsers")
-      } else {
-        toast.error("Server error: " + (resData.message || "Unknown issue"));
-      }
+      // } else {
+      //   toast.error("Server error: " + (resData.message || "Unknown issue"));
+      // }
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || error.message || "Unknown error";

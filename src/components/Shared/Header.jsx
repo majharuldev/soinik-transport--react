@@ -86,7 +86,7 @@ const Header = ({ setMobileSidebarOpen }) => {
             alt="Admin"
             className="w-8 rounded-2xl drop-shadow"
           />
-          <h3 className="font-semibold text-gray-700">
+          <h3 className="font-semibold text-sm md:text-md text-gray-700">
             {user?.name}
           </h3>
         </div>

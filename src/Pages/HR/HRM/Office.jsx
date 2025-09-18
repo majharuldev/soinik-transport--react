@@ -12,6 +12,8 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { tableFormatDate } from "../../../hooks/formatDate";
+import api from "../../../../utils/axiosConfig";
 
 const Office = () => {
   const [office, setOffice] = useState([]);
@@ -26,13 +28,13 @@ const Office = () => {
   const [currentPage, setCurrentPage] = useState(1);
   // Fetch office data
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/office/list`)
+    api
+      .get(`/office/list`)
       .then((response) => {
-        if (response.data.status === "Success") {
-          const data = response.data.data;
+        // if (response.data.status === "Success") {
+          const data = response.data;
           setOffice(data);
-        }
+        // }
         setLoading(false);
       })
       .catch((error) => {
@@ -43,8 +45,8 @@ const Office = () => {
   // delete by id
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/office/delete/${id}`,
+      const response = await api.delete(
+        `/office/${id}`,
         {
           method: "DELETE",
         }
@@ -216,7 +218,7 @@ const printOfficeTable = () => {
   return (
     <div className=" p-2">
       <Toaster />
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
+      <div className="w-[22rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gary-800 flex items-center gap-3">
             <RiHomeOfficeLine className="text-gary-800 text-2xl" />
@@ -308,7 +310,7 @@ const printOfficeTable = () => {
                   <td className="p-2 font-bold">
                     {indexOfFirstItem + index + 1}
                   </td>
-                  <td className="p-2">{dt.date}</td>
+                  <td className="p-2">{tableFormatDate(dt.date)}</td>
                   <td className="p-2">{dt.branch_name}</td>
                   <td className="p-2">{dt.address}</td>
                   <td className="p-2">{dt.opening_balance}</td>

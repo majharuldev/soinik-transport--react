@@ -78,7 +78,7 @@ const AddEmployee = () => {
       </h3>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="mx-auto p-6  rounded-md shadow space-y-4"
+          className="mx-auto space-y-4"
         >
           {/* Row 1: Full Name, Email, Mobile */}
           <div className="md:flex justify-between gap-3">

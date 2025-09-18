@@ -291,8 +291,8 @@ const totalProfit = monthlyDriverStats.reduce((sum, d) => sum + d.totalProfit, 0
     );
 
   return (
-    <div className="md:p-2">
-      <div className="p-4 max-w-7xl mx-auto bg-white shadow rounded-lg border border-gray-200">
+    <div className="p-2">
+      <div className="w-[22rem] md:w-full overflow-x-auto overflow-hidden p-4 max-w-7xl mx-auto bg-white shadow rounded-lg border border-gray-200">
         <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
           <FaUser className="text-lg" />
           Driver Monthly Performance Report

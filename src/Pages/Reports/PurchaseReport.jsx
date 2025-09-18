@@ -290,7 +290,7 @@ const totalAmountOverall = filteredPurchases.reduce(
     <div className="p-2">
       <div 
         ref={reportRef}
-        className="max-w-7xl mx-auto bg-white shadow-xl rounded-xl p-4 border border-gray-200"
+        className="w-[22rem] md:w-full overflow-hidden overflow-x-automax-w-7xl mx-auto bg-white shadow-xl rounded-xl p-4 border border-gray-200"
       >
         {/* Title */}
         <div className="md:flex items-center justify-between mb-6">
@@ -300,7 +300,7 @@ const totalAmountOverall = filteredPurchases.reduce(
           </h1>
           <button
             onClick={() => setShowFilter(prev => !prev)}
-            className="bg-gradient-to-r from-primary to-[#115e15] text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2"
+            className="mt-3 bg-gradient-to-r from-primary to-[#115e15] text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2"
           >
             <FaFilter /> Filter
           </button>

@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { FaTruck, FaPlus, FaPen, FaEye, FaTrashAlt } from "react-icons/fa";
@@ -243,12 +242,12 @@ const CarList = () => {
   return (
     <main className=" p-2">
       <Toaster />
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-4 border border-gray-200">
+      <div className="w-[22rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaTruck className="text-gray-800 text-2xl" />
-            Driver List
+            Driver Information
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <Link to="/tramessy/AddDriverForm">
@@ -311,7 +310,7 @@ const CarList = () => {
         </div>
 
         {/* Table */}
-        <div className="mt-5 overflow-x-auto rounded-xl">
+        <div className="mt-5 overflow-x-auto rounded-md">
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr>

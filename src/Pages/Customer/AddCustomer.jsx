@@ -106,7 +106,7 @@ const AddCustomer = () => {
         <FormProvider {...methods} className="">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="md:flex justify-between gap-3">
-              <div className="w-full">
+              {/* <div className="w-full">
                 <InputField
                   name="date"
                   label="Date"
@@ -125,7 +125,7 @@ const AddCustomer = () => {
                     </span>
                   }
                 />
-              </div>
+              </div> */}
               <div className="w-full relative">
                 <InputField
                   name="customer_name"

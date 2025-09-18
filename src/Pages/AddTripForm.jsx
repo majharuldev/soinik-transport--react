@@ -16,7 +16,7 @@ export default function AddTripForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const startDateRef = useRef(null);
-const endDateRef = useRef(null);
+  const endDateRef = useRef(null);
   const isAdmin = useAdmin();
 
   // State for dropdown options
@@ -47,7 +47,7 @@ const endDateRef = useRef(null);
       fuel_cost: "",
       toll_cost: "",
       police_cost: "",
-      driver_commission: "",
+      // driver_commission: "",
       labor: "",
       others_cost: "",
       d_day: "",
@@ -114,7 +114,7 @@ const endDateRef = useRef(null);
     fuelCost,
     tollCost,
     policeCost,
-    driverCommision,
+    // driverCommision,
     labourCost,
     othersCost,
     parkingCost,
@@ -129,7 +129,7 @@ const endDateRef = useRef(null);
     "fuel_cost",
     "toll_cost",
     "police_cost",
-    "driver_commission",
+    // "driver_commission",
     "labor",
     "others_cost",
     "parking_cost",
@@ -146,7 +146,7 @@ const endDateRef = useRef(null);
   useEffect(() => {
     // Calculate total expenses
     const totalExp =
-      (Number(driverCommision) || 0) +
+      // (Number(driverCommision) || 0) +
       (Number(labourCost) || 0) +
       (Number(parkingCost) || 0) +
       (Number(nightGuardCost) || 0) +
@@ -165,7 +165,7 @@ const endDateRef = useRef(null);
     const d_total = (Number(d_day) || 0) * (Number(d_amount) || 0);
     setValue("d_total", d_total);
   }, [
-    driverCommision,
+    // driverCommision,
     labourCost,
     parkingCost,
     nightGuardCost,
@@ -255,7 +255,7 @@ const endDateRef = useRef(null);
           vendorRes.json(),
           branchRes.json(),
         ]);
-console.log(customerData, 'cust')
+        console.log(customerData, 'cust')
         setVehicle(vehicleData.data);
         setDriver(driverData.data);
         setVendorVehicle(vendorVehicleData.data);
@@ -280,7 +280,7 @@ console.log(customerData, 'cust')
               fuel_cost: Number(tripData.fuel_cost) || 0,
               toll_cost: Number(tripData.toll_cost) || 0,
               police_cost: Number(tripData.police_cost) || 0,
-              driver_commission: Number(tripData.driver_commission) || 0,
+              // driver_commission: Number(tripData.driver_commission) || 0,
               labor: Number(tripData.labor) || 0,
               others_cost: Number(tripData.others_cost) || 0,
               parking_cost: Number(tripData.parking_cost) || 0,
@@ -301,8 +301,8 @@ console.log(customerData, 'cust')
 
             reset(parsedTripData);
             if (!parsedTripData.sms_sent) {
-      setValue("sms_sent", "yes");
-    }
+              setValue("sms_sent", "yes");
+            }
           }
         }
       } catch (error) {
@@ -487,14 +487,7 @@ console.log(customerData, 'cust')
                     inputRef={(e) => {
                       startDateRef.current = e
                     }}
-                    icon={
-                      <span
-                        className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2  rounded-r"
-                        onClick={() => startDateRef.current?.showPicker?.()}
-                      >
-                        <FiCalendar className="text-gray-700 cursor-pointer" />
-                      </span>
-                    }
+                    
                   />
                 </div>
                 <div className="relative w-full">
@@ -506,14 +499,7 @@ console.log(customerData, 'cust')
                     inputRef={(e) => {
                       endDateRef.current = e
                     }}
-                    icon={
-                      <span
-                        className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2  rounded-r"
-                        onClick={() => endDateRef.current?.showPicker?.()}
-                      >
-                        <FiCalendar className="text-gray-700 cursor-pointer" />
-                      </span>
-                    }
+                    
                   />
                 </div>
                 <SelectField
@@ -567,7 +553,7 @@ console.log(customerData, 'cust')
                       { value: "round trip", label: "Round Trip" },
                     ]}
                     control={control}
-                    // required={!id}
+                  // required={!id}
                   />
                 </div>
                 <div className="w-full">
@@ -701,7 +687,7 @@ console.log(customerData, 'cust')
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <InputField name="driver_adv" label="Driver Advance" type="number" />
-                  <InputField name="driver_commission" label="Driver Commission" type="number" />
+                  {/* <InputField name="driver_commission" label="Driver Commission" type="number" /> */}
                   <InputField name="labor" label="Labour Cost" type="number" />
                   <InputField name="fuel_cost" label="Fuel Cost" type="number" />
                 </div>
@@ -738,27 +724,27 @@ console.log(customerData, 'cust')
                 </div>
               </div>
             )}
-           <div className="mt-4">
-  <h3 className="text-secondary font-medium mb-2">SMS Sent</h3>
-  <div className="flex gap-6">
-    <label className="flex items-center gap-2">
-      <input
-        type="radio"
-        value="yes"
-        {...methods.register("sms_sent", { required: true })}
-      />
-      Yes
-    </label>
-    <label className="flex items-center gap-2">
-      <input
-        type="radio"
-        value="no"
-        {...methods.register("sms_sent", { required: true })}
-      />
-      No
-    </label>
-  </div>
-</div>
+            <div className="mt-4">
+              <h3 className="text-secondary font-medium mb-2">SMS Sent</h3>
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    value="yes"
+                    {...methods.register("sms_sent", { required: true })}
+                  />
+                  Yes
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    value="no"
+                    {...methods.register("sms_sent", { required: true })}
+                  />
+                  No
+                </label>
+              </div>
+            </div>
 
 
             {/* Submit Button */}

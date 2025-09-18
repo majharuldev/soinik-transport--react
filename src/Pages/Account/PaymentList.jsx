@@ -348,9 +348,9 @@ const PaymentList = () => {
 
 
   return (
-    <div className=" md:p-2">
+    <div className="p-2">
       <Toaster />
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-4 border border-gray-200">
+      <div className="w-[22rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2 ">
                 <FaUserSecret className="text-gray-800 text-2xl" />

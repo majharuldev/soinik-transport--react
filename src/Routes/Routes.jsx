@@ -88,6 +88,7 @@ import VehicleReport from "../Pages/Reports/VehicelReport";
 import OfficialProduct from "../Pages/Purchase/OfficialProducts";
 import OfficialProductForm from "../Pages/Purchase/OfficialProductForm";
 import Bill from "../Pages/Billing/Bill";
+import SalarySheet from "../Pages/HR/Payroll/SalarySheet";
 export const router = createBrowserRouter([
   {
     path: "/tramessy",
@@ -415,7 +416,7 @@ export const router = createBrowserRouter([
         element: <Office />,
       },
       {
-        path: "/tramessy/HR/HRM/salary-expense",
+        path: "/tramessy/HR/salary-dispatch",
         element: <SalaryExpense />,
       },
       {
@@ -455,12 +456,12 @@ export const router = createBrowserRouter([
           ),
       },
       {
-        path: "/tramessy/HR/Attendance/AttendanceList",
+        path: "/tramessy/HR/Attendance",
         element: <AttendanceList />,
       },
 
       {
-        path: "/tramessy/HR/HRM/Attendance/AttendanceForm",
+        path: "/tramessy/HR/Attendance/AttendanceForm",
         element: <AttendanceForm />,
       },
       // payroll
@@ -469,7 +470,7 @@ export const router = createBrowserRouter([
         element: <AdvanceSalary />,
       },
       {
-        path: "/tramessy/HRM/Payroll/Advance-Salary-Form",
+        path: "/tramessy/HR/Payroll/Advance-Salary-Form",
         element: <AdvanceSalaryForm />,
       },
       {
@@ -479,6 +480,11 @@ export const router = createBrowserRouter([
       {
         path: "/tramessy/HRM/payroll/generate-salary-form",
         element: <GenerateSalaryForm />,
+      },
+      
+      {
+        path: "/tramessy/HR/payrol/salary-sheet",
+        element: <SalarySheet/>,
       },
       {
         path: "/tramessy/HR/HRM/Leave",

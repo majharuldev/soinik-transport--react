@@ -13,7 +13,7 @@ const UpdateCarForm = () => {
    useEffect(() => {
   const fetchDrivers = async () => {
     try {
-      const response = await api.get("/vehicle/"); 
+      const response = await api.get("/vehicle"); 
       setDrivers(response.data);
     } catch (error) {
       console.error("Error fetching driver data:", error);
@@ -84,7 +84,7 @@ const vehicleSizes = {
   const onSubmit = async (data) => {
     try {
       const response = await api.put(
-        `${import.meta.env.VITE_BASE_URL}/vehicle/${id}`,
+        `/vehicle/${id}`,
         data,
         {
           headers: {

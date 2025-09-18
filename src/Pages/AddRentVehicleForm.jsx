@@ -5,6 +5,7 @@ import BtnSubmit from "../components/Button/BtnSubmit";
 import { InputField, SelectField } from "../components/Form/FormFields";
 import useRefId from "../hooks/useRef";
 import { useNavigate } from "react-router-dom";
+import api from "../../utils/axiosConfig";
 
 const AddRentVehicleForm = () => {
   const navigate = useNavigate();
@@ -37,8 +38,8 @@ const vehicleSizes = {
         formData.append(key, data[key]);
       }
       formData.append("ref_id", generateRefId());
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/rent/create`,
+      const response = await api.post(
+        `/rent`,
         formData
       );
       const resData = response.data;

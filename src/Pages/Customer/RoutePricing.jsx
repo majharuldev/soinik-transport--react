@@ -13,6 +13,7 @@ import "jspdf-autotable";
 import autoTable from "jspdf-autotable"; 
 import Pagination from "../../components/Shared/Pagination";
 import { SelectField } from "../../components/Form/FormFields";
+import api from "../../../utils/axiosConfig";
 
 const RoutePricing = () => {
   const [routePricing, setRoutePricing] = useState([]);
@@ -37,9 +38,9 @@ const RoutePricing = () => {
 
   // Fetch customers
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_BASE_URL}/customer/list`)
+    api.get(`/customer`)
       .then(res => {
-        if (res.data.status === "Success") setCustomers(res.data.data);
+          setCustomers(res.data);
       })
       .catch(console.error);
   }, []);
@@ -59,9 +60,9 @@ const RoutePricing = () => {
   }, []);
 
   const fetchRoutePricingData = () => {
-    axios.get(`${import.meta.env.VITE_BASE_URL}/rate/list`)
+    api.get(`/rate`)
       .then(res => {
-        if (res.data.status === "Success") setRoutePricing(res.data.data);
+          setRoutePricing(res.data);
         setLoading(false);
       })
       .catch(err => {
@@ -92,18 +93,14 @@ const RoutePricing = () => {
     }
 
     const apiCall = editId
-      ? axios.post(`${import.meta.env.VITE_BASE_URL}/rate/update/${editId}`, formData)
-      : axios.post(`${import.meta.env.VITE_BASE_URL}/rate/create`, formData);
+      ? api.put(`/rate/${editId}`, formData)
+      : api.post(`/rate`, formData);
 
     apiCall
       .then(res => {
-        if (res.data.status === "Success") {
           toast.success(editId ? "Route pricing updated!" : "Route pricing added!");
           closeModal();
           fetchRoutePricingData();
-        } else {
-          toast.error("Operation failed");
-        }
       })
       .catch(err => {
         console.error(err);
@@ -259,17 +256,17 @@ const printTripsTable = () => {
   return (
     <main className="p-2">
       <Toaster />
-      <div className="w-full max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-6 border border-gray-200">
+      <div className="w-[22rem] md:w-full max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 md:p-4 border border-gray-200">
 
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
-          <h1 className="text-xl font-extrabold text-gray-800 flex items-center gap-3">
+          <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaUsers className="text-gray-800 text-2xl" />
             Customer Route Pricing 
           </h1>
           <button
               onClick={() => setIsModalOpen(true)}
-            className="bg-primary text-white px-4 py-1 rounded-md shadow-md flex items-center gap-2 hover:scale-105 transition-transform"
+            className="mt-3 bg-primary text-white px-4 py-1 rounded-md shadow-md flex items-center gap-2 hover:scale-105 transition-transform"
           >
             <FaPlus /> Add Pricing
           </button>
@@ -347,7 +344,7 @@ const printTripsTable = () => {
             <tbody className=" text-gray-700">
               {currentCustomer.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="text-center p-4 text-gray-500">
+                  <td colSpan="10" className="text-center p-4 text-gray-500">
                     No customer found
                   </td>
                 </tr>

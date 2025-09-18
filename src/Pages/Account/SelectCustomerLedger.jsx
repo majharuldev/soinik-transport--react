@@ -148,7 +148,7 @@ totals.due = totals.rent  - totals.rec_amount;
 
   return (
     <div className="md:p-4">
-      <div className="w-xs md:w-full overflow-x-auto">
+      <div className="w-[23rem] md:w-full overflow-x-auto">
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-[#11375B]">
             {filteredLedger.length > 0

@@ -7,6 +7,7 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { FaFilter } from "react-icons/fa";
+import api from "../../../utils/axiosConfig";
 
 const DriverLedger = () => {
   const [driver, setDriver] = useState([]);
@@ -41,11 +42,11 @@ const DriverLedger = () => {
 
   // driver data fetch
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/driver/list`)
+    api
+      .get(`/driver`)
       .then((res) => {
-        if (res.data.status === "Success") {
-          const drivers = res.data.data;
+        // if (res.data.status === "Success") {
+          const drivers = res.data;
           setDriverList(drivers);
           // Store opening balances by driver name
           const openingBalances = {};
@@ -54,7 +55,7 @@ const DriverLedger = () => {
               Number(driver.opening_balance) || 0;
           });
           setDriverOpeningBalances(openingBalances);
-        }
+        // }
       })
       .catch((err) => console.error("Error fetching driver list:", err));
   }, []);
@@ -65,12 +66,12 @@ const DriverLedger = () => {
 
   // Fetch driver ledger data
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/driverLedger/list`)
+    api
+      .get(`/driverLedger`)
       .then((response) => {
-        if (response.data.status === "Success") {
-          setDriver(response.data.data);
-        }
+        // if (response.data.status === "Success") {
+          setDriver(response.data);
+        // }
         setLoading(false);
       })
       .catch((error) => {
@@ -176,14 +177,14 @@ const toNumber = (val) => {
   const calculateFooterTotals = () => {
     return rowsWithBalance.reduce(
       (acc, item) => {
-        acc.commission += toNumber(item.driver_commission || 0);
+        // acc.commission += toNumber(item.driver_commission || 0);
         acc.advance += toNumber(item.driver_adv || 0);
         acc.totalExpense += item.totalExpense;
         acc.balance = item.balance; // Last balance will be the final balance
         return acc;
       },
       {
-        commission: 0,
+        // commission: 0,
         advance: 0,
         totalExpense: 0,
         balance: openingBalance,
@@ -203,7 +204,7 @@ const toNumber = (val) => {
       balance -= tadaAmounts[selectedDriver].amount;
     }
     // Deduct driver commission
-    balance -= footerTotals.commission;
+    // balance -= footerTotals.commission;
     // Deduct helper salary if a helper is selected
     if (selectedHelper) {
       balance -= toNumber(currentHelperSalary); // Use currentHelperSalary
@@ -219,7 +220,7 @@ const toNumber = (val) => {
       Driver: item.driver_name,
       Load: item.load_point,
       Unload: item.unload_point,
-      Commission: item.driver_commission,
+      // Commission: item.driver_commission,
       Advance: item.driver_adv,
       Labor: item.labor,
       Parking: item.parking_cost,
@@ -242,7 +243,7 @@ const toNumber = (val) => {
         Driver: selectedDriver,
         Load: "",
         Unload: "",
-        Commission: "",
+        // Commission: "",
         Advance: "",
         Labor: "",
         Parking: "",
@@ -266,7 +267,7 @@ const toNumber = (val) => {
         Driver: selectedHelper,
         Load: "",
         Unload: "",
-        Commission: "",
+        // Commission: "",
         Advance: "",
         Labor: "",
         Parking: "",
@@ -306,7 +307,7 @@ const toNumber = (val) => {
       "Driver",
       "Load",
       "Unload",
-      "Commission",
+      // "Commission",
       "Advance",
       "Labor",
       "Parking",
@@ -329,7 +330,7 @@ const toNumber = (val) => {
         item.driver_name || "",
         item.load_point || "",
         item.unload_point || "",
-        item.driver_commission || "0",
+        // item.driver_commission || "0",
         item.driver_adv || "0",
         item.labor || "0",
         item.parking_cost || "0",
@@ -461,9 +462,8 @@ const toNumber = (val) => {
   if (loading) return <p className="text-center mt-16">Loading Driver...</p>;
 
   return (
-    <div className="md:p-2">
-      <div className="border border-gray-200 md:p-4 rounded-xl">
-      <div className="overflow-hidden overflow-x-auto max-w-5xl mx-auto">
+    <div className="p-2">
+      <div className="w-[24rem] md:w-full max-w-7xl overflow-x-auto mx-auto border border-gray-200 p-2 py-10 md:p-4 rounded-md">
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 capitalize flex items-center gap-3">
@@ -484,19 +484,19 @@ const toNumber = (val) => {
           <div className="flex gap-1 md:gap-3 flex-wrap font-semibold text-gray-700">
             <button
               onClick={exportDriversToExcel}
-              className="py-2 px-5 hover:bg-primary bg-white hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
               Excel
             </button>
             <button
               onClick={exportDriversToPDF}
-              className="py-2 px-5 hover:bg-primary bg-white hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
               PDF
             </button>
             <button
               onClick={printDriversTable}
-              className="py-2 px-5 hover:bg-primary bg-white hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
               Print
             </button>
@@ -504,7 +504,7 @@ const toNumber = (val) => {
         </div>
         {/* Month Filter Section */}
         {showFilter && (
-          <div className="flex flex-col md:flex-row gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
+          <div className="flex 1lex-col md:flex-row gap-5 border border-gray-300 rounded shadow p-5 my-5 transition-all duration-300 pb-5">
             <div className="w-full">
               <div className="relative w-full">
                 <label className="text-gray-700 text-sm font-semibold">
@@ -559,7 +559,7 @@ const toNumber = (val) => {
               </div>
             </div>
             {/* Helper dropdown */}
-            <div className="w-full">
+            {/* <div className="w-full">
               <div className="relative w-full">
                 <label className="text-gray-700 text-sm font-semibold">
                   Select Helper
@@ -578,7 +578,7 @@ const toNumber = (val) => {
                 </select>
                 <MdOutlineArrowDropDown className="absolute top-[35px] right-2 pointer-events-none text-xl text-gray-500" />
               </div>
-            </div>
+            </div> */}
             <div className="w-xs mt-7">
               <button
                  onClick={() => {
@@ -615,7 +615,7 @@ const toNumber = (val) => {
                 <th rowSpan="2" className="border px-2 py-1">
                   Date
                 </th>
-                <th colSpan="3" className="border py-1">
+                <th colSpan="2" className="border py-1">
                   Particulars
                 </th>
                 <th rowSpan="2" className="border px-2 py-1">
@@ -637,7 +637,7 @@ const toNumber = (val) => {
               <tr>
                 <th className="border px-2 py-1">Load</th>
                 <th className="border px-2 py-1">Unload</th>
-                <th className="border px-2 py-1">Commission</th>
+                {/* <th className="border px-2 py-1">Commission</th> */}
                 <th className="border px-2 py-1">Labor</th>
                 <th className="border px-2 py-1">Parking</th>
                 <th className="border px-2 py-1">Night</th>
@@ -657,7 +657,7 @@ const toNumber = (val) => {
                   <td className="border px-2 py-1">{item.date}</td>
                   <td className="border px-2 py-1">{item.load_point}</td>
                   <td className="border px-2 py-1">{item.unload_point}</td>
-                  <td className="border px-2 py-1">{toNumber(item.driver_commission)}</td>
+                  {/* <td className="border px-2 py-1">{toNumber(item.driver_commission)}</td> */}
                   <td className="border px-2 py-1">{toNumber(item.driver_adv)}</td>
                   <td className="border px-2 py-1">{toNumber(item.labor)}</td>
                   <td className="border px-2 py-1">{toNumber(item.parking_cost)}</td>
@@ -685,7 +685,7 @@ const toNumber = (val) => {
                 <td colSpan={3} className="border px-2 py-1 text-right">
                   Total:
                 </td>
-                <td className="border px-2 py-1">{footerTotals.commission}</td>
+                {/* <td className="border px-2 py-1">{footerTotals.commission}</td> */}
                 <td className="border px-2 py-1">{footerTotals.advance}</td>
                 <td colSpan={9} className="border px-2 py-1"></td>
                 <td className="border px-2 py-1">
@@ -727,15 +727,15 @@ const toNumber = (val) => {
                     </td>
                   </tr>
                   <tr className="font-bold bg-gray-100">
-                    <td colSpan={17} className="border px-2 py-1">
+                    {/* <td colSpan={17} className="border px-2 py-1">
                       <div className="flex justify-between">
                         <span>Driver Commission:</span>
                         <span>{footerTotals.commission} BDT</span>
                       </div>
-                    </td>
+                    </td> */}
                   </tr>
                   {/* Helper Salary Row */}
-                  {selectedHelper && (
+                  {/* {selectedHelper && (
                     <tr className="font-bold bg-gray-100">
                       <td colSpan={17} className="border px-2 py-1">
                         <div className="flex justify-between">
@@ -744,7 +744,7 @@ const toNumber = (val) => {
                         </div>
                       </td>
                     </tr>
-                  )}
+                  )} */}
                   <tr className="font-bold bg-gray-100">
                     <td colSpan={16} className="border px-2 py-1">
                       <div className="flex justify-between">
@@ -778,7 +778,6 @@ const toNumber = (val) => {
             </tfoot>
           </table>
         </div>
-      </div>
     </div>
     </div>
   );

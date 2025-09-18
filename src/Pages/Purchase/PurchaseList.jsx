@@ -9,6 +9,7 @@ import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import Pagination from "../../components/Shared/Pagination";
+import { tableFormatDate } from "../../hooks/formatDate";
 
 const PurchaseList = () => {
   const [purchase, setPurchase] = useState([]);
@@ -277,11 +278,11 @@ const printTable = () => {
 
   return (
     <div className=" p-2">
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-4 border border-gray-200">
+      <div className="w-[22rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaUserSecret className="text-gray-800 text-2xl" />
-            Maintenance List
+            Maintenance Information
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <button
@@ -433,7 +434,7 @@ const printTable = () => {
                   <td className="p-2 font-bold">
                     {indexOfFirstItem + index + 1}.
                   </td>
-                  <td className="p-2">{dt.date}</td>
+                  <td className="p-2">{tableFormatDate(dt.date)}</td>
                   <td className="p-2">{dt.id}</td>
                   <td className="p-2">{dt.supplier_name}</td>
                   <td className="px-2 py-2">{dt.driver_name!== "null"?dt.driver_name: "N/A"}</td>

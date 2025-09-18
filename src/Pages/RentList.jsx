@@ -14,6 +14,7 @@ import { IoIosRemoveCircle, IoMdClose } from "react-icons/io";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { FaTruck } from "react-icons/fa6";
 import Pagination from "../components/Shared/Pagination";
+import api from "../../utils/axiosConfig";
 
 const RentList = () => {
   const [fuel, setFuel] = useState([]);
@@ -32,12 +33,12 @@ const RentList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   // Fetch rent vehicle data
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/rent/list`)
+    api
+      .get(`/rent`)
       .then((response) => {
-        if (response.data.status === "Success") {
-          setFuel(response.data.data);
-        }
+        // if (response.data.status === "Success") {
+          setFuel(response.data);
+        // }
         setLoading(false);
       })
       .catch((error) => {
@@ -210,9 +211,9 @@ const RentList = () => {
   const totalPages = Math.ceil(filteredFuel.length / itemsPerPage);
   
   return (
-    <main className=" md:p-2">
+    <main className=" p-2">
       <Toaster />
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-4 border border-gray-200">
+      <div className="w-sm md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">

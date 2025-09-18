@@ -6,6 +6,7 @@ import { FiCalendar } from "react-icons/fi";
 import BtnSubmit from "../components/Button/BtnSubmit";
 import { InputField, SelectField } from "../components/Form/FormFields";
 import { useNavigate } from "react-router-dom";
+import api from "../../utils/axiosConfig";
 
 const AddVendorForm = () => {
   const methods = useForm();
@@ -19,8 +20,8 @@ const AddVendorForm = () => {
       for (const key in data) {
         formData.append(key, data[key]);
       }
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/vendor/create`,
+      const response = await api.post(
+        `/vendor`,
         formData
       );
       const resData = response.data;
@@ -105,14 +106,7 @@ const AddVendorForm = () => {
                     register("date").ref(e);
                     dateRef.current = e;
                   }}
-                  icon={
-                    <span
-                      className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2  rounded-r"
-                      onClick={() => dateRef.current?.showPicker?.()}
-                    >
-                      <FiCalendar className="text-gray-700 cursor-pointer" />
-                    </span>
-                  }
+                  
                 />
               </div>
 

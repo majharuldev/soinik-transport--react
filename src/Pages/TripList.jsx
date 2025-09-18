@@ -25,6 +25,7 @@ import { useReactToPrint } from "react-to-print";
 import api from "../../utils/axiosConfig";
 import { formatDate } from "../hooks/formatDate";
 import DatePicker from "react-datepicker";
+import { FiFilter } from "react-icons/fi";
 const TripList = () => {
   const [trip, setTrip] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,6 +56,8 @@ const TripList = () => {
   const [showApproveConfirm, setShowApproveConfirm] = useState(false);
   const [tripToApprove, setTripToApprove] = useState(null);
   const dropdownRefs = useRef({});
+   // Transport type filter
+  const [transportType, setTransportType] = useState("");
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -401,8 +404,10 @@ const TripList = () => {
 
     const matchesCustomer =
       !selectedCustomer || trip.customer?.toLowerCase() === selectedCustomer.toLowerCase();
+      const matchesTransportType =
+      !transportType || trip.transport_type === transportType;
 
-    return matchesDate && matchesCustomer;
+    return matchesDate && matchesCustomer && matchesTransportType;
   });
 
   // search
@@ -435,7 +440,7 @@ const TripList = () => {
   return (
     <main className="p-2">
       <Toaster />
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto  mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 md:p-4 py-10  border border-gray-200">
+      <div className="w-sm md:w-full overflow-hidden overflow-x-auto mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 md:p-4 py-10  border border-gray-200">
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
@@ -506,7 +511,7 @@ const TripList = () => {
           </div>
         </div>
         {/* Conditional Filter Section */}
-        {showFilter && (
+        {/* {showFilter && (
           <div className="md:flex items-center gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
             <div className="flex-1 min-w-0">
               <DatePicker
@@ -564,6 +569,86 @@ const TripList = () => {
                 className="bg-primary text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
                 Clear
+              </button>
+            </div>
+          </div>
+        )} */}
+
+        {showFilter && (
+          <div className="md:flex gap-4 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300">
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
+              />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
+              />
+            </div>
+            {/* customer select */}
+            <select
+              value={selectedCustomer}
+              onChange={(e) => {
+                setSelectedCustomer(e.target.value)
+                setCurrentPage(1);
+              }}
+              className=" flex-1 min-w-0 p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+            >
+              <option value="">Select Customer</option>
+              {customers.map((c) => (
+                <option key={c.id} value={c.customer_name}>
+                  {c.customer_name}
+                </option>
+              ))}
+            </select>
+
+            {/* transport select */}
+            <select
+              value={transportType}
+              onChange={(e) => {
+                setTransportType(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="flex-1 min-w-0 p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+            >
+              <option value="">All Transport</option>
+              <option value="own_transport">Own Transport</option>
+              <option value="vendor_transport">Vendor Transport</option>
+            </select>
+
+            <div className="flex-gap-2">
+              <button
+                onClick={() => {
+                  setStartDate(null);
+                  setEndDate(null);
+                  setSelectedCustomer("");
+                  setTransportType("");
+                  setShowFilter(false);
+                }}
+                className="w-full bg-gradient-to-r from-primary to-[#077a20]  text-white px-2 py-2 rounded-md shadow flex items-center justify-center gap-2 transition-all duration-300"
+              >
+                <FiFilter/> Clear
               </button>
             </div>
           </div>

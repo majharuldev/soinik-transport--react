@@ -86,14 +86,14 @@ const totalAmount = filteredPayment.reduce(
   if (loading) return <p className="text-center mt-16">Loading payment...</p>;
 
   return (
-    <div className="md:p-2">
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
+    <div className="p-2">
+      <div className="w-[22rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-gray-800 flex items-center gap-3">
             Payment Receive
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
-            <div className="mt-3 md:mt-0 flex gap-2">
+            <div className=" md:mt-0 flex gap-2">
                                     <button
                                       onClick={() => setShowFilter((prev) => !prev)}
                                       className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
@@ -142,7 +142,7 @@ const totalAmount = filteredPayment.reduce(
                           </div>
                         )}
         
-        <div className="mt-5 overflow-x-auto rounded-xl">
+        <div className="mt-5 overflow-x-auto rounded-md">
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-primary capitalize text-sm">
               <tr>

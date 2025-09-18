@@ -69,7 +69,7 @@ const Sidebar = () => {
               className={`py-3 px-2 rounded-sm cursor-pointer ${
                 isActive("/tramessy")
                   ? "text-gray-700 bg-gray-200"
-                  : "text-white bg-primary"
+                  : "text-gray-700 "
               }`}
             >
               <Link
@@ -118,7 +118,7 @@ const Sidebar = () => {
                           }`}
                         >
                           
-                          <span>Vehicle List</span>
+                          <span>Vehicle</span>
                         </Link>
                       </li>
                       <li>
@@ -131,7 +131,7 @@ const Sidebar = () => {
                           }`}
                         >
                           
-                          <span>Trip List</span>
+                          <span>Trip</span>
                         </Link>
                       </li>
                       {/* <li>
@@ -191,7 +191,7 @@ const Sidebar = () => {
                           }`}
                         >
                          
-                          <span>All Vendor List</span>
+                          <span>Vendor </span>
                         </Link>
                       </li>
                       <li>
@@ -204,7 +204,7 @@ const Sidebar = () => {
                           }`}
                         >
                           
-                          <span>Rent Vehicle List</span>
+                          <span>Rent Vehicle</span>
                         </Link>
                       </li>
                     </ul>
@@ -313,7 +313,7 @@ const Sidebar = () => {
                                 }`}
                               >
                                
-                                Employee List
+                                Employee Info
                               </Link>
                             </li>
                             <li>
@@ -326,7 +326,7 @@ const Sidebar = () => {
                                 }`}
                               >
                                 
-                                <span>Driver List</span>
+                                <span>Driver Info</span>
                               </Link>
                             </li>
                             <li>
@@ -339,7 +339,7 @@ const Sidebar = () => {
                                 }`}
                               >
                                
-                                <span>Helper List</span>
+                                <span>Helper Info</span>
                               </Link>
                             </li>
                             <li>
@@ -357,15 +357,15 @@ const Sidebar = () => {
                             </li>
                              <li>
                               <Link
-                                to="/tramessy/HR/HRM/salary-expense"
+                                to="/tramessy/HR/salary-dispatch"
                                 className={`flex gap-2 items-center block p-2 rounded-sm ${
-                                  isActive("/tramessy/HR/HRM/salary-expense")
+                                  isActive("/tramessy/HR/salary-dispatch")
                                     ? "text-gray-700 bg-gray-200"
                                     : "text-gray-500 hover:text-primary"
                                 }`}
                               >
                                 
-                                Salary Expense
+                                Salary Dispatch
                               </Link>
                             </li>
                             <li>
@@ -497,7 +497,7 @@ const Sidebar = () => {
                     </ul>
                   </div> */}
                   {/* Animate HR submenu Payroll*/}
-                  {/* <div
+                  <div
                     className={`transition-all duration-300 overflow-hidden px-1 ${
                       openMenu.hrManagement ? "max-h-[200px]" : "max-h-0"
                     }`}
@@ -509,11 +509,6 @@ const Sidebar = () => {
                           className="flex justify-between items-center p-2 cursor-pointer hover:text-primary rounded-sm"
                         >
                           <span className="flex gap-2 items-center">
-                            <div
-                              className={`w-[6px] h-[6px] rounded-full bg-primary ${
-                                isActive("/payroll") ? "bg-white" : "bg-primary"
-                              }`}
-                            ></div>
                             <span>Payroll</span>
                           </span>
                           <span
@@ -532,41 +527,45 @@ const Sidebar = () => {
                         >
                           <ul className="pl-6 space-y-2 mt-1">
                             <li>
+                            <Link
+                              to="/tramessy/HR/Attendance"
+                              className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
+                                isActive("/tramessy/MonthAttendance")
+                                  ? "text-white bg-primary"
+                                  : "text-gray-500 hover:text-primary"
+                              }`}
+                            >
+                             
+                              <span>Attendance</span>
+                            </Link>
+                          </li>
+                            <li>
                               <Link
                                 to="/tramessy/HRM/Payroll/Advance-Salary"
                                 className={`flex items-center gap-2 p-2 rounded-sm ${
                                   isActive(
-                                    "/tramessy/HRM/Payroll/Advance-Salary"
+                                    "/tramessy/Payroll/Advance-Salary"
                                   )
                                     ? "text-white bg-primary"
                                     : "text-gray-500 hover:text-primary"
                                 }`}
                               >
-                                <div
-                                  className={`w-[6px] h-[6px] rounded-full bg-primary ${
-                                    isActive(
-                                      "/tramessy/HRM/Payroll/Advance-Salary"
-                                    )
-                                      ? "bg-white"
-                                      : "bg-primary"
-                                  }`}
-                                ></div>
                                 Salary Advance
                               </Link>
                             </li>
                             <li>
                               <Link
-                                to="/tramessy/HRM/attendance-report"
+                                to="/tramessy/HR/payrol/salary-sheet"
                                 className={`block p-2 rounded-sm ${
-                                  isActive("/HRM/attendance-report")
+                                  isActive("/HR/salary-sheet")
                                     ? "text-white bg-primary"
                                     : "text-gray-500 hover:text-primary"
                                 }`}
                               >
-                                Manage Employee salary
+                                 Salary Sheet
                               </Link>
                             </li>
-                            <li>
+                            {/* <li>
                               <Link
                                 to="/tramessy/HRM/payroll/generate-salary"
                                 className={`block p-2 rounded-sm ${
@@ -579,12 +578,12 @@ const Sidebar = () => {
                               >
                                 Generate Salary
                               </Link>
-                            </li>
+                            </li> */}
                           </ul>
                         </div>
                       </li>
                     </ul>
-                  </div> */}
+                  </div>
                 </li>
 
                 {/* Inventory management */}
@@ -775,7 +774,7 @@ const Sidebar = () => {
                           }`}
                         >
                           
-                          <span>Customer List</span>
+                          <span>Customer Info</span>
                         </Link>
                       </li>
                       {isAdmin&&<li>

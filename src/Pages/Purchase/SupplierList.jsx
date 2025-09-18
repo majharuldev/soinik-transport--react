@@ -105,10 +105,10 @@ const SupplierList = () => {
  
   if (loading) return <p className="text-center mt-16">Loading data...</p>;
   return (
-    <div className=" md:p-2">
+    <div className="p-2">
       <Toaster />
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
-        <div className="md:flex items-center justify-between mb-6">
+      <div className="w-[22rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
+        <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <MdShop className="text-gray-800 text-2xl" />
             Supplier List

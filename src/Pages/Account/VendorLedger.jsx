@@ -324,8 +324,8 @@ const VendorLedger = () => {
   };
 
   return (
-    <div className="md:p-2">
-      <div className="border border-gray-200 md:p-4 rounded-xl">
+    <div className="p-2">
+      <div className="w-[24rem] md:w-full max-w-7xl overflow-x-auto mx-auto border border-gray-200 p-2 py-10 md:p-4 rounded-md">
         <div className="overflow-x-auto max-w-5xl mx-auto">
           <div className="md:flex items-center justify-between mb-6">
             <h1 className="text-xl font-bold text-gray-800 capitalize">
