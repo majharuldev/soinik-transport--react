@@ -507,9 +507,9 @@ const Sidebar = () => {
                           <ul className="pl-6 space-y-2 mt-1">
                             <li>
                             <Link
-                              to="/tramessy/HR/Attendance"
+                              to="/tramessy/HR/Payroll/Attendance"
                               className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
-                                isActive("/tramessy/MonthAttendance")
+                                isActive("/tramessy/HR/Payroll/Attendance")
                                   ? "text-white bg-primary"
                                   : "text-gray-500 hover:text-primary"
                               }`}
@@ -520,7 +520,7 @@ const Sidebar = () => {
                           </li>
                             <li>
                               <Link
-                                to="/tramessy/HRM/Payroll/Advance-Salary"
+                                to="/tramessy/HR/Payroll/Advance-Salary"
                                 className={`flex items-center gap-2 p-2 rounded-sm ${
                                   isActive(
                                     "/tramessy/Payroll/Advance-Salary"

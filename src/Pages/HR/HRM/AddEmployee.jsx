@@ -352,18 +352,26 @@ const EmployeeForm = () => {
   // Submit Handler
   const onSubmit = async (data) => {
     try {
-      const formData = new FormData();
-      for (const key in data) {
-        formData.append(key, data[key]);
-      }
+      // const formData = new FormData();
+      // for (const key in data) {
+      //   formData.append(key, data[key]);
+      // }
 
       let response;
       if (isEditMode) {
         // Update employee
-        response = await api.put(`/employee/${id}`, formData);
+        response = await api.put(`/employee/${id}`, data, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
       } else {
         // Add employee
-        response = await api.post(`/employee`, formData);
+        response = await api.post(`/employee`,  data, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
       }
 
       if (response.data.success) {
@@ -399,13 +407,13 @@ const EmployeeForm = () => {
                 <SelectField
                   name="branch_name"
                   label="Branch Name"
-                  required={true}
+                  required={isEditMode? false:true}
                   options={branchOptions}
                   control={control}
                 />
               </div>
               <div className="w-full">
-                <InputField name="full_name" label="Full Name" required />
+                <InputField name="full_name" label="Full Name" required={isEditMode? false:true} />
               </div>
               <div className="w-full">
                 <InputField name="email" label="Email" />
@@ -415,13 +423,13 @@ const EmployeeForm = () => {
             {/* Row 2: Gender, Birth Date, Join Date */}
             <div className="md:flex justify-between gap-3">
               <div className="w-full">
-                <InputField name="mobile" label="Mobile" type="number" required />
+                <InputField name="mobile" label="Mobile" type="number" required={isEditMode? false:true} />
               </div>
               <div className="w-full relative">
                 <SelectField
                   name="gender"
                   label="Gender"
-                  required
+                  required={isEditMode? false:true}
                   options={[
                     { value: "Male", label: "Male" },
                     { value: "Female", label: "Female" },
@@ -433,7 +441,7 @@ const EmployeeForm = () => {
                 <SelectField
                   name="blood_group"
                   label="Blood Group"
-                  required
+                  required={isEditMode? false:true}
                   options={[
                     { value: "A+", label: "A+" },
                     { value: "A-", label: "A-" },
@@ -451,7 +459,7 @@ const EmployeeForm = () => {
                   name="birth_date"
                   label="Birth Date"
                   type="date"
-                  required
+                  required={isEditMode? false:true}
                   inputRef={(e) => {
                     register("birth_date").ref(e);
                     dateRef.current = e;
@@ -475,46 +483,39 @@ const EmployeeForm = () => {
                   name="join_date"
                   label="Join Date"
                   type="date"
-                  required
+                  required={isEditMode? false:true}
                   inputRef={(e) => {
                     register("join_date").ref(e);
                     joinDateRef.current = e;
                   }}
-                  icon={
-                    <span
-                      className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2  rounded-r"
-                      onClick={() => joinDateRef.current?.showPicker?.()}
-                    >
-                      <FiCalendar className="text-gray-700 cursor-pointer" />
-                    </span>
-                  }
+                  
                 />
               </div>
               <div className="w-full">
-                <InputField name="nid" label="Nid" required type="number" />
+                <InputField name="nid" label="Nid" required={isEditMode? false:true} type="number" />
               </div>
               <div className="w-full">
-                <InputField name="designation" label="Designation" required />
+                <InputField name="designation" label="Designation" required={isEditMode? false:true} />
               </div>
               
               <div className="w-full">
-                <InputField name="address" label="Address" required />
+                <InputField name="address" label="Address" required={isEditMode? false:true} />
               </div>
             </div>
 
             {/* Row 4: Image */}
             <div className="md:flex justify-between gap-3">
+              {/* <div className="w-full">
+                <InputField name="salary" label="Salary" type="number" required={isEditMode? false:true} />
+              </div> */}
               <div className="w-full">
-                <InputField name="salary" label="Salary" type="number" required />
+                <InputField name="basic" label="Basic" type="number" required={isEditMode? false:true} />
               </div>
               <div className="w-full">
-                <InputField name="basic" label="Basic" type="number" required />
+                <InputField name="house_rent" label="House Rent" type="number" required={isEditMode? false:true} />
               </div>
               <div className="w-full">
-                <InputField name="house_rent" label="House Rent" type="number" required />
-              </div>
-              <div className="w-full">
-                <InputField name="medical" label="Medical" type="number" required />
+                <InputField name="medical" label="Medical" type="number" required={isEditMode? false:true} />
               </div>
               
               {/* <div className="w-full">
@@ -554,16 +555,16 @@ const EmployeeForm = () => {
             </div>
             <div className="md:flex justify-between gap-3">
               <div className="w-full">
-                <InputField name="allowan" label="Allowan" type="number" required />
+                <InputField name="allowan" label="Allowan" type="number" required={isEditMode? false:true} />
               </div>
               <div className="w-full">
-                <InputField name="conv" label="Conv" type="number" required />
+                <InputField name="conv" label="Conv" type="number" required={isEditMode? false:true} />
               </div>
               <div className="w-full">
                 <SelectField
                   name="status"
                   label="Status"
-                  required
+                  required={isEditMode? false:true}
                   options={[
                     { value: "Active", label: "Active" },
                     { value: "Inactive", label: "Inactive" },

@@ -346,9 +346,6 @@ const AttendanceList = () => {
   const [attendanceList, setAttendanceList] = useState([]);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-
-  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -356,8 +353,6 @@ const AttendanceList = () => {
         const empRes = await api.get(`/employee`);
         const empData = empRes.data.data || [];
         setEmployee(empData);
-        setTotalPages(Math.ceil(empData.length / itemsPerPage));
-
         const attRes = await api.get(`/attendence`);
         const attData = attRes.data.data || [];
         setAttendanceList(attData);
@@ -372,25 +367,20 @@ const AttendanceList = () => {
     setSelectedEmployeeId(id === selectedEmployeeId ? null : id);
   };
 
-  const selectedEmployee = employee.find(
-    (e) => String(e.id) === String(selectedEmployeeId)
+ // pagination
+  const itemsPerPage = 10;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentAttedence = attendanceList.slice(
+    indexOfFirstItem,
+    indexOfLastItem
   );
+  const totalPages = Math.ceil(attendanceList.length / itemsPerPage);
 
-  const attendanceData = attendanceList.filter(
-    (att) => String(att.employee_id) === String(selectedEmployeeId)
-  );
-
-  const totalPresent = attendanceData.filter((a) => a.present === "1").length;
-  const totalAbsent = attendanceData.filter((a) => a.absent === "1").length;
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedEmployees = employee.slice(startIndex, endIndex);
-
-  const getWorkingDays = (empId) => {
-    return attendanceList
-      .filter((att) => String(att.employee_id) === String(empId))
-      .reduce((sum, att) => sum + (att.present === "1" ? 1 : 0), 0);
+// helper to get employee name
+  const getEmployeeName = (empId) => {
+    const emp = employee.find((e) => e.employee_id === empId);
+    return emp ? emp.name || emp.full_name || emp.email : empId;
   };
 
   // print table
@@ -483,7 +473,7 @@ const AttendanceList = () => {
             Attendance List
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
-            <Link to="/tramessy/HR/Attendance/AttendanceForm">
+            <Link to="/tramessy/HR/payroll/AttendanceForm">
               <button className="bg-gradient-to-r from-primary to-[#085011] text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <FaPlus /> Attendance
               </button>
@@ -496,42 +486,44 @@ const AttendanceList = () => {
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr>
                 <th className="p-2">SL.</th>
-                <th className="p-2">Name</th>
-                <th className="p-2">Join Date</th>
+                 <th className="p-2">Date</th>
+                <th className="p-2">Employee Name</th>
                 <th className="p-2">Working Day</th>
+                <th className="p-2">Create By</th>
                 <th className="p-2">Action</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
-              {employee.length === 0 ? (
+              {currentAttedence.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="text-center p-4 text-gray-500">
                     No Employee Attendance found
                   </td>
                 </tr>
               ) : (
-                paginatedEmployees.map((emp, index) => (
+                currentAttedence.map((emp, index) => (
                   <tr
                     key={emp.id}
                     className="hover:bg-gray-50 transition-all border border-gray-200"
                   >
-                    <td className="p-2 font-bold">{startIndex + index + 1}</td>
-                    <td className="p-2">{emp.full_name}</td>
-                    <td className="p-2">{tableFormatDate(emp.join_date)}</td>
-                    <td className="p-2">{getWorkingDays(emp.id)}</td>
+                    <td className="p-2 font-bold">{ index + 1}</td>
+                    <td className="p-2">{tableFormatDate(emp.created_at)}</td>
+                    <td className="p-2">{getEmployeeName(emp.employee_id)}</td>
+                    <td className="p-2">{emp.working_day}</td>
+                    <td className="p-2">{emp.created_by}</td>
                     <td className="p-2">
                       <div className="flex gap-1">
-                        <Link>
+                        <Link to={`/tramessy/HR/Payroll/update-attendence/${emp.id}`}>
                           <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
                             <FaPen className="text-[12px]" />
                           </button>
                         </Link>
-                        <button
+                        {/* <button
                           onClick={() => handleViewClick(emp.id)}
                           className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                         >
                           <FaEye className="text-[12px]" />
-                        </button>
+                        </button> */}
                       </div>
                     </td>
                   </tr>
@@ -542,7 +534,7 @@ const AttendanceList = () => {
         </div>
 
         {/* Pagination */}
-        {employee.length > 0 && totalPages >= 1 && (
+        {currentAttedence.length > 0 && totalPages >= 1 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

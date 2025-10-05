@@ -440,22 +440,31 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
-      {
-        path: "/tramessy/HR/Attendance",
+    
+      // payroll
+        {
+        path: "/tramessy/HR/Payroll/Attendance",
         element: <AttendanceList />,
       },
 
       {
-        path: "/tramessy/HR/Attendance/AttendanceForm",
+        path: "/tramessy/HR/payroll/AttendanceForm",
         element: <AttendanceForm />,
       },
-      // payroll
+       {
+        path: "/tramessy/HR/Payroll/update-attendence/:id",
+        element: <AttendanceForm />,
+      },
       {
-        path: "/tramessy/HRM/Payroll/Advance-Salary",
+        path: "/tramessy/HR/Payroll/Advance-Salary",
         element: <AdvanceSalary />,
       },
       {
         path: "/tramessy/HR/Payroll/Advance-Salary-Form",
+        element: <AdvanceSalaryForm />,
+      },
+      {
+        path: "/tramessy/HR/Payroll/update-advance/:id",
         element: <AdvanceSalaryForm />,
       },
       {
