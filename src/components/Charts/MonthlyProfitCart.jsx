@@ -48,7 +48,7 @@ import {
   ResponsiveContainer,
   Legend
 } from "recharts";
-import useMonthlyStatementData from "../../hooks/monthlyStatementHooks";
+import useMonthlyStatementData from "../../hooks/useProfitLoseHooks";
 
 const ProfitLossChartCard = () => {
   const { data, loading } = useMonthlyStatementData();

@@ -1542,7 +1542,7 @@ const TripList = () => {
   return (
     <main className="p-2">
       <Toaster />
-      <div className="w-sm md:w-full overflow-hidden overflow-x-auto mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 md:p-4 py-10  border border-gray-200">
+      <div className="relative w-sm md:w-full  overflow-x-auto mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 md:p-4 py-10  border border-gray-200">
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
@@ -1761,39 +1761,11 @@ const TripList = () => {
                         {Number.parseFloat(dt.total_rent || 0) - Number.parseFloat(dt.total_exp || 0)}
                       </td>
                       <td className="p-2">{dt?.status}</td>
-                      {/* <td className="p-2 action_column">
-                          <div className="flex gap-1">
-                            <Link to={`/tramessy/UpdateTripForm/${dt.id}`}>
-                              <button className="text-primary hover:bg-primary hover:text-white px-2 py-1.5 rounded shadow-md transition-all cursor-pointer">
-                                <FaPen className="text-[12px]" />
-                              </button>
-                            </Link>
-                            <button
-                              onClick={() => handleView(dt.id)}
-                              className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                            >
-                              <FaEye className="text-[12px]" />
-                            </button>
-                            <button
-                              onClick={() => handlePrintClick(dt)}
-                              className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                            >
-                              <BiPrinter className="h-4 w-4" />
-                            </button>
-                           {isAdmin && <button
-                              // onClick={() => handleStatus(dt)}
-                              className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                            >
-                              Approved
-                            </button>}
-                          </div>
-                        </td> */}
                       <td className="p-2 action_column relative">
                         <div className="flex gap-1">
                           {/* Dropdown toggle button */}
                           <button
                             onClick={() => {
-                              console.log("[v0] Dropdown toggle clicked for row:", rowIndex)
                               toggleDropdown(rowIndex)
                             }}
                             className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
@@ -1801,13 +1773,13 @@ const TripList = () => {
                             <BsThreeDotsVertical />
                           </button>
 
-                          {isOpen && <div className="fixed inset-0 z-[9998]" onClick={() => setOpenDropdown(null)} />}
+                          {isOpen && <div className="fixed inset-0 z-[9999]" onClick={() => setOpenDropdown(null)} />}
 
                           {isOpen && (
                             <div
                               ref={(el) => (dropdownRefs.current[rowIndex] = el)}
-                              style={{positionq: "absolute"}}
-                              className="absolute right-0 w-40 bg-white rounded-md shadow-lg z-[9999] border border-gray-200 dropdown-menu"
+                              // style={{position: "absolute"}}
+                              className="fixed right-0 w-40 bg-white rounded-md shadow-lg !z-[9999] border border-gray-200 dropdown-menu"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <div className="py-1">

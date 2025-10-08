@@ -12,6 +12,7 @@ import autoTable from "jspdf-autotable";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
 import api from "../../utils/axiosConfig";
+import { tableFormatDate } from "../hooks/formatDate";
 const CarList = () => {
   const [vehicles, setVehicle] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -110,7 +111,7 @@ const CarList = () => {
       v.vehicle_name,
       v.vehicle_category,
       v.vehicle_size,
-      `${v.registration_zone} ${v.registration_number}`,
+      `${v.reg_zone} ${v.reg_serial} ${v.reg_no}`,
       v.status,
     ]);
 
@@ -161,7 +162,7 @@ const CarList = () => {
       <td>${v.vehicle_name}</td>
       <td>${v.vehicle_category}</td>
       <td>${v.vehicle_size}</td>
-      <td>${v.registration_zone} ${v.registration_number}</td>
+      <td>${v.reg_zone} ${v.reg_serial} ${v.reg_no}</td>
       <td>${v.status}</td>
     </tr>
   `).join("");
@@ -465,27 +466,27 @@ const CarList = () => {
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Registration Date</p>{" "}
-                  <p>{selectedCar.reg_date}</p>
+                  <p>{tableFormatDate(selectedCar.reg_date)}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Tax Expiry Date</p>{" "}
-                  <p>{selectedCar.tax_date || "N/A"}</p>
+                  <p>{tableFormatDate(selectedCar.tax_date )|| "N/A"}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Road Permit Date</p>{" "}
-                  <p>{selectedCar.route_per_date}</p>
+                  <p>{tableFormatDate(selectedCar.route_per_date)}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Fitness Expiry Date</p>{" "}
-                  <p>{selectedCar.fitness_date}</p>
+                  <p>{tableFormatDate(selectedCar.fitness_date)}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Insurance Expiry Date</p>{" "}
-                  <p>{selectedCar.insurance_date}</p>
+                  <p>{tableFormatDate(selectedCar.insurance_date)}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">

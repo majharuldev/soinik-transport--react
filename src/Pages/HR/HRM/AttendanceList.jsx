@@ -489,6 +489,7 @@ const AttendanceList = () => {
                  <th className="p-2">Date</th>
                 <th className="p-2">Employee Name</th>
                 <th className="p-2">Working Day</th>
+                <th className="p-2">Month</th>
                 <th className="p-2">Create By</th>
                 <th className="p-2">Action</th>
               </tr>
@@ -510,6 +511,7 @@ const AttendanceList = () => {
                     <td className="p-2">{tableFormatDate(emp.created_at)}</td>
                     <td className="p-2">{getEmployeeName(emp.employee_id)}</td>
                     <td className="p-2">{emp.working_day}</td>
+                    <td className="p-2">{emp.month}</td>
                     <td className="p-2">{emp.created_by}</td>
                     <td className="p-2">
                       <div className="flex gap-1">

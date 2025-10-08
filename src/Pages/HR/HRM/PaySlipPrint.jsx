@@ -112,7 +112,7 @@ console.log(data, "data")
           </div>
 
           {/* Earnings and Deductions */}
-          <div className="border-b border-black">
+          <div className="border-y border-black">
             <table className="w-full">
               <tbody>
                 <tr>
@@ -161,28 +161,28 @@ console.log(data, "data")
                   <td className="border-r border-black p-2"></td>
                   <td className="p-2"></td>
                 </tr>
-                <tr className="border-t border-black bg-gray-100">
+                <tr className="border-t border-r border-black bg-gray-100">
                   <td className="border-r border-black p-2 font-bold">Total Addition</td>
                   <td className="border-r border-black p-2 text-right font-bold"> {data?.totalAddition}</td>
                   <td className="border-r border-black p-2 font-bold">Total Deductions</td>
-                  <td className="p-2 text-right font-bold">{data?.totalDeductions}.00</td>
+                  <td className=" border-black p-2 text-right font-bold">{data?.totalDeductions}.00</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
           {/* Net Salary */}
-          <div className="">
+          <div className="border-l border-black">
             <table className="w-full">
               <tbody>
-                <tr>
-                  <td className="border-r border-black p-2 font-bold bg-gray-100 w-1/4">Net Salary</td>
-                  <td className="border-r border-black p-2 text-center font-bold text-lg"> {data.netSalary} </td>
+                <tr className="border-t border-black">
+                  <td className=" p-2 font-bold bg-gray-100 w-1/4">Net Salary</td>
+                  <td className="p-2 text-center font-bold text-lg"> {data.netPay} </td>
                   <td className="p-2"></td>
                 </tr>
                 <tr className="border-t border-black">
-                  <td className="border-r border-black p-2 font-bold bg-gray-100">Salary in Words:</td>
-                  <td className="p-2 font-semibold">{numberToWords(data.netSalary).toUpperCase()}</td>
+                  <td className=" p-2 font-bold bg-gray-100">Salary in Words:</td>
+                  <td className="p-2 font-semibold">{numberToWords(data.netPay).toUpperCase()}</td>
                 </tr>
               </tbody>
             </table>

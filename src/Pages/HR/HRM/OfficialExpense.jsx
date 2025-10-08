@@ -28,10 +28,11 @@ const OfficialExpense = () => {
   const [formData, setFormData] = useState({
     date: "",
     paid_to: "",
-    pay_amount: "",
+    amount: "",
     payment_category: "",
     branch_name: "",
     particulars: "",
+    status: "",
   })
   const [errors, setErrors] = useState({})
   // Date filter state
@@ -43,6 +44,7 @@ const OfficialExpense = () => {
   const salaryCategories = [
     "Utility",
   ];
+  const statusOptions = ["Paid", "Unpaid"];
 
   //   branch api
   const [branches, setBranches] = useState([]);
@@ -72,10 +74,11 @@ const OfficialExpense = () => {
         setFormData({
           date: data?.date || "",
           paid_to: data?.paid_to || "",
-          pay_amount: data?.pay_amount || "",
+          amount: data?.amount || "",
           payment_category: data?.payment_category || "",
           branch_name: data?.branch_name || "",
           particulars: data?.particulars || "",
+          status: data?.status || "",
         })
         setEditingId(record.id)
       } catch (err) {
@@ -86,10 +89,11 @@ const OfficialExpense = () => {
       setFormData({
         date: "",
         paid_to: "",
-        pay_amount: "",
+        amount: "",
         payment_category: "",
         branch_name: "",
         particulars: "",
+        status: "",
       })
       setEditingId(null)
     }
@@ -100,10 +104,11 @@ const OfficialExpense = () => {
     setFormData({
       date: "",
       paid_to: "",
-      pay_amount: "",
+      amount: "",
       payment_category: "",
       branch_name: "",
       particulars: "",
+      status: "",
     })
     setEditingId(null)
     setIsModalVisible(false)
@@ -118,7 +123,7 @@ const OfficialExpense = () => {
   const fetchExpenses = async () => {
     try {
       const response = await api.get(`/expense`)
-      const allExpenses = response.data?.data || [];
+      const allExpenses = response.data || [];
       const utilityExpenses = allExpenses.filter(expense =>
         expense.payment_category === 'Utility'
       );
@@ -135,9 +140,11 @@ const OfficialExpense = () => {
     const newErrors = {}
     if (!formData.date) newErrors.date = "Date is required"
     if (!formData.paid_to) newErrors.paid_to = "Recipient is required"
-    if (!formData.pay_amount) newErrors.pay_amount = "Amount is required"
+    if (!formData.amount) newErrors.amount = "Amount is required"
     if (!formData.branch_name) newErrors.branch_name = "Branch name is required"
     if (!formData.payment_category) newErrors.payment_category = "Category is required"
+    if (!formData.particulars) newErrors.particulars = "Particulars is required"
+    if (!formData.status) newErrors.status = "Status is required";
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -175,7 +182,7 @@ const OfficialExpense = () => {
   const filteredData = expenses.filter((item) => {
     const itemDate = dayjs(item.date).format("YYYY-MM-DD");
 
-    const matchesSearch = [item.paid_to, item.pay_amount, item.payment_category, item.remarks, item.branch_name]
+    const matchesSearch = [item.paid_to, item.amount, item.payment_category, item.particulars, item.branch_name, item.status,]
       .join(" ")
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -204,7 +211,7 @@ const OfficialExpense = () => {
         item.paid_to,
         item.pay_amount,
         item.payment_category,
-        item.remarks,
+        item.particulars,
       ]),
     ]
       .map((row) => row.join(","))
@@ -219,9 +226,10 @@ const OfficialExpense = () => {
       SL: i + 1,
       Date: item.date,
       PaidTo: item.paid_to,
-      Amount: item.pay_amount,
+      Amount: item.amount,
       Category: item.payment_category,
-      Notes: item.remarks,
+      Notes: item.particulars,
+      Status: item.status,
     }))
 
     const ws = XLSX.utils.json_to_sheet(data)
@@ -239,9 +247,10 @@ const OfficialExpense = () => {
         i + 1,
         item.date,
         item.paid_to,
-        item.pay_amount,
+        item.amount,
         item.payment_category,
-        item.remarks,
+        item.particulars,
+        item.status,
       ]),
     })
     doc.save("general_expense.pdf")
@@ -259,6 +268,7 @@ const OfficialExpense = () => {
         <th>Amount</th>
         <th>Category</th>
         <th>Remarks</th>
+        <th>Status</th>
       </tr>
     </thead>
   `;
@@ -274,6 +284,7 @@ const OfficialExpense = () => {
           <td>${item.pay_amount || ""}</td>
           <td>${item.payment_category || ""}</td>
           <td>${item.remarks || ""}</td>
+           <td>${item.status || ""}</td>
         </tr>
       `
       )
@@ -457,6 +468,7 @@ const OfficialExpense = () => {
                 <th className="px-3 py-3 text-left text-sm font-semibold">Amount</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Category</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Remarks</th>
+                <th className="px-3 py-2">Status</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold w-24 action_column">Action</th>
               </tr>
             </thead>
@@ -497,7 +509,15 @@ const OfficialExpense = () => {
                     <td className="px-3 py-3 text-sm">{item.paid_to}</td>
                     <td className="px-3 py-3 text-sm">{item.pay_amount}</td>
                     <td className="px-3 py-3 text-sm">{item.payment_category}</td>
-                    <td className="px-3 py-3 text-sm">{item.remarks}</td>
+                    <td className="px-3 py-3 text-sm">{item.particulars}</td>
+                    <td
+                      className={`px-3 py-2 font-semibold ${item.status === "Paid"
+                          ? "text-green-600"
+                          : "text-red-500"
+                        }`}
+                    >
+                      {item.status}
+                    </td>
                     <td className="px-3 py-3 text-sm action_column">
                       <button
                         onClick={() => showModal(item)}
@@ -537,7 +557,7 @@ const OfficialExpense = () => {
 
             {/* Modal Body */}
             <form onSubmit={handleFormSubmit}>
-              <div className="p-5">
+              <div className="p-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Date <span className="text-red-500">*</span></label>
@@ -586,10 +606,10 @@ const OfficialExpense = () => {
                       type="number"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Amount"
-                      value={formData.pay_amount}
-                      onChange={(e) => setFormData({ ...formData, pay_amount: e.target.value })}
+                      value={formData.amount}
+                      onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                     />
-                    {errors.pay_amount && <p className="text-red-500 text-xs mt-1">{errors.pay_amount}</p>}
+                    {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
                   </div>
                 </div>
 
@@ -612,14 +632,39 @@ const OfficialExpense = () => {
                   </div>
 
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Remarks</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Remarks<span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Remarks"
-                      value={formData.remarks}
-                      onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
+                      value={formData.particulars}
+                      onChange={(e) => setFormData({ ...formData, particulars: e.target.value })}
                     />
+                    {errors.particulars && <p className="text-red-500 text-xs mt-1">{errors.particulars}</p>}
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Status <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) =>
+                        setFormData({ ...formData, status: e.target.value })
+                      }
+                      className="w-full border px-3 py-2 rounded-md"
+                    >
+                      <option value="">Select status</option>
+                      {statusOptions.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.status && (
+                      <p className="text-xs text-red-500">{errors.status}</p>
+                    )}
                   </div>
                 </div>
               </div>

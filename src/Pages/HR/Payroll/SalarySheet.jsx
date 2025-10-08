@@ -7,23 +7,29 @@ import { BiEdit, BiPrinter } from "react-icons/bi"
 import toast from 'react-hot-toast';
 import api from '../../../../utils/axiosConfig';
 import PaySlipPrint from '../HRM/PaySlipPrint';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 const SalarySheet = () => {
- const [employees, setEmployees] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [salaryAdvances, setSalaryAdvances] = useState([]);
   const [attendences, setAttendences] = useState([]);
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilter, setShowFilter] = useState(false);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const printRef = useRef();
+  const printTableRef = useRef();
   const [selectedSlip, setSelectedSlip] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Fetch all API data
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const [empRes, salaryRes, attRes] = await Promise.all([
           api.get('/employee'),
@@ -37,7 +43,10 @@ const SalarySheet = () => {
       } catch (err) {
         toast.error("Failed to fetch data");
         console.error(err);
-      }
+      } finally {
+      setLoading(false); // stop loading
+    }
+
     };
 
     fetchData();
@@ -51,6 +60,11 @@ const SalarySheet = () => {
     const merged = employees.map((emp, index) => {
       const empSalary = salaryAdvances.find(s => s.employee_id == emp.id) || {};
       const empAttend = attendences.find(a => a.employee_id == emp.id) || {};
+      // Dynamic month-year & net pay in words
+      const monthYear =
+        empAttend?.month ||
+        empSalary?.salary_month ||
+        new Date().toISOString().slice(0, 7);
 
       const basic = emp.basic ? Number(emp.basic) : "";
       const rent = emp.house_rent ? Number(emp.house_rent) : "";
@@ -66,6 +80,7 @@ const SalarySheet = () => {
         name: emp.email,
         designation: emp.designation || "",
         days: empAttend.working_day || "",
+        monthYear,
         basic,
         rent,
         conv,
@@ -81,20 +96,27 @@ const SalarySheet = () => {
 
     setData(merged);
   }, [employees, salaryAdvances, attendences]);
+  console.log(data, "data")
 
+    // Month options
+  const months = [...new Set(data.map(d => d.monthYear))]; 
+  // Filtered data based on dropdowns
   const filteredData = useMemo(() => {
-    return data.filter(row => row.name.toLowerCase().includes(searchTerm.toLowerCase()));
-  }, [data, searchTerm]);
+    return data
+      .filter(row => (selectedMonth ? row.monthYear === selectedMonth : true))
+      .filter(row => (selectedEmployee ? row.empId === Number(selectedEmployee) : true))
+      .sort((a, b) => b.monthYear.localeCompare(a.monthYear));
+  }, [data, selectedMonth, selectedEmployee]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-  const grandTotal = useMemo(() => data.reduce((sum, row) => sum + (row.total || 0), 0), [data]);
-  const grandNetPay = useMemo(() => data.reduce((sum, row) => sum + (row.netPay || 0), 0), [data]);
+  const grandTotal = useMemo(() => filteredData.reduce((sum, row) => sum + row.total, 0), [filteredData]);
+  const grandNetPay = useMemo(() => filteredData.reduce((sum, row) => sum + row.netPay, 0), [filteredData]);
 
-const handlePrint = useReactToPrint({
+  const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: "Salary Sheet",
     onAfterPrint: () => {
@@ -116,6 +138,82 @@ const handlePrint = useReactToPrint({
       }
     }, 100)
   }
+
+  // Excel export
+  const exportExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Salary Sheet");
+    XLSX.writeFile(workbook, "SalarySheet.xlsx");
+  };
+
+  // PDF export
+  const exportPDF = () => {
+    const doc = new jsPDF();
+    autoTable(doc, {
+      head: [['Name', 'Designation', 'Days', 'Basic', 'H/Rent', 'Conv', 'Medical', 'Allowance', 'Total', 'Advance', 'NetPay']],
+      body: filteredData.map(d => [d.name, d.designation, d.days, d.basic, d.rent, d.conv, d.medical, d.allowance, d.total, d.advance, d.netPay]),
+    });
+    doc.save('SalarySheet.pdf');
+  };
+// Full filtered table print function
+const handlePrintTable = () => {
+  // Get the table element
+  const table = document.getElementById('salary-table');
+  if (!table) return;
+
+  // Clone the table to remove unwanted columns (Action)
+  const clone = table.cloneNode(true);
+
+  // Remove Action column from header
+  const headerRow = clone.querySelector('thead tr:last-child'); // last header row
+  if (headerRow) {
+    const actionTh = headerRow.querySelector('th:last-child');
+    if (actionTh) actionTh.remove();
+  }
+  // Remove Action column from all header rows
+  clone.querySelectorAll('thead tr').forEach(tr => {
+    const ths = tr.querySelectorAll('th');
+    ths.forEach(th => {
+      if (th.innerText.toLowerCase().includes('action')) {
+        th.remove();
+      }
+    });
+  });
+
+  // Remove Action column from each body row
+  clone.querySelectorAll('tbody tr').forEach(tr => {
+    const actionTd = tr.querySelector('td:last-child');
+    if (actionTd) actionTd.remove();
+  });
+
+  // Remove pagination if exists
+  const pag = document.querySelector('.pagination');
+  if (pag) pag.remove();
+
+  // Open new window for print
+  const newWin = window.open('', '', 'width=900,height=700');
+  newWin.document.write(`
+    <html>
+      <head>
+        <title>Salary Sheet</title>
+        <style>
+          table { width: 100%; border-collapse: collapse; font-size: 12px; }
+          th, td { border: 1px solid #333; padding: 4px; text-align: center; }
+          th { background-color: #f0f0f0; }
+        </style>
+      </head>
+      <body>
+        <h3>Salary Sheet</h3>
+        ${clone.outerHTML}
+      </body>
+    </html>
+  `);
+  newWin.document.close();
+  newWin.focus();
+  newWin.print();
+  newWin.close();
+};
 
 
   return (
@@ -145,16 +243,8 @@ const handlePrint = useReactToPrint({
         {/* Controls */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
           <div className="flex flex-wrap text-gray-700 gap-2">
-
-            {/* <button
-              // onClick={exportCSV}
-              className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-white shadow hover:text-white rounded transition-all duration-300 cursor-pointer"
-            >
-              <FiFileText size={16} />
-              CSV
-            </button> */}
             <button
-              // onClick={exportExcel}
+              onClick={exportExcel}
               className="flex items-center gap-2 py-1 px-3 hover:bg-primary bg-white shadow  hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
               <FaFileExcel className="" />
@@ -162,7 +252,7 @@ const handlePrint = useReactToPrint({
             </button>
 
             <button
-              // onClick={exportPDF}
+              onClick={exportPDF}
               className="flex items-center gap-2 py-1 px-3 hover:bg-primary bg-white shadow  hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
               <FaFilePdf className="" />
@@ -170,7 +260,7 @@ const handlePrint = useReactToPrint({
             </button>
 
             <button
-              // onClick={printTable}
+              onClick={handlePrintTable}
               className="flex items-center gap-2 py-1 px-3 hover:bg-primary bg-white shadow hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
               <FaPrint className="" />
@@ -178,16 +268,14 @@ const handlePrint = useReactToPrint({
             </button>
           </div>
 
-          <div className=" gap-2">
-            {/* <span className="text-sm font-medium text-gray-700">Search:</span> */}
+          {/* <div className=" gap-2">
             <input
               type="text"
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm w-48 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            {/*  Clear button */}
             {searchTerm && (
               <button
                 onClick={() => {
@@ -199,37 +287,29 @@ const handlePrint = useReactToPrint({
                 ✕
               </button>
             )}
-          </div>
+          </div> */}
         </div>
 
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
+           <select value={selectedMonth} onChange={e => { setSelectedMonth(e.target.value); setCurrentPage(1); }}
+              className="border px-3 py-2 rounded-md w-full">
+              <option value="">-- Select Month --</option>
+              {months.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
 
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
+            <select value={selectedEmployee} onChange={e => { setSelectedEmployee(e.target.value); setCurrentPage(1); }}
+              className="border px-3 py-2 rounded-md w-full">
+              <option value="">-- Select Employee --</option>
+              {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.email}</option>)}
+            </select>
             <div className="mt-3 md:mt-0 flex gap-2">
               <button
                 onClick={() => {
                   setCurrentPage(1)
-                  setStartDate("")
-                  setEndDate("")
+                  setSelectedEmployee("")
+                  setSelectedMonth("")
                   setShowFilter(false)
                 }}
                 className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
@@ -239,8 +319,8 @@ const handlePrint = useReactToPrint({
             </div>
           </div>
         )}
-        <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse border border-gray-400 text-xs">
+        <div className="overflow-x-auto" >
+          <table id="salary-table" className="min-w-full border-collapse border border-gray-400 text-xs">
             <thead>
 
               {/* Sub header row for SL numbers - merged for names */}
@@ -278,41 +358,48 @@ const handlePrint = useReactToPrint({
               </tr>
             </thead>
             <tbody>
-              {currentItems.map((row, i) => (
-                <tr key={i} className="text-center hover:bg-gray-100">
-                  <td className="border border-gray-400 px-2 py-1">{i + 1}</td>
-                  <td className="border border-gray-400 px-2 py-1 text-left">{row.name}</td>
-                  <td className="border border-gray-400 px-2 py-1">{row.days}</td>
-                  <td className="border border-gray-400 px-2 py-1">{row.designation}</td>
-                  <td className="border border-gray-400 px-2 py-1">{row.basic.toLocaleString()}</td>
-                  <td className="border border-gray-400 px-2 py-1">{row.rent.toLocaleString()}</td>
-                  <td className="border border-gray-400 px-2 py-1">{row.conv.toLocaleString()}</td>
-                  <td className="border border-gray-400 px-2 py-1">{row.medical.toLocaleString()}</td>
-                  <td className="border border-gray-400 px-2 py-1">{row.allowance.toLocaleString()}</td>
-                  <td className="border border-gray-400 px-2 py-1 font-semibold">
-                    {row.total.toLocaleString()}
-                  </td>
-                  <td className="border border-gray-400 px-2 py-1">{row.bonus.toLocaleString()}</td>
-                  <td className="border border-gray-400 px-2 py-1">{row.advance.toLocaleString()}</td>
-                  <td className="border border-gray-400 px-2 py-1">{row.deduction.toLocaleString()}</td>
-                  <td className="border border-gray-400 px-2 py-1">C</td>
-                  <td className="border border-gray-400 px-2 py-1  font-bold">
-                    {row.netPay.toLocaleString()}
-                  </td>
-                  <td className="border border-gray-400 px-2 py-1 action_column flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        // setSelectedSlip(row);
-                        handlePrintClick(row);
-                      }}
-                      className="flex items-center w-full px-3 py-1 text-sm text-gray-700 bg-white shadow rounded"
-                    >
-                      <BiPrinter className="mr-1 h-4 w-4" />
-                      PaySlip
-                    </button>
+              {loading ? (
+                <tr>
+                  <td colSpan={16} className="text-center py-4">
+                    Loading...
                   </td>
                 </tr>
-              ))}
+              ) :
+                currentItems.map((row, i) => (
+                  <tr key={i} className="text-center hover:bg-gray-100">
+                    <td className="border border-gray-400 px-2 py-1">{i + 1}</td>
+                    <td className="border border-gray-400 px-2 py-1 text-left">{row.name}</td>
+                    <td className="border border-gray-400 px-2 py-1">{row.days}</td>
+                    <td className="border border-gray-400 px-2 py-1">{row.designation}</td>
+                    <td className="border border-gray-400 px-2 py-1">{row.basic.toLocaleString()}</td>
+                    <td className="border border-gray-400 px-2 py-1">{row.rent.toLocaleString()}</td>
+                    <td className="border border-gray-400 px-2 py-1">{row.conv.toLocaleString()}</td>
+                    <td className="border border-gray-400 px-2 py-1">{row.medical.toLocaleString()}</td>
+                    <td className="border border-gray-400 px-2 py-1">{row.allowance.toLocaleString()}</td>
+                    <td className="border border-gray-400 px-2 py-1 font-semibold">
+                      {row.total.toLocaleString()}
+                    </td>
+                    <td className="border border-gray-400 px-2 py-1">{row.bonus.toLocaleString()}</td>
+                    <td className="border border-gray-400 px-2 py-1">{row.advance.toLocaleString()}</td>
+                    <td className="border border-gray-400 px-2 py-1">{row.deduction.toLocaleString()}</td>
+                    <td className="border border-gray-400 px-2 py-1">C</td>
+                    <td className="border border-gray-400 px-2 py-1  font-bold">
+                      {row.netPay.toLocaleString()}
+                    </td>
+                    <td className="border border-gray-400 px-2 py-1 action_column flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          // setSelectedSlip(row);
+                          handlePrintClick(row);
+                        }}
+                        className="flex items-center w-full px-3 py-1 text-sm text-gray-700 bg-white shadow rounded"
+                      >
+                        <BiPrinter className="mr-1 h-4 w-4" />
+                        PaySlip
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
             <tfoot>
               <tr className=" font-bold text-center">
@@ -340,11 +427,11 @@ const handlePrint = useReactToPrint({
           )}
         </div>
         {/* Hidden Component for Printing */}
-              <div style={{ display: "none" }} >
-                {selectedSlip && 
-                <div ref={printRef}><PaySlipPrint  data={selectedSlip} /></div>
-                }
-              </div>
+        <div style={{ display: "none" }} >
+          {selectedSlip &&
+            <div ref={printRef}><PaySlipPrint data={selectedSlip} /></div>
+          }
+        </div>
       </div>
     </div>
 

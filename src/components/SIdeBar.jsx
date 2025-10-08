@@ -88,7 +88,7 @@ const Sidebar = () => {
                           to="/tramessy/TripList"
                           className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
                             isActive("/tramessy/TripList")
-                              ? "text-white bg-primary"
+                              ? "text-gray-700 bg-gray-200"
                               : "text-gray-700 hover:text-primary"
                           }`}
                         >
@@ -101,7 +101,7 @@ const Sidebar = () => {
                           to="/tramessy/CarList"
                           className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
                             isActive("/tramessy/CarList")
-                              ? "text-white bg-primary"
+                              ? "text-gray-700 bg-gray-200"
                               : "text-gray-700 hover:text-primary"
                           }`}
                         >

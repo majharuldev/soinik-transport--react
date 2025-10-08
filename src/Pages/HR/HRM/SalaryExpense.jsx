@@ -31,10 +31,11 @@ const SalaryExpense = () => {
   const [formData, setFormData] = useState({
     date: "",
     paid_to: "",
-    pay_amount: "",
+    amount: "",
     payment_category: "",
     branch_name: "",
     particulars: "",
+    status: "",
   })
   const [errors, setErrors] = useState({})
   // Date filter state
@@ -47,6 +48,7 @@ const SalaryExpense = () => {
   const salaryCategories = [
     "Salary",
   ];
+  const statusOptions = ["Paid", "Unpaid"];
 
   //   branch api fetch data
   const [branches, setBranches] = useState([]);
@@ -96,10 +98,11 @@ const SalaryExpense = () => {
         setFormData({
           date: data?.date || "",
           paid_to: data?.paid_to || "",
-          pay_amount: data?.pay_amount || "",
+          amount: data?.amount || "",
           payment_category: data?.payment_category || "",
           branch_name: data?.branch_name || "",
           particulars: data?.particulars || "",
+          status: data?.status || "",
         })
         setEditingId(record.id)
       } catch (err) {
@@ -110,10 +113,11 @@ const SalaryExpense = () => {
       setFormData({
         date: "",
         paid_to: "",
-        pay_amount: "",
+        amount: "",
         payment_category: "",
         branch_name: "",
         particulars: "",
+        status: "",
       })
       setEditingId(null)
     }
@@ -124,10 +128,11 @@ const SalaryExpense = () => {
     setFormData({
       date: "",
       paid_to: "",
-      pay_amount: "",
+      amount: "",
       payment_category: "",
       branch_name: "",
-      remarks: "",
+      particulars: "",
+      status: "",
     })
     setEditingId(null)
     setIsModalVisible(false)
@@ -142,7 +147,7 @@ const SalaryExpense = () => {
   const fetchExpenses = async () => {
     try {
       const response = await api.get(`/expense`)
-      const allExpenses = response.data?.data || [];
+      const allExpenses = response.data || [];
       const salaryExpenses = allExpenses.filter(expense =>
         expense.payment_category === 'Salary' || expense.payment_category === "Advance"
       );
@@ -160,10 +165,11 @@ const SalaryExpense = () => {
     const newErrors = {}
     if (!formData.date) newErrors.date = "Date is required"
     // if (!formData.paid_to) newErrors.paid_to = "Recipient is required"
-    if (!formData.pay_amount) newErrors.pay_amount = "Amount is required"
+    if (!formData.amount) newErrors.amount = "Amount is required"
     if (!formData.branch_name) newErrors.branch_name = "Branch Name is required"
     if (!formData.payment_category) newErrors.payment_category = "Category is required"
     if (!formData.particulars) newErrors.particulars = "Particulars is required"
+    if (!formData.status) newErrors.status = "Status is required";
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -203,7 +209,7 @@ const SalaryExpense = () => {
   const filteredData = expenses.filter((item) => {
     const itemDate = dayjs(item.date).format("YYYY-MM-DD");
 
-    const matchesSearch = [item.paid_to, item.pay_amount, item.payment_category, item.remarks, item.branch_name]
+    const matchesSearch = [item.paid_to, item.amount, item.payment_category, item.remarks, item.branch_name, item.status]
       .join(" ")
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -253,14 +259,15 @@ const SalaryExpense = () => {
   // csv
   const exportCSV = () => {
     const csvContent = [
-      ["Serial", "Date", "Paid To", "Amount", "Category", "Remarks"],
+      ["Serial", "Date", "Paid To", "Amount", "Category", "Remarks", "Status"],
       ...filteredData.map((item, i) => [
         i + 1,
         item.date,
         item.paid_to,
-        item.pay_amount,
+        item.amount,
         item.payment_category,
         item.remarks,
+        item.status
       ]),
     ]
       .map((row) => row.join(","))
@@ -272,12 +279,13 @@ const SalaryExpense = () => {
   // excel
   const exportExcel = () => {
     const data = filteredData.map((item, i) => ({
-      ক্রমিক: i + 1,
-      তারিখ: item.date,
-      "যাকে প্রদান": item.paid_to,
-      পরিমাণ: item.pay_amount,
-      ক্যাটাগরি: item.payment_category,
-      মন্তব্য: item.remarks,
+      SL: i + 1,
+     Date: item.date,
+      "Paid To": item.paid_to,
+      Amount: item.amount,
+      Category: item.payment_category,
+      Remarks: item.remarks,
+      status: item.status
     }))
 
     const ws = XLSX.utils.json_to_sheet(data)
@@ -290,14 +298,15 @@ const SalaryExpense = () => {
   const exportPDF = () => {
     const doc = new jsPDF()
     autoTable(doc, {
-      head: [["Serial", "Date", "Paid To", "Amount", "Category", "Remarks"]],
+      head: [["Serial", "Date", "Paid To", "Amount", "Category", "Remarks", "Status"]],
       body: filteredData.map((item, i) => [
         i + 1,
         item.date,
         item.paid_to,
-        item.pay_amount,
+        item.amount,
         item.payment_category,
         item.remarks,
+        item.status,
       ]),
     })
     doc.save("general_expense.pdf")
@@ -315,6 +324,7 @@ const SalaryExpense = () => {
         <th>Amount</th>
         <th>Category</th>
         <th>Remarks</th>
+        <th>Status</th>
       </tr>
     </thead>
   `;
@@ -327,8 +337,9 @@ const SalaryExpense = () => {
           <td>${item.date || ""}</td>
           <td>${item.branch_name || ""}</td>
           <td>${item.paid_to || ""}</td>
-          <td>${item.pay_amount || ""}</td>
+          <td>${item.amount || ""}</td>
           <td>${item.payment_category || ""}</td>
+          <td>${item.remarks || ""}</td>
           <td>${item.remarks || ""}</td>
         </tr>
       `
@@ -513,6 +524,7 @@ const SalaryExpense = () => {
                 <th className="px-3 py-3 text-left text-sm font-semibold">Amount</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Category</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Remarks</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">Status</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold w-24 action_column">Action</th>
               </tr>
             </thead>
@@ -551,9 +563,17 @@ const SalaryExpense = () => {
                     <td className="px-3 py-3 text-sm">{item.date}</td>
                     <td className="px-3 py-3 text-sm">{item.branch_name}</td>
                     <td className="px-3 py-3 text-sm">{item.paid_to}</td>
-                    <td className="px-3 py-3 text-sm">{item.pay_amount}</td>
+                    <td className="px-3 py-3 text-sm">{item.amount}</td>
                     <td className="px-3 py-3 text-sm">{item.payment_category}</td>
                     <td className="px-3 py-3 text-sm">{item.remarks}</td>
+                    <td
+                      className={`px-3 py-2 font-semibold ${item.status === "Paid"
+                        ? "text-green-600"
+                        : "text-red-500"
+                        }`}
+                    >
+                      {item.status}
+                    </td>
                     <td className="px-3 py-3 text-sm action_column flex items-center gap-2">
                       <button
                         onClick={() => showModal(item)}
@@ -678,10 +698,10 @@ const SalaryExpense = () => {
                       type="number"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Amount"
-                      value={formData.pay_amount}
-                      onChange={(e) => setFormData({ ...formData, pay_amount: e.target.value })}
+                      value={formData.amount}
+                      onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                     />
-                    {errors.pay_amount && <p className="text-red-500 text-xs mt-1">{errors.pay_amount}</p>}
+                    {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
                   </div>
                   <div className="m">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Remarks<span className="text-red-500">*</span></label>
@@ -694,7 +714,30 @@ const SalaryExpense = () => {
                     />
                   </div>
                 </div>
-
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Status <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) =>
+                        setFormData({ ...formData, status: e.target.value })
+                      }
+                      className="w-full border px-3 py-2 rounded-md"
+                    >
+                      <option value="">Select status</option>
+                      {statusOptions.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.status && (
+                      <p className="text-xs text-red-500">{errors.status}</p>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Modal Footer */}

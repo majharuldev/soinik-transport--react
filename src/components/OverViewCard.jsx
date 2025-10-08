@@ -24,7 +24,7 @@ const OverViewCard = () => {
         const today = new Date().toISOString().split("T")[0];
         // Only today's approved trips
     const todayApprovedTrips = allTrips.filter(
-      (trip) => trip.date === today && trip.status === "Approved"
+      (trip) => trip.start_date === today && trip.status === "Approved"
     );
         // Set today's trip count
         setTodayTripCount(todayApprovedTrips.length);
@@ -38,7 +38,7 @@ const OverViewCard = () => {
         const data = response.data;
         const today = new Date().toISOString().split("T")[0];
         const sale = data
-          .filter((item) => item.date === today && item.status === "Approved")
+          .filter((item) => item.start_date === today && item.status === "Approved")
           .reduce((sum, trip) => sum + parseFloat(trip.total_rent || 0), 0);
 
         setDailySales(sale);
@@ -68,7 +68,7 @@ const OverViewCard = () => {
           `/trip`
         );
         const trips = tripRes.data || [];
-        const todayTrips = trips.filter((item) => item.date === today && item.status === "Approved");
+        const todayTrips = trips.filter((item) => item.start_date === today && item.status === "Approved");
 
         let commission = 0;
         let labor = 0;
