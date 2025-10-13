@@ -7,11 +7,13 @@ import { InputField, SelectField } from "../../components/Form/FormFields";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../../utils/axiosConfig";
+import useAdmin from "../../hooks/useAdmin";
 
 const PurchaseForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = Boolean(id);
+  const isAdmin = useAdmin();
 
   const methods = useForm();
   const { handleSubmit, register, watch, reset, setValue, control } = methods;
@@ -245,29 +247,62 @@ const PurchaseForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      const payload = {
-        date: new Date(data.date).toISOString().split("T")[0],
-        category: data.category ?? "",
-        item_name: data.item_name ?? "",
-        driver_name: data.driver_name ?? "",
-        vehicle_no: data.vehicle_no ?? "",
-        vehicle_category: data.vehicle_category ?? "",
-        branch_name: data.branch_name ?? "",
-        supplier_name: data.supplier_name ?? "",
-        quantity: Number(data.quantity) || 0,
-        unit_price: Number(data.unit_price) || 0,
-        purchase_amount: Number(data.purchase_amount) || 0,
-        remarks: data.remarks ?? "",
-        priority: data.priority ?? "",
-        // bill_image: যদি backend JSON support করে, Base64 encode পাঠাও
-      };
+      // const payload = {
+      //   date: new Date(data.date).toISOString().split("T")[0],
+      //   category: data.category ?? "",
+      //   item_name: data.item_name ?? "",
+      //   driver_name: data.driver_name ?? "",
+      //   vehicle_no: data.vehicle_no ?? "",
+      //   vehicle_category: data.vehicle_category ?? "",
+      //   branch_name: data.branch_name ?? "",
+      //   supplier_name: data.supplier_name ?? "",
+      //   quantity: Number(data.quantity) || 0,
+      //   unit_price: Number(data.unit_price) || 0,
+      //   purchase_amount: Number(data.purchase_amount) || 0,
+      //   remarks: data.remarks ?? "",
+      //   priority: data.priority ?? "",
+      //   // bill_image: যদি backend JSON support করে, Base64 encode পাঠাও
+      // };
 
       const response = isEditMode
-        ? await api.put(`/purchase/${id}`, payload)   // JSON
-        : await api.post(`/purchase`, payload);
+        ? await api.put(`/purchase/${id}`, data)   // JSON
+        : await api.post(`/purchase`, data);
 
-      toast.success(isEditMode ? "Purchase updated!" : "Purchase submitted!");
-      navigate("/tramessy/Purchase/maintenance");
+      if (response.data.success) {
+        toast.success(isEditMode ? "Purchase updated!" : "Purchase submitted!");
+        //  Only send SMS if it's a new trip and sms_sent = "yes"
+        if (!id && data.sms_sent === "yes") {
+          const purchase = response.data.data; // Assuming your backend returns created trip data
+          const purchaseId = purchase.id || "";
+          const supplierName = trip?.supplier_name || "";
+          const userName= user.name || "";
+          const driverName = trip?.driver_name || "";
+          const vehicleNo = trip?.vehicle_no || "";
+
+          // Build message content
+          const messageContent = `Dear Sir, A new Maintenance created by ${userName}.\nPurchase ID: ${purchaseId}\nSupplier: ${supplierName}\nVehicle: ${vehicleNo}`;
+
+          // SMS Config
+        const adminNumber = "01773288109"; // or multiple separated by commas
+        const API_KEY = "3b82495582b99be5";
+        const SECRET_KEY = "ae771458";
+        const CALLER_ID = "1234";
+
+        // Correct URL (same structure as your given example)
+        const smsUrl = `http://smpp.revesms.com:7788/sendtext?apikey=${API_KEY}&secretkey=${SECRET_KEY}&callerID=${CALLER_ID}&toUser=${adminNumber}&messageContent=${encodeURIComponent(messageContent)}`;
+          try {
+            await fetch(smsUrl);
+            toast.success("SMS sent to admin!");
+          } catch (smsError) {
+            // console.error("SMS sending failed:", smsError);
+            // toast.error("Trip saved, but SMS failed to send.");
+          }
+        }
+           navigate("/tramessy/Purchase/maintenance");
+        reset();
+      } else {
+        throw new Error(isEditMode ? "Failed to update Purchase" : "Failed to create Purchase");
+      }
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || "Server error");
@@ -492,6 +527,27 @@ const PurchaseForm = () => {
                 <InputField name="priority" label="priority" />
               </div>
             </div>
+            {!isAdmin && <div className="mt-4">
+              <h3 className="text-secondary font-medium mb-2">SMS Sent</h3>
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    value="yes"
+                    {...methods.register("sms_sent", { required: true })}
+                  />
+                  Yes
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    value="no"
+                    {...methods.register("sms_sent", { required: true })}
+                  />
+                  No
+                </label>
+              </div>
+            </div>}
 
             {/* <div className="md:flex justify-between gap-3">
             <div className="w-full">

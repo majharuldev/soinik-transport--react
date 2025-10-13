@@ -89,6 +89,8 @@ import Bill from "../Pages/Billing/Bill";
 import SalarySheet from "../Pages/HR/Payroll/SalarySheet";
 import EmployeeForm from "../Pages/HR/HRM/AddEmployee";
 import SupplyForm from "../Pages/Purchase/AddSupply";
+import Loan from "../Pages/HR/Payroll/Loan";
+import Bonus from "../Pages/HR/Payroll/Bonus";
 export const router = createBrowserRouter([
   {
     path: "/tramessy",
@@ -468,14 +470,13 @@ export const router = createBrowserRouter([
         element: <AdvanceSalaryForm />,
       },
       {
-        path: "/tramessy/HRM/payroll/generate-salary",
-        element: <GenerateSalary />,
-      },
+        path: "/tramessy/HR/Payroll/loan",
+        element: <Loan />,
+      },    
       {
-        path: "/tramessy/HRM/payroll/generate-salary-form",
-        element: <GenerateSalaryForm />,
-      },
-      
+        path: "/tramessy/HR/Payroll/bonus",
+        element: <Bonus />,
+      },  
       {
         path: "/tramessy/HR/payrol/salary-sheet",
         element: <SalarySheet/>,

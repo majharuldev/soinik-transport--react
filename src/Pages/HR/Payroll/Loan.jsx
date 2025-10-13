@@ -5,7 +5,7 @@ import api from "../../../../utils/axiosConfig";
 import Pagination from "../../../components/Shared/Pagination";
 import { tableFormatDate } from "../../../hooks/formatDate";
 
-const AdvanceSalary = () => {
+const Loan = () => {
   const [advanceSalary, setAdvanceSalary] = useState([]);
   const [employee, setEmployee] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -15,7 +15,7 @@ const AdvanceSalary = () => {
   useEffect(() => {
     const fetchSalaryAdvance = async () => {
       try {
-        const res = await api.get(`/salaryAdvanced`);
+        const res = await api.get(`/loan`);
         if (res.data?.status === "Success") {
           setAdvanceSalary(res.data.data);
         }
@@ -58,12 +58,12 @@ const AdvanceSalary = () => {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaUserSecret className="text-gray-800 text-xl" />
-            Advance Salary
+            Loan
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <Link to="/tramessy/HR/Payroll/Advance-Salary-Form">
               <button className="bg-gradient-to-r from-primary to-[#075e13] text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus /> Advance
+                <FaPlus /> Loan
               </button>
             </Link>
           </div>
@@ -140,4 +140,4 @@ const AdvanceSalary = () => {
   );
 };
 
-export default AdvanceSalary;
+export default Loan;

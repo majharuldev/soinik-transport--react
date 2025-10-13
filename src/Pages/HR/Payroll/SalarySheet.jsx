@@ -77,7 +77,7 @@ const SalarySheet = () => {
 
       return {
         empId: emp.id,
-        name: emp.email,
+        name: emp.employee_name,
         designation: emp.designation || "",
         days: empAttend.working_day || "",
         monthYear,
@@ -302,7 +302,7 @@ const handlePrintTable = () => {
             <select value={selectedEmployee} onChange={e => { setSelectedEmployee(e.target.value); setCurrentPage(1); }}
               className="border px-3 py-2 rounded-md w-full">
               <option value="">-- Select Employee --</option>
-              {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.email}</option>)}
+              {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.employee_name}</option>)}
             </select>
             <div className="mt-3 md:mt-0 flex gap-2">
               <button

@@ -457,6 +457,7 @@ export default function AddTripForm() {
         if (!id && data.sms_sent === "yes") {
           const trip = res.data.data; // Assuming your backend returns created trip data
           const tripId = trip?.id || "";
+          const tripDate = trip?.start_date || "";
           const customerName = trip?.customer || "";
           const userName= user.name || "";
           const loadPoint = trip?.load_point || "";
@@ -465,7 +466,7 @@ export default function AddTripForm() {
           const vehicleNo = trip?.vehicle_no || "";
 
           // Build message content
-          const messageContent = `Dear Sir, ${userName} has created a new trip.\nTrip ID: ${tripId}\nLoad: ${loadPoint}\nUnload: ${unloadPoint}\nDriver: ${driverName}\nVehicle: ${vehicleNo}\ncustomer: ${customerName}`;
+          const messageContent = `Dear Sir, A new trip created by ${userName}.\nTrip Date: ${tripDate}\nTrip ID: ${tripId}\nLoad: ${loadPoint}\nUnload: ${unloadPoint}\nDriver: ${driverName}\nVehicle: ${vehicleNo}\ncustomer: ${customerName}`;
 
           // SMS Config
         const adminNumber = "01773288109"; // or multiple separated by commas

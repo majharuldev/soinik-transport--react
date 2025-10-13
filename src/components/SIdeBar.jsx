@@ -478,7 +478,7 @@ const Sidebar = () => {
                   {/* Animate HR submenu Payroll*/}
                   <div
                     className={`transition-all duration-300 overflow-hidden px-1 ${
-                      openMenu.hrManagement ? "max-h-[200px]" : "max-h-0"
+                      openMenu.hrManagement ? "max-h-[400px]" : "max-h-0"
                     }`}
                   >
                     <ul className="space-y-2 px-2 text-sm mt-2">
@@ -510,7 +510,7 @@ const Sidebar = () => {
                               to="/tramessy/HR/Payroll/Attendance"
                               className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
                                 isActive("/tramessy/HR/Payroll/Attendance")
-                                  ? "text-white bg-primary"
+                                  ? "text-gray-700 bg-gray-200"
                                   : "text-gray-500 hover:text-primary"
                               }`}
                             >
@@ -518,18 +518,46 @@ const Sidebar = () => {
                               <span>Attendance</span>
                             </Link>
                           </li>
+                           <li>
+                              <Link
+                                to="/tramessy/HR/payroll/bonus"
+                                className={`block p-2 rounded-sm ${
+                                  isActive(
+                                    "/tramessy/HR/payroll/bonus"
+                                  )
+                                    ? "text-gray-700 bg-gray-200"
+                                    : "text-gray-500 hover:text-primary"
+                                }`}
+                              >
+                                Bonus
+                              </Link>
+                            </li>
                             <li>
                               <Link
                                 to="/tramessy/HR/Payroll/Advance-Salary"
                                 className={`flex items-center gap-2 p-2 rounded-sm ${
                                   isActive(
-                                    "/tramessy/Payroll/Advance-Salary"
+                                    "/tramessy/HR/Payroll/Advance-Salary"
                                   )
-                                    ? "text-white bg-primary"
+                                    ? "text-gray-700 bg-gray-200"
                                     : "text-gray-500 hover:text-primary"
                                 }`}
                               >
                                 Salary Advance
+                              </Link>
+                            </li>
+                             <li>
+                              <Link
+                                to="/tramessy/HR/payroll/loan"
+                                className={`block p-2 rounded-sm ${
+                                  isActive(
+                                    "/tramessy/HR/payroll/loan"
+                                  )
+                                    ? "text-gray-700 bg-gray-200"
+                                    : "text-gray-500 hover:text-primary"
+                                }`}
+                              >
+                                Loan
                               </Link>
                             </li>
                             <li>
@@ -544,20 +572,6 @@ const Sidebar = () => {
                                  Salary Sheet
                               </Link>
                             </li>
-                            {/* <li>
-                              <Link
-                                to="/tramessy/HRM/payroll/generate-salary"
-                                className={`block p-2 rounded-sm ${
-                                  isActive(
-                                    "/tramessy/HRM/payroll/generate-salary"
-                                  )
-                                    ? "text-white bg-primary"
-                                    : "text-gray-500 hover:text-primary"
-                                }`}
-                              >
-                                Generate Salary
-                              </Link>
-                            </li> */}
                           </ul>
                         </div>
                       </li>
