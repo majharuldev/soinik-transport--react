@@ -58,3 +58,12 @@ input[type="date"].remove-date-icon::-moz-focusring {
   border-radius: 0.375rem;
   font-size: 0.875rem;
 }
+
+/* modal scroll hidde*/
+.scroll-hidden::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+.scroll-hidden {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}

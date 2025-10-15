@@ -188,12 +188,12 @@ const AddVendorForm = () => {
               status: data.status,
             });
           } else {
-            toast.error("ভেন্ডরের তথ্য পাওয়া যায়নি।");
+            toast.error("Vendor information not found.");
             navigate("/tramessy/VendorList");
           }
         } catch (error) {
-          console.error("ভেন্ডর ডেটা লোড করতে সমস্যা:", error);
-          toast.error("ডেটা লোড করতে সমস্যা হয়েছে।");
+          console.error("Error loading vendor data:", error);
+          // toast.error("Failed to load data.");
           navigate("/tramessy/VendorList");
         }
       };
@@ -216,17 +216,17 @@ const AddVendorForm = () => {
       }
 
       if (response.data.success) {
-        toast.success(isUpdateMode ? "ভেন্ডর সফলভাবে আপডেট হয়েছে!" : "ভেন্ডর সফলভাবে যোগ হয়েছে!", {
+        toast.success(isUpdateMode ? "Vendor updated successfully!" : "Vendor added successfully!", {
           position: "top-right",
         });
         reset();
         navigate("/tramessy/VendorList");
       } else {
-        toast.error("সার্ভার সমস্যা: " + (response.data.message || "অজানা সমস্যা"));
+        toast.error("Server error: " + (response.data.message || "Unknown error"));
       }
     } catch (error) {
-      const msg = error.response?.data?.message || error.message || "অজানা ত্রুটি";
-      toast.error("সার্ভার সমস্যা: " + msg);
+      const msg = error.response?.data?.message || error.message || "Unknown error";
+      toast.error("Server error: " + msg);
       console.error(error);
     } finally {
       setLoading(false);
@@ -237,7 +237,7 @@ const AddVendorForm = () => {
     <div className="mt-5 p-2">
       <div className="mx-auto p-6 rounded-md shadow border-t-2 border-primary">
         <h3 className="pt-1 pb-4 text-primary font-semibold rounded-t-md">
-          {isUpdateMode ? "ভেন্ডর আপডেট করুন" : "নতুন ভেন্ডর যোগ করুন"}
+          {isUpdateMode ? "Update Vendor" : "Add New Vendor"}
         </h3>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -245,27 +245,27 @@ const AddVendorForm = () => {
             {/* Row 1 */}
             <div className="md:flex justify-between gap-3">
               <div className="w-full relative">
-                <InputField name="vendor_name" label="ভেন্ডরের নাম" required />
+                <InputField name="vendor_name" label="Vendor Name" required={!isUpdateMode} />
               </div>
               <div className="mt-3 md:mt-0 w-full relative">
-                <InputField name="mobile" label="মোবাইল" type="number" required />
+                <InputField name="mobile" label="Mobile" type="number" required={!isUpdateMode} />
               </div>
             </div>
 
             {/* Row 2 */}
             <div className="mt-3 md:flex justify-between gap-3">
               <div className="w-full relative">
-                <InputField name="email" label="ইমেইল" />
+                <InputField name="email" label="Email" />
               </div>
               <div className="w-full relative">
                 <SelectField
                   name="rent_category"
-                  label="ভাড়া ক্যাটেগরি"
-                  required
-                  options={[
-                    { value: "", label: "ভাড়া ক্যাটেগরি নির্বাচন করুন..." },
-                    { value: "Pickup", label: "পিকআপ" },
-                    { value: "Covered Van", label: "কভার্ড ভ্যান" },
+                  label="Rent Category"
+                  required={!isUpdateMode}
+                 options={[
+                    { value: "", label: "Select rent category..." },
+                    { value: "Pickup", label: "Pickup" },
+                    { value: "Covered Van", label: "Covered Van" },
                   ]}
                 />
               </div>
@@ -274,10 +274,10 @@ const AddVendorForm = () => {
             {/* Row 3 */}
             <div className="mt-3 md:flex justify-between gap-3">
               <div className="w-full relative">
-                <InputField name="work_area" label="কাজের এলাকা" />
+                <InputField name="work_area" label="Work Area" />
               </div>
               <div className="w-full relative">
-                <InputField type="number" name="opening_balance" label="ওপেনিং ব্যালেন্স" />
+                <InputField type="number" name="opening_balance" label="Opening Balance" />
               </div>
             </div>
 
@@ -286,9 +286,9 @@ const AddVendorForm = () => {
               <div className="w-full">
                 <InputField
                   name="date"
-                  label="তারিখ"
+                  label="Date"
                   type="date"
-                  required
+                  required={!isUpdateMode}
                   inputRef={(e) => {
                     register("date").ref(e);
                     dateRef.current = e;
@@ -298,12 +298,12 @@ const AddVendorForm = () => {
               <div className="w-full relative">
                 <SelectField
                   name="status"
-                  label="অবস্থা"
-                  required
+                  label="Status"
+                  required={!isUpdateMode}
                   options={[
-                    { value: "", label: "অবস্থা নির্বাচন করুন..." },
-                    { value: "Active", label: "সক্রিয়" },
-                    { value: "Inactive", label: "নিষ্ক্রিয়" },
+                    { value: "", label: "Select status..." },
+                    { value: "Active", label: "Active" },
+                    { value: "Inactive", label: "Inactive" },
                   ]}
                 />
               </div>
@@ -311,7 +311,7 @@ const AddVendorForm = () => {
 
             {/* Submit Button */}
             <div className="text-left mt-4">
-              <BtnSubmit loading={loading}>{isUpdateMode ? "আপডেট করুন" : "সাবমিট করুন"}</BtnSubmit>
+              <BtnSubmit loading={loading}>{isUpdateMode ? "Update" : "Submit"}</BtnSubmit>
             </div>
           </form>
         </FormProvider>

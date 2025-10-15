@@ -21,7 +21,6 @@ export default function AddTripForm() {
   const endDateRef = useRef(null);
   const isAdmin = useAdmin();
   const { user } = useContext(AuthContext);
-  console.log(user.name)
 
   // State for dropdown options
   const [vehicle, setVehicle] = useState([]);
@@ -80,6 +79,7 @@ export default function AddTripForm() {
       vehicle_size: "",
       branch_name: "",
       sms_sent: "yes",
+      challan_cost: ""
     },
   });
 
@@ -130,6 +130,7 @@ export default function AddTripForm() {
     d_day,
     d_amount,
     additional_cost,
+    challan_cost
   ] = watch([
     "fuel_cost",
     "toll_cost",
@@ -145,6 +146,7 @@ export default function AddTripForm() {
     "d_day",
     "d_amount",
     "additional_cost",
+    "challan_cost"
   ]);
 
   // Calculate totals
@@ -439,6 +441,7 @@ export default function AddTripForm() {
       // usage
       data.start_date = formatDate(data.start_date);
       data.end_date = formatDate(data.end_date);
+      data.created_by = user?.name || "Unknown";
       const url = id
         ? `/trip/${id}`
         : `/trip`;
@@ -720,6 +723,43 @@ export default function AddTripForm() {
               </div>
             </div>
 
+            {/* Demurrage Section — Shared by both Own & Vendor Transport */}
+            {(selectedTransport === "own_transport" || selectedTransport === "vendor_transport") && (
+              <div className="border border-gray-300 p-5 rounded-md mt-5">
+                <h3 className="text-secondary font-medium text-center mb-6">
+                  Demurrage Details
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <InputField
+                    name="d_day"
+                    label="Demurrage Days"
+                    type="number"
+                    onChange={(e) => {
+                      const days = Number(e.target.value) || 0;
+                      setValue("d_day", days);
+                      setValue("d_total", days * (Number(d_amount) || 0));
+                    }}
+                  />
+                  <InputField
+                    name="d_amount"
+                    label="Demurrage Rate/Day"
+                    type="number"
+                    onChange={(e) => {
+                      const rate = Number(e.target.value) || 0;
+                      setValue("d_amount", rate);
+                      setValue("d_total", (Number(d_day) || 0) * rate);
+                    }}
+                  />
+                  <InputField
+                    name="d_total"
+                    label="Total Demurrage"
+                    type="number"
+                    readOnly
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Own Transport Expenses Section */}
             {selectedTransport === "own_transport" && (
               <div className="border border-gray-300 p-5 rounded-md mt-5">
@@ -744,9 +784,12 @@ export default function AddTripForm() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-
+                  <InputField name="parking_cost" label="Parking Cost" type="number" />
+                  <InputField name="challan_cost" label="Challan Cost" type="number" />
                   <InputField name="food_cost" label="Food Cost" type="number" />
                   <InputField name="others_cost" label="Other Costs" type="number" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <InputField name="additional_cost" label="Additional Load Cost" type="number" />
                   <InputField name="total_exp" label="Total Expense" readOnly />
                 </div>

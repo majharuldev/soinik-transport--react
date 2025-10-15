@@ -40,7 +40,7 @@ const CashDispatchForm = () => {
         type: data.type,
         amount: data.amount,
         bank_name: data.bank_name || "",
-        remarks: data.remarks,
+        purpose: data.purpose,
         ref: data.ref || "",
       })
     } catch (error) {
@@ -92,15 +92,14 @@ const CashDispatchForm = () => {
     const refId = isEditing ? data.ref_id : generateRefId()
 
     try {
-      const formData = new FormData()
-      for (const key in data) {
-        formData.append(key, data[key])
-      }
+     const payload = {
+      ...data,
+    }
 
-      if (!isEditing) {
-        formData.append("ref_id", refId)
-      }
-
+    // যদি create হয়, নতুন ref_id generate করো
+    if (!isEditing) {
+      payload.ref_id = generateRefId()
+    }
       // Use update or create endpoint based on mode
       const endpoint = isEditing
         ? `/fundTransfer/${id}`
@@ -108,26 +107,13 @@ const CashDispatchForm = () => {
 
       const method = isEditing ? "put" : "post"
 
-      const response = await api[method](endpoint, formData)
+      const response = await api[method](endpoint, payload)
       const responseData = response.data
 
       if (responseData.success) {
         toast.success(isEditing ? "Fund transfer updated successfully" : "Fund transfer created successfully", {
           position: "top-right",
         })
-
-        // For new entries, also create branch record
-        // if (!isEditing) {
-        //   const branchFormData = new FormData()
-        //   branchFormData.append("date", data.date)
-        //   branchFormData.append("cash_in", data.amount)
-        //   branchFormData.append("branch_name", data.branch_name)
-        //   branchFormData.append("remarks", data.ref)
-        //   branchFormData.append("mode", data.type)
-        //   branchFormData.append("ref_id", refId)
-
-        //   await axios.post(`${import.meta.env.VITE_BASE_URL}/branch/create`, branchFormData)
-        // }
 
         // Reset form if create, navigate back if edit
         if (isEditing) {
@@ -223,7 +209,7 @@ const CashDispatchForm = () => {
                 <InputField name="bank_name" label="Bank Name" required={!isEditing} />
               </div>
               <div className="w-full">
-                <InputField name="purphase" label="Purphase" required={!isEditing} />
+                <InputField name="purpose" label="Purpose" required={!isEditing} />
               </div>
             </div>
             {/* Submit Button */}

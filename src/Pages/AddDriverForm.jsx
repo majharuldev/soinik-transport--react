@@ -20,7 +20,7 @@ const AddDriverForm = () => {
 
   // single driver set field for edit
   useEffect(() => {
-    if ( id) {
+    if (id) {
       const fetchDriver = async () => {
         try {
           const res = await api.get(`/driver/${id}`);
@@ -39,22 +39,27 @@ const AddDriverForm = () => {
       };
       fetchDriver();
     }
-  }, [ id, reset]);
+  }, [id, reset]);
 
   const onSubmit = async (data) => {
     try {
-      const formData = new FormData();
-      for (const key in data) {
-        if (data[key] !== undefined && data[key] !== null) {
-          formData.append(key, data[key]);
-        }
-      }
+      // const formData = new FormData();
+      // for (const key in data) {
+      //   if (data[key] !== undefined && data[key] !== null) {
+      //     // যদি তারিখ হয়, তাহলে string বানাও
+      //     if (data[key] instanceof Date) {
+      //       formData.append(key, data[key].toISOString().split("T")[0]);
+      //     } else {
+      //       formData.append(key, data[key]);
+      //     }
+      //   }
+      // }
 
       let response;
       if (!id) {
-        response = await api.post(`/driver`, formData);
+        response = await api.post(`/driver`, data);
       } else {
-        response = await api.put(`/driver/${id}`, formData);
+        response = await api.put(`/driver/${id}`, data);
       }
 
       toast.success(
@@ -75,9 +80,9 @@ const AddDriverForm = () => {
     <div className="mt-5 md:p-2">
       <Toaster />
       <div className="mx-auto p-6 rounded-md shadow border-t-2 border-primary">
-         <h3 className=" pb-4 text-primary font-semibold ">
-         {!id ? "Create Driver" : "Update Driver"}
-      </h3>
+        <h3 className=" pb-4 text-primary font-semibold ">
+          {!id ? "Create Driver" : "Update Driver"}
+        </h3>
         <FormProvider {...methods} className="">
           <form onSubmit={handleSubmit(onSubmit)} className="">
             {/* Name & Contact */}
@@ -168,7 +173,7 @@ const AddDriverForm = () => {
                 />
               </div>
 
-              <div className="mt-3 md:mt-0 w-full">
+              {/* <div className="mt-3 md:mt-0 w-full">
                 <label className="text-gray-700 text-sm font-semibold">
                   Upload License Image {!id?<span className="text-red-500">*</span>: ""}
                 </label>
@@ -215,11 +220,11 @@ const AddDriverForm = () => {
                     )}
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Preview */}
-            {previewImage && (
+            {/* {previewImage && (
               <div className="mt-3 relative flex justify-end">
                 <button
                   type="button"
@@ -238,7 +243,7 @@ const AddDriverForm = () => {
                   className="max-w-xs h-auto rounded border border-gray-300"
                 />
               </div>
-            )}
+            )} */}
 
             <div className="mt-6 text-left">
               <BtnSubmit>Submit</BtnSubmit>

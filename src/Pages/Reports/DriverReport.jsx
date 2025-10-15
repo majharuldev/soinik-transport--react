@@ -70,7 +70,7 @@
 //   // Get unique months from trips data
 //   const getAvailableMonths = () => {
 //     if (!Array.isArray(trips)) return [];
-    
+
 //     const monthSet = new Set();
 //     trips.forEach(trip => {
 //       if (trip.date) {
@@ -79,7 +79,7 @@
 //         monthSet.add(monthYear);
 //       }
 //     });
-    
+
 //     return Array.from(monthSet).sort().map(month => {
 //       const [year, monthNum] = month.split('-');
 //       const date = new Date(year, monthNum - 1);
@@ -96,13 +96,13 @@
 //   const tripsFiltered = Array.isArray(trips)
 //     ? trips.filter((t) => {
 //         if (!t.date) return false;
-        
+
 //         const tripDate = new Date(t.date);
 //         const tripMonth = `${tripDate.getFullYear()}-${String(tripDate.getMonth() + 1).padStart(2, '0')}`;
-        
+
 //         const driverMatch = !selectedDriver || t.driver_name === selectedDriver;
 //         const monthMatch = !selectedMonth || tripMonth === selectedMonth;
-        
+
 //         return driverMatch && monthMatch;
 //       })
 //     : [];
@@ -116,7 +116,7 @@
 //     // Group trips by driver and month
 //     const tripsByDriverAndMonth = tripsFiltered.reduce((acc, trip) => {
 //       if (!trip.driver_name) return acc;
-      
+
 //       const tripDate = new Date(trip.date);
 //       const monthYear = `${tripDate.getFullYear()}-${String(tripDate.getMonth() + 1).padStart(2, '0')}`;
 //       const monthName = tripDate.toLocaleString('default', { month: 'short', year: 'numeric' });
@@ -327,7 +327,7 @@
 //             </button>
 //           </div>
 //           <div className="flex gap-3">
-            
+
 //             <button
 //               onClick={() => setShowFilter((prev) => !prev)}
 //               className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
@@ -495,7 +495,8 @@ const DriverReport = () => {
   const [selectedMonth, setSelectedMonth] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [loading, setLoading] = useState(true);
-
+console.log(drivers, "dr")
+console.log(trips, "tr")
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -519,12 +520,12 @@ const DriverReport = () => {
 
     Promise.all([fetchDrivers, fetchTrips])
       .then(([driverRes, tripRes]) => {
-        setDrivers(driverRes?.data?.data ?? []);
+        setDrivers(driverRes?.data ?? []);
         // শুধু Approved trip গুলো নাও
-    const approvedTrips = (tripRes?.data ?? []).filter(
-      (t) => t.status === "Approved"
-    );
-    setTrips(approvedTrips);
+        const approvedTrips = (tripRes?.data ?? []).filter(
+          (t) => t.status === "Approved"
+        );
+        setTrips(approvedTrips);
       })
       .catch((err) => {
         console.error("Failed to fetch data", err);
@@ -544,16 +545,16 @@ const DriverReport = () => {
   // Get unique months from trips data
   const getAvailableMonths = () => {
     if (!Array.isArray(trips)) return [];
-    
+
     const monthSet = new Set();
     trips.forEach(trip => {
       if (trip.date && trip.transport_type === "own_transport") {
-        const date = new Date(trip.date);
+        const date = new Date(trip.start_date);
         const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         monthSet.add(monthYear);
       }
     });
-    
+
     return Array.from(monthSet).sort().map(month => {
       const [year, monthNum] = month.split('-');
       const date = new Date(year, monthNum - 1);
@@ -569,25 +570,28 @@ const DriverReport = () => {
   // Filter trips by month, driver, and only include own transport trips with valid drivers
   const tripsFiltered = Array.isArray(trips)
     ? trips.filter((t) => {
-        if (!t.date || t.transport_type !== "own_transport") return false;
-        
-        const tripDate = new Date(t.date);
-        const tripMonth = `${tripDate.getFullYear()}-${String(tripDate.getMonth() + 1).padStart(2, '0')}`;
-        
-        // Check if driver exists in driver list
-        const driverExists = drivers.some(driver => 
-          driver.driver_name?.trim().toLowerCase() === t.driver_name?.trim().toLowerCase()
+      if (!t.start_date || t.transport_type !== "own_transport") return false;
+
+      const tripDate = new Date(t.start_date);
+      const tripMonth = `${tripDate.getFullYear()}-${String(tripDate.getMonth() + 1).padStart(2, '0')}`;
+
+       // Check if driver exists using both name + id
+      const driverExists = drivers.some(driver =>
+        driver.driver_name?.trim().toLowerCase() === t.driver_name?.trim().toLowerCase() &&
+        driver.driver_mobile === t.driver_mobile
+      );
+
+      if (!driverExists) return false;
+
+      const driverMatch = !selectedDriver ||
+        (t.driver_name?.trim().toLowerCase() === selectedDriver.trim().toLowerCase() &&
+         drivers.find(d => d.driver_name?.trim().toLowerCase() === t.driver_name?.trim().toLowerCase())?.driver_mobile === t.driver_mobile
         );
-        
-        if (!driverExists) return false;
-        
-        const driverMatch = !selectedDriver || 
-          t.driver_name?.trim().toLowerCase() === selectedDriver.trim().toLowerCase();
-        
-        const monthMatch = !selectedMonth || tripMonth === selectedMonth;
-        
-        return driverMatch && monthMatch;
-      })
+
+      const monthMatch = !selectedMonth || tripMonth === selectedMonth;
+
+      return driverMatch && monthMatch;
+    })
     : [];
 
   // Process driver statistics by month - FIXED VERSION
@@ -597,26 +601,30 @@ const DriverReport = () => {
     const monthlyStats = [];
 
     // Create a map of driver names for quick lookup
+    // Unique key = driver_name + driver_id
     const driverMap = {};
     drivers.forEach(driver => {
-      if (driver.driver_name) {
-        driverMap[driver.driver_name.trim().toLowerCase()] = {
+      if (driver.driver_name && driver.id) {
+        const key = driver.driver_name.trim().toLowerCase() + "_" + driver.driver_mobile; // driver_name + id
+        driverMap[key] = {
+          id: driver.id,
           name: driver.driver_name,
           mobile: driver.driver_mobile
         };
       }
     });
 
-    // Group trips by driver and month
-    const tripsByDriverAndMonth = tripsFiltered.reduce((acc, trip) => {
-      if (!trip.driver_name) return acc;
-      
-      const driverKey = trip.driver_name.trim().toLowerCase();
-      
+     // Group trips by driver (name+id) and month
+  const tripsByDriverAndMonth = tripsFiltered.reduce((acc, trip) => {
+    if (!trip.driver_name || !trip.driver_mobile) return acc;
+
+       // Create driverKey same way as driverMap
+    const driverKey = trip.driver_name.trim().toLowerCase() + "_" + trip.driver_mobile;
+
       // Only process if driver exists in our driver list
       if (!driverMap[driverKey]) return acc;
-      
-      const tripDate = new Date(trip.date);
+
+      const tripDate = new Date(trip.start_date);
       const monthYear = `${tripDate.getFullYear()}-${String(tripDate.getMonth() + 1).padStart(2, '0')}`;
       const monthName = tripDate.toLocaleString('default', { month: 'short', year: 'numeric' });
 
@@ -719,7 +727,7 @@ const DriverReport = () => {
         <td style="border:1px solid #ccc;padding:6px;text-align:center">${d.totalTrips}</td>
         <td style="border:1px solid #ccc;padding:6px;text-align:right">${d.totalRent}</td>
         <td style="border:1px solid #ccc;padding:6px;text-align:right">${d.totalExp}</td>
-        <td style="border:1px solid #ccc;padding:6px;text-align:right;color:${d.totalProfit >= 0 ? 'green':'red'}">${d.totalProfit}</td>
+        <td style="border:1px solid #ccc;padding:6px;text-align:right;color:${d.totalProfit >= 0 ? 'green' : 'red'}">${d.totalProfit}</td>
       </tr>
     `).join("");
 
@@ -735,7 +743,7 @@ const DriverReport = () => {
         <td style="border:1px solid #ccc;padding:6px;text-align:center">${totalTrips}</td>
         <td style="border:1px solid #ccc;padding:6px;text-align:right">${totalRent}</td>
         <td style="border:1px solid #ccc;padding:6px;text-align:right">${totalExp}</td>
-        <td style="border:1px solid #ccc;padding:6px;text-align:right;color:${totalProfit >= 0 ? 'green':'red'}">${totalProfit}</td>
+        <td style="border:1px solid #ccc;padding:6px;text-align:right;color:${totalProfit >= 0 ? 'green' : 'red'}">${totalProfit}</td>
       </tr>
     `;
 
@@ -830,12 +838,12 @@ const DriverReport = () => {
               Print
             </button>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <button
               onClick={() => setShowFilter((prev) => !prev)}
-              className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300"
             >
-              <FaFilter /> Clear
+              <FaFilter /> Filter
             </button>
           </div>
         </div>
@@ -879,7 +887,7 @@ const DriverReport = () => {
                   onClick={clearFilters}
                   className="mt-7 border border-red-500 text-red-500 px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
                 >
-                  <FiFilter/> Clear
+                  <FiFilter /> Clear
                 </button>
               )}
             </div>
@@ -966,7 +974,7 @@ const DriverReport = () => {
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={(page) => setCurrentPage(page)}
-            maxVisible={8} 
+            maxVisible={8}
           />
         )}
       </div>

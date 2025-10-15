@@ -149,7 +149,7 @@ const toNumber = (val) => {
       feri_cost = 0,
       police_cost = 0,
       chada = 0,
-      callan_cost = 0,
+      challan_cost = 0,
     others_cost = 0,
     fuel_cost = 0,
       driver_adv = 0,
@@ -162,7 +162,7 @@ const toNumber = (val) => {
       toNumber(feri_cost) +
       toNumber(police_cost) +
       toNumber(chada) +
-      toNumber(callan_cost) +
+      toNumber(challan_cost) +
     toNumber(others_cost) +
     toNumber(fuel_cost);
     runningBalance += Number(driver_adv) - totalExpense;
@@ -621,7 +621,7 @@ const toNumber = (val) => {
                 <th rowSpan="2" className="border px-2 py-1">
                   Advance
                 </th>
-                <th colSpan="10" className="border px-2 py-1">
+                <th colSpan="11" className="border px-2 py-1">
                   Expense
                 </th>
                 <th rowSpan="2" className="border py-1">
@@ -645,7 +645,7 @@ const toNumber = (val) => {
                 <th className="border px-2 py-1">Ferry</th>
                 <th className="border px-2 py-1">Police</th>
                 <th className="border px-2 py-1">Chada</th>
-                {/* <th className="border px-2 py-1">Fuel</th> */}
+                <th className="border px-2 py-1">Fuel</th>
 <th className="border px-2 py-1">Callan</th>
 <th className="border px-2 py-1">Others</th>
                 <th className="border px-2 py-1">Total</th>
@@ -666,8 +666,8 @@ const toNumber = (val) => {
                   <td className="border px-2 py-1">{toNumber(item.feri_cost)}</td>
                   <td className="border px-2 py-1">{toNumber(item.police_cost)}</td>
                   <td className="border px-2 py-1">{toNumber(item.chada)}</td>
-                  {/* <td className="border px-2 py-1">{item.fuel_cost}</td> */}
-<td className="border px-2 py-1">{item.callan_cost}</td>
+                  <td className="border px-2 py-1">{item.fuel_cost}</td>
+<td className="border px-2 py-1">{item.challan_cost}</td>
 <td className="border px-2 py-1">{item.others_cost}</td>
                   <td className="border px-2 py-1">{item.totalExpense}</td>
                   <td className="border px-2 py-1">
@@ -682,7 +682,7 @@ const toNumber = (val) => {
             </tbody>
             <tfoot>
               <tr className="font-bold bg-gray-100">
-                <td colSpan={3} className="border px-2 py-1 text-right">
+                <td colSpan={4} className="border px-2 py-1 text-right">
                   Total:
                 </td>
                 {/* <td className="border px-2 py-1">{footerTotals.commission}</td> */}

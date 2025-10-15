@@ -171,8 +171,8 @@ const VendorList = () => {
   // delete by id
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/vendor/delete/${id}`,
+      const response = await api.delete(
+        `/vendor/${id}`,
         {
           method: "DELETE",
         }
@@ -259,12 +259,12 @@ const VendorList = () => {
             >
               Excel
             </button>
-            <button
+            {/* <button
               onClick={exportPDF}
               className="py-1 px-5 hover:bg-primary bg-white shadow hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
               PDF
-            </button>
+            </button> */}
             <button
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white shadow hover:text-white rounded transition-all duration-300 cursor-pointer"
@@ -345,6 +345,7 @@ const VendorList = () => {
                 <th className="px-2 py-4">Mobile</th>
                 <th className="px-2 py-4">RentCate</th>
                 <th className="px-2 py-4">Work Area</th>
+                <th className="px-2 py-4">Opening Balance</th>
                 <th className="px-2 py-4">Status</th>
                 <th className="px-2 py-4 action_column">Action</th>
               </tr>
@@ -369,6 +370,7 @@ const VendorList = () => {
                   <td className="p-2">{dt.mobile}</td>
                   <td className="p-2">{dt.rent_category}</td>
                   <td className="p-2">{dt.work_area}</td>
+                  <td className="p-2">{dt.opening_balance}</td>
                   <td className="p-2">{dt.status}</td>
                   <td className="p-2 action_column">
                     <div className="flex gap-2">

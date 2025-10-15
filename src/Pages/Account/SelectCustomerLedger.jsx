@@ -9,7 +9,11 @@ import { IoIosRemoveCircle } from "react-icons/io";
 import api from "../../../utils/axiosConfig";
 import { tableFormatDate } from "../../hooks/formatDate";
 import DatePicker from "react-datepicker";
+import { jsPDF } from "jspdf";       
+import autoTable from "jspdf-autotable";
 
+// Patch jsPDF manually
+// autoTable(jsPDF);
 
 const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   const [startDate, setStartDate] = useState("");
@@ -30,15 +34,26 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
       .catch(err => console.error(err));
   }, []);
 
+  const toNumber = (val) => {
+    if (val === null || val === undefined) return 0;
+    if (typeof val === "string") {
+      if (val.trim().toLowerCase() === "null" || val.trim() === "") return 0;
+    }
+    const num = Number(val);
+    return isNaN(num) ? 0 : num;
+  };
+
   // Find selected customer due
   const selectedCustomer = customerList.find(
     cust => cust.customer_name === selectedCustomerName
   );
-  const dueAmount = selectedCustomer ? parseFloat(selectedCustomer.due) : 0;
+  const dueAmount = selectedCustomer && selectedCustomer.due
+    ? parseFloat(selectedCustomer.due) || 0
+    : 0;
 
   // filter date 
   const filteredLedger = customer.filter((entry) => {
-    const entryDate = new Date(entry.bill_date).setHours(0, 0, 0, 0);
+    const entryDate = new Date(entry.working_date).setHours(0, 0, 0, 0);
     const start = startDate ? new Date(startDate).setHours(0, 0, 0, 0) : null;
     const end = endDate ? new Date(endDate).setHours(0, 0, 0, 0) : null;
 
@@ -54,8 +69,8 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   // Calculate totals including opening balance
   const totals = filteredLedger.reduce(
     (acc, item) => {
-      acc.rent += Number(item.bill_amount || 0);
-      acc.rec_amount += Number(item.rec_amount || 0);
+      acc.rent += toNumber(item.bill_amount || 0);
+      acc.rec_amount += toNumber(item.rec_amount || 0);
       return acc;
     },
     { rent: 0, rec_amount: 0 }
@@ -72,79 +87,149 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
 
   const customerName = filteredLedger[0]?.customer_name || "All Customers";
 
+
+  //  Excel Export (Filtered Data)
   const exportToExcel = () => {
     const rows = filteredLedger.map((dt, index) => ({
       SL: index + 1,
-      Date: dt.bill_date,
+      Date: tableFormatDate(dt.working_date),
       Customer: dt.customer_name,
-      "Vehicle No": dt.vehicle_no,
-      "Loading Point": dt.load_point,
-      "Unloading Point": dt.unload_point,
-      "Total Rent": dt.body_cost,
+      Load: dt.load_point || "--",
+      Unload: dt.unload_point || "--",
+      Vehicle: dt.vehicle_no || "--",
+      Driver: dt.driver_name || "--",
+      "Trip Rent": toNumber(dt.bill_amount || 0),
+      Demurage: toNumber(dt.d_total || 0),
+      "Bill Amount": toNumber(dt.bill_amount || 0) + toNumber(dt.d_total || 0),
+      "Received Amount": toNumber(dt.rec_amount || 0),
     }));
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Ledger");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Customer Ledger");
     XLSX.writeFile(workbook, `${customerName}-Ledger.xlsx`);
   };
 
-  const exportToPDF = () => {
-    const docDefinition = {
-      content: [
-        { text: `${customerName} Ledger`, style: "header" },
-        {
-          table: {
-            headerRows: 1,
-            widths: ["auto", "auto", "*", "auto", "auto", "auto", "auto"],
-            body: [
-              [
-                "SL.",
-                "Date",
-                "Customer",
-                "Vehicle No",
-                "Loading Point",
-                "Unloading Point",
-                "Total Rent",
-              ],
-              ...filteredLedger.map((dt, index) => [
-                index + 1,
-                dt.bill_date,
-                dt.customer_name,
-                dt.vehicle_no,
-                dt.load_point,
-                dt.unload_point,
-                dt.body_cost,
-              ]),
-              [
-                { text: "Total", colSpan: 6, alignment: "right" },
-                {}, {}, {}, {}, {},
-                totalRent.toFixed(2),
-              ],
-            ],
-          },
-        },
-      ],
-      styles: {
-        header: {
-          fontSize: 18,
-          bold: true,
-          margin: [0, 0, 0, 10],
-        },
-      },
-    };
-    pdfMake.createPdf(docDefinition).download(`${customerName}-Ledger.pdf`);
-  };
+  //  PDF Export (Filtered Data
+// const exportToPDF = () => {
+//   const doc = new jsPDF("p", "pt", "a4");
 
+//   // Prepare table rows
+//   let cumulativeDue = dueAmount;
+//   const rows = filteredLedger.map((dt, index) => {
+//     const tripRent = toNumber(dt.bill_amount);
+//     const receivedAmount = toNumber(dt.rec_amount);
+//     const demurageTotal = toNumber(dt.d_total);
+//     const billAmount = tripRent + demurageTotal;
+//     cumulativeDue += billAmount - receivedAmount;
+
+//     return [
+//       index + 1,
+//       tableFormatDate(dt.working_date),
+//       dt.customer_name,
+//       dt.load_point || "--",
+//       dt.unload_point || "--",
+//       dt.vehicle_no || "--",
+//       dt.driver_name || "--",
+//       tripRent.toFixed(2),
+//       demurageTotal.toFixed(2),
+//       billAmount.toFixed(2),
+//       receivedAmount.toFixed(2),
+//       cumulativeDue.toFixed(2),
+//     ];
+//   });
+
+//   // Add totals row (first 7 columns empty for alignment)
+//   rows.push([
+//     "Total",
+//     "", "", "", "", "", "",
+//     totals.rent.toFixed(2),
+//     "", "",
+//     totals.rec_amount.toFixed(2),
+//     totals.due.toFixed(2),
+//   ]);
+
+//   // Table headers
+//   const headers = [
+//     "SL.",
+//     "Date",
+//     "Customer",
+//     "Load",
+//     "Unload",
+//     "Vehicle",
+//     "Driver",
+//     "Trip Rent",
+//     "Demurage",
+//     "Bill Amount",
+//     "Received Amount",
+//     "Due",
+//   ];
+
+//   // Add table
+//   doc.autoTable({
+//     head: [headers],
+//     body: rows,
+//     startY: 70,
+//     styles: { fontSize: 8, cellPadding: 3 },
+//     headStyles: { fillColor: [22, 160, 133], textColor: 255, halign: "center" },
+//     columnStyles: {
+//       0: { halign: "center" }, // SL
+//       1: { halign: "center" }, // Date
+//       2: { halign: "left" },   // Customer
+//       3: { halign: "left" },
+//       4: { halign: "left" },
+//       5: { halign: "left" },
+//       6: { halign: "left" },
+//       7: { halign: "right" },  // Trip Rent
+//       8: { halign: "right" },  // Demurage
+//       9: { halign: "right" },  // Bill Amount
+//       10: { halign: "right" }, // Received Amount
+//       11: { halign: "right" }, // Due
+//     },
+//     didParseCell: (data) => {
+//       // Make totals row bold
+//       if (data.row.index === rows.length - 1) {
+//         data.cell.styles.fontStyle = "bold";
+//       }
+//     },
+//   });
+
+//   // Add title
+//   doc.setFontSize(14);
+//   doc.text(`${customerName} - Customer Ledger`, doc.internal.pageSize.getWidth() / 2, 30, { align: "center" });
+//   doc.setFontSize(10);
+//   doc.text(
+//     `Date Range: ${startDate ? tableFormatDate(startDate) : "All"} - ${endDate ? tableFormatDate(endDate) : "All"}`,
+//     doc.internal.pageSize.getWidth() / 2,
+//     45,
+//     { align: "center" }
+//   );
+
+//   doc.save(`${customerName}-Ledger.pdf`);
+// };
+
+  //  Print (Filtered Data)
   const handlePrint = () => {
-    const printContent = tableRef.current;
-    const printWindow = window.open("", "", "width=900,height=600");
-    printWindow.document.write("<html><head><title>Print Ledger</title></head><body>");
-    printWindow.document.write(printContent.innerHTML);
-    printWindow.document.write("</body></html>");
+    const printContent = tableRef.current.innerHTML;
+    const printWindow = window.open("", "", "width=900,height=700");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${customerName} Ledger</title>
+          <style>
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th, td { border: 1px solid #333; padding: 5px; text-align: center; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+          <h2 style="text-align:center;">${customerName} - Customer Ledger</h2>
+          <h4 style="text-align:center;">Date Range: ${startDate ? tableFormatDate(startDate) : "All"} - ${endDate ? tableFormatDate(endDate) : "All"}</h4>
+          ${printContent}
+        </body>
+      </html>
+    `);
     printWindow.document.close();
-    printWindow.focus();
     printWindow.print();
-    printWindow.close();
   };
 
   return (
@@ -166,12 +251,12 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
             >
               <FaFileExcel /> Excel
             </button>
-            <button
+            {/* <button
               onClick={exportToPDF}
               className="flex items-center gap-2 py-1 px-5 bg-white hover:bg-primary hover:text-white rounded shadow  transition-all duration-300"
             >
               <FaFilePdf /> PDF
-            </button>
+            </button> */}
             <button
               onClick={handlePrint}
               className="flex items-center gap-2 py-1 px-5 bg-white hover:bg-primary hover:text-white rounded shadow transition-all duration-300"
@@ -239,7 +324,7 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
             <table className="min-w-full text-sm text-left text-gray-900">
               <thead className="bg-gray-100 text-gray-800 font-bold">
                 <tr className="font-bold bg-gray-50">
-                  <td colSpan={7} className="border border-black px-2 py-1 text-right">
+                  <td colSpan={9} className="border border-black px-2 py-1 text-right">
                     Total
                   </td>
                   <td className="border border-black px-2 py-1 text-right">
@@ -260,8 +345,9 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
                   <th className="border px-2 py-1">Unload</th>
                   <th className="border px-2 py-1">Vehicle</th>
                   <th className="border px-2 py-1">Driver</th>
+                  <th className="border px-2 py-1">Trip Rent</th>
+                  <th className="border px-2 py-1">Demurage</th>
                   <th className="border px-2 py-1">Bill Amount</th>
-
                   <th className="border px-2 py-1">Recieved Amount</th>
                   <th className="border border-gray-700 px-2 py-1">
                     {selectedCustomerName && (
@@ -277,9 +363,11 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
                 {(() => {
                   let cumulativeDue = dueAmount; // Opening balance
                   return filteredLedger.map((item, idx) => {
-                    const billAmount = parseFloat(item.bill_amount || 0);
-                    const receivedAmount = parseFloat(item.rec_amount || 0);
-
+                    const tripRent = toNumber(item.bill_amount || 0);
+                    const receivedAmount = toNumber(item.rec_amount || 0);
+                    const demurageTotal = toNumber(item.d_total)
+                    const billAmount = tripRent + demurageTotal;
+                    // মোট due হিসাব
                     cumulativeDue += billAmount;
                     cumulativeDue -= receivedAmount;
 
@@ -299,6 +387,12 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
                         </td>
                         <td className="border px-2 py-1">
                           {item.driver_name || <span className="flex justify-center items-center">--</span>}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {tripRent ? tripRent : "--"}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {demurageTotal ? demurageTotal : "--"}
                         </td>
                         <td className="border px-2 py-1">
                           {billAmount ? billAmount : "--"}

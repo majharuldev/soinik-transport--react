@@ -11,6 +11,7 @@ import { saveAs } from "file-saver";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
 import api from "../../utils/axiosConfig";
+import { tableFormatDate } from "../hooks/formatDate";
 const CarList = () => {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,34 +43,26 @@ const CarList = () => {
 
   // delete by id
   const handleDelete = async (id) => {
-    try {
-      const response = await fetch(
-        `/driver/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+  try {
+    const response = await api.delete(`/driver/${id}`);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete driver");
-      }
-      // Remove driver from local list
-      setDrivers((prev) => prev.filter((driver) => driver.id !== id));
-      toast.success("Driver deleted successfully", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+    // Remove driver from local list
+    setDrivers((prev) => prev.filter((driver) => driver.id !== id));
+    toast.success("Driver deleted successfully", {
+      position: "top-right",
+      autoClose: 3000,
+    });
 
-      setIsOpen(false);
-      setSelectedDriverId(null);
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("There was a problem deleting!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    }
-  };
+    setIsOpen(false);
+    setSelectedDriverId(null);
+  } catch (error) {
+    console.error("Delete error:", error.response || error);
+    toast.error("There was a problem deleting!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  }
+};
   // view driver by id
   const handleView = async (id) => {
     try {
@@ -345,7 +338,7 @@ const CarList = () => {
                   <td className="p-2 line-clamp-1">{driver.address}</td>
                   {/* <td className="p-2">{driver.opening_balance}</td> */}
                   <td className="p-2">{driver.lincense}</td>
-                  <td className="p-2">{driver.expire_date}</td>
+                  <td className="p-2">{tableFormatDate(driver.expire_date)}</td>
                   <td className="p-2">
                     <span className="text-green-700 bg-green-50 px-3 py-1 rounded-md text-xs font-medium">
                       {driver.status}
@@ -431,7 +424,7 @@ const CarList = () => {
 
       {/* View Driver Info Modal */}
       {viewModalOpen && selectedDriver && (
-        <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-[#000000ad] z-50">
+        <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-[#000000ad] z-50 overflow-auto scroll-hidden">
           <div className="w-4xl p-5 bg-gray-100 rounded-xl mt-10">
             <h3 className="text-primary font-semibold text-base">
               Driver Information
@@ -450,7 +443,7 @@ const CarList = () => {
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Emergency Contact:</p>{" "}
-                  <p>{selectedDriver.emergency_contact}</p>
+                  <p>{selectedDriver.emergency_contact?selectedDriver.emergency_contact:"N/A"}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Address:</p>{" "}
@@ -469,7 +462,7 @@ const CarList = () => {
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">License Expiry:</p>{" "}
-                  <p>{selectedDriver.expire_date}</p>
+                  <p>{tableFormatDate(selectedDriver.expire_date)}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Note:</p>{" "}
@@ -487,7 +480,7 @@ const CarList = () => {
               <div className="flex justify-end mt-10">
                 <button
                   onClick={() => setViewModalOpen(false)}
-                  className="text-white bg-gray-700 py-1 px-2 rounded-md cursor-pointer hover:bg-secondary"
+                  className="text-white bg-primary py-1 px-2 rounded-md cursor-pointer hover:bg-primary/80"
                 >
                   Close
                 </button>

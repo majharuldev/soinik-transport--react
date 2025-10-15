@@ -1055,7 +1055,7 @@ import { BsThreeDotsVertical } from "react-icons/bs"
 import ChallanInvoicePrint from "../components/modal/ChallanInvoicePrint"
 import { useReactToPrint } from "react-to-print"
 import api from "../../utils/axiosConfig"
-import { formatDate } from "../hooks/formatDate"
+import { formatDate, tableFormatDate } from "../hooks/formatDate"
 import DatePicker from "react-datepicker"
 import { FiFilter } from "react-icons/fi"
 import { FcApproval } from "react-icons/fc";
@@ -1258,13 +1258,28 @@ const TripList = () => {
     },
   })
 
-  const handlePrintClick = (tripData) => {
+  const handlePrintClick = async (tripData) => {
+    let licenseNo = "N/A";
+    
+    // If license is not in trip data, fetch from driver API
+    if (!tripData.lincense && tripData.driver_name) {
+      const driverResponse = await api.get('/driver');
+      const drivers = driverResponse.data;
+      const driver = drivers.find(d => 
+        d.driver_name === tripData.driver_name || 
+        d.driver_mobile === tripData.driver_mobile
+      );
+      licenseNo = driver?.lincense || "N/A";
+    } else {
+      licenseNo = tripData.lincense || "N/A";
+    }
     const formatted = {
       voucherNo: tripData.id,
       receiver: tripData.customer,
       address: tripData.unload_point,
       truckNo: tripData.vehicle_no,
       dln: tripData.date,
+      licenseNo: licenseNo || "N/A",
       driverName: tripData.driver_name,
       loadingPoint: tripData.load_point,
       unloadingPoint: tripData.unload_point,
@@ -1303,32 +1318,64 @@ const TripList = () => {
   if (loading) return <p className="text-center mt-16">Loading trip...</p>
 
   // excel
-  const exportTripsToExcel = () => {
-    const tableData = trip.map((dt, index) => ({
-      "SL.": index + 1,
-      Date: dt.date,
-      "Driver Name": dt.driver_name || "N/A",
-      "Driver Mobile": dt.driver_mobile || "N/A",
-      Commission: dt.driver_commission || "0",
-      "Load Point": dt.load_point,
-      "Unload Point": dt.unload_point,
-      "Trip Cost": dt.total_exp || 0,
-      "Trip Fare": dt.total_rent || 0,
-      "Total Profit": Number.parseFloat(dt.total_rent || 0) - Number.parseFloat(dt.total_exp || 0),
-    }))
+  // const exportTripsToExcel = () => {
+  //   const tableData = trip.map((dt, index) => ({
+  //     "SL.": index + 1,
+  //     Date: dt.date,
+  //     "Driver Name": dt.driver_name || "N/A",
+  //     "Driver Mobile": dt.driver_mobile || "N/A",
+  //     Commission: dt.driver_commission || "0",
+  //     "Load Point": dt.load_point,
+  //     "Unload Point": dt.unload_point,
+  //     "Trip Cost": dt.total_exp || 0,
+  //     "Trip Fare": dt.total_rent || 0,
+  //     "Total Profit": Number.parseFloat(dt.total_rent || 0) - Number.parseFloat(dt.total_exp || 0),
+  //   }))
 
-    const worksheet = XLSX.utils.json_to_sheet(tableData)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Trips")
+  //   const worksheet = XLSX.utils.json_to_sheet(tableData)
+  //   const workbook = XLSX.utils.book_new()
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, "Trips")
 
+  //   const excelBuffer = XLSX.write(workbook, {
+  //     bookType: "xlsx",
+  //     type: "array",
+  //   })
+
+  //   const data = new Blob([excelBuffer], { type: "application/octet-stream" })
+  //   saveAs(data, "trip_report.xlsx")
+  // }
+  const exportTripsToExcel = async () => {
+  try {
+    // full trip data from database (no filter)
+    const response = await api.get("/trip");
+    let allTrips = response.data;
+
+    // Non-admin হলে total_rent field বাদ দেবে
+    if (!isAdmin) {
+      allTrips = allTrips.map(({ total_rent, ...rest }) => rest);
+    }
+
+    // Excel sheet বানানো (auto header = object keys)
+    const worksheet = XLSX.utils.json_to_sheet(allTrips);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Trips");
+
+    // Excel buffer তৈরি
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
-    })
+    });
 
-    const data = new Blob([excelBuffer], { type: "application/octet-stream" })
-    saveAs(data, "trip_report.xlsx")
+    // File save
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "trip_full_database.xlsx");
+    toast.success("Full trip data downloaded successfully!");
+  } catch (error) {
+    console.error("Excel export error:", error);
+    toast.error("Failed to download Excel file!");
   }
+};
+
   // pdf
   const exportTripsToPDF = () => {
     const doc = new jsPDF("landscape")
@@ -1394,11 +1441,10 @@ const TripList = () => {
           <th>customer</th>
           <th>Driver</th>
           <th>VehicleNo</th>
-          <th>Commiss.</th>
           <th>LoadPoint</th>
           <th>UnloadPoint</th>
-          <th>TripCost</th>
           <th>TripRent</th>
+          <th>TripCost</th>
           <th>Profit</th>
         </tr>
       </thead>
@@ -1413,12 +1459,11 @@ const TripList = () => {
             <td>${(dt.customer || "N/A") + " " + (dt.transport_type || "")}</td>
             <td>${dt.driver_name || "N/A"}</td>
             <td>${dt.vehicle_no || "N/A"}</td>
-            <td>${dt.driver_commission || "0"}</td>
             <td>${dt.load_point}</td>
             <td>${dt.unload_point}</td>
+             <td>${isAdmin?(dt.total_rent || 0): "hide"}</td>
             <td>${dt.total_exp || 0}</td>
-            <td>${dt.total_rent || 0}</td>
-            <td>${Number.parseFloat(dt.total_rent || 0) - Number.parseFloat(dt.total_exp || 0)}</td>
+            <td>${isAdmin?(Number.parseFloat(dt.total_rent || 0) - Number.parseFloat(dt.total_exp || 0)):"hide"}</td>
           </tr>
         `,
           )
@@ -1436,6 +1481,12 @@ const TripList = () => {
           body { font-family: Arial, sans-serif; padding: 20px; }
           table { width: 100%; border-collapse: collapse; }
           th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+          thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         </style>
       </head>
       <body>
@@ -1497,7 +1548,7 @@ const TripList = () => {
   const sortedTrips = [...trip].sort((a, b) => new Date(b.date) - new Date(a.date))
 
   const filteredTrips = sortedTrips.filter((trip) => {
-    const tripDate = new Date(trip.date)
+    const tripDate = new Date(trip.start_date)
     const start = startDate ? new Date(startDate) : null
     const end = endDate ? new Date(endDate) : null
 
@@ -1513,7 +1564,7 @@ const TripList = () => {
   })
 
   // search
-  const filteredTripList = trip.filter((dt) => {
+  const filteredTripList = filteredTrips.filter((dt) => {
     const term = searchTerm.toLowerCase()
     return (
       dt.customer?.toLowerCase().includes(term) ||
@@ -1572,12 +1623,12 @@ const TripList = () => {
             >
               Excel
             </button>
-            <button
+            {/* <button
               onClick={exportTripsToPDF}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
               PDF
-            </button>
+            </button> */}
             <button
               onClick={printTripsTable}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
@@ -1605,7 +1656,7 @@ const TripList = () => {
                   setSearchTerm("")
                   setCurrentPage(1)
                 }}
-                className="absolute right-5 top-[5.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+                className="absolute right-5 top-[5.7rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
               >
                 ✕
               </button>
@@ -1755,10 +1806,10 @@ const TripList = () => {
                         <p>Unload: {dt.unload_point}</p>
                       </td>
 
-                      <td className="p-2">{dt.total_rent}</td>
+                      <td className="p-2">{isAdmin?(dt.total_rent):"hide"}</td>
                       <td className="p-2">{dt.total_exp}</td>
                       <td className="p-2">
-                        {Number.parseFloat(dt.total_rent || 0) - Number.parseFloat(dt.total_exp || 0)}
+                        {isAdmin?(Number.parseFloat(dt.total_rent || 0) - Number.parseFloat(dt.total_exp || 0)):"hide"}
                       </td>
                       <td className="p-2">{dt?.status}</td>
                       <td className="p-2 action_column relative">
@@ -1886,16 +1937,19 @@ const TripList = () => {
       </div>
       {/* get trip information by id */}
       {viewModalOpen && selectedTrip && (
-        <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-[#000000ad] z-50">
+        <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-[#000000ad] z-50 overflow-auto scroll-hidden">
           <div className="w-4xl p-5 bg-gray-100 rounded-xl mt-10">
-            <h3 className="text-gray-700 font-semibold">Trip Info</h3>
+            <div className="flex justify-between items-center">
+              <h3 className="text-gray-700 font-semibold">Trip Info</h3>
+              <div>Created By: <p>{selectedTrip?.created_by}</p> </div>
+            </div>
             <div className="mt-5">
               <ul className="flex border border-gray-300">
                 <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Customer</p> <p>{selectedTrip.customer}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2">
-                  <p className="w-48">Trip Date</p> <p>{selectedTrip.date}</p>
+                  <p className="w-48">Trip Date</p> <p>{tableFormatDate(selectedTrip.start_date)}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
@@ -1911,69 +1965,93 @@ const TripList = () => {
                   <p className="w-48">Trip type</p> <p>{selectedTrip.trip_type}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2">
-                  <p className="w-48">Additional Load</p> <p>{selectedTrip.additional_load}</p>
+                  <p className="w-48">Additional Load</p> <p>{selectedTrip.additional_load? selectedTrip.additional_load: "N/A"}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Driver Name</p> <p>{selectedTrip.driver_name}</p>
+                  <p className="w-48">Driver Name</p> <p>{selectedTrip.driver_name? selectedTrip.driver_name: "N/A"}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Driver Mobile</p> <p>{selectedTrip.driver_mobile}</p>
-                </li>
-              </ul>
-              <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Driver Commission</p> <p>{selectedTrip.driver_commission}</p>
-                </li>
-                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Fuel Cost</p> <p>{selectedTrip.fuel_cost}</p>
+                  <p className="w-48">Driver Mobile</p> <p>{selectedTrip.driver_mobile? selectedTrip.driver_mobile: 0}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Callan cost</p> <p>{selectedTrip.callan_cost}</p>
+                  <p className="w-48">Labor Cost</p> <p>{selectedTrip.labor?selectedTrip.labor:0}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Others Cost</p> <p>{selectedTrip.others_cost}</p>
-                </li>
-              </ul>
-              <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">TransportType</p> <p>{selectedTrip.transport_type}</p>
-                </li>
-                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Vehicle Number</p> <p>{selectedTrip.vehicle_no}</p>
+                  <p className="w-48">Toll Cost</p> <p>{selectedTrip.toll_cost?selectedTrip.toll_cost: 0}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Model No</p> <p>{selectedTrip.model_no}</p>
+                  <p className="w-48">Driver Commission</p> <p>{selectedTrip.driver_commission?selectedTrip.driver_commission:0}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Unload Charge</p> <p>{selectedTrip.unload_charge} </p>
-                </li>
-              </ul>
-              <ul className="flex border-b border-r border-l border-gray-300">
-                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Total Rent/Bill Amount</p> <p>{selectedTrip.total_rent}</p>
-                </li>
-                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Distribution Name</p> <p>{selectedTrip.distribution_name}</p>
+                  <p className="w-48">Fuel Cost</p> <p>{selectedTrip.fuel_cost?selectedTrip.fuel_cost: 0}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Additional Cost</p> <p>{selectedTrip.additional_cost}</p>
+                  <p className="w-48">Parking cost</p> <p>{selectedTrip.parking_cost?selectedTrip.parking_cost:0}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Vendor Name</p> <p>{selectedTrip.vendor_name}</p>
+                  <p className="w-48">Night Guard Cost</p> <p>{selectedTrip.night_guard?selectedTrip.night_guard:0}</p>
+                </li>
+              </ul>
+              <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Callan cost</p> <p>{selectedTrip.callan_cost?selectedTrip.callan_cost:0}</p>
+                </li>
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Others Cost</p> <p>{selectedTrip.others_cost?selectedTrip.others_cost:0}</p>
+                </li>
+              </ul>
+              <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Feri Cost</p> <p>{selectedTrip.feri_cost?selectedTrip.feri_cost:0}</p>
+                </li>
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Police Cost</p> <p>{selectedTrip.police_cost?selectedTrip.police_cost:0}</p>
+                </li>
+              </ul>
+              <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Chada Cost</p> <p>{selectedTrip.chada?selectedTrip.chada:0}</p>
+                </li>
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Food Cost</p> <p>{selectedTrip.food_cost?selectedTrip.food_cost:0}</p>
+                </li>
+              </ul>
+              <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">TransportType</p> <p>{selectedTrip.transport_type?selectedTrip.transport_type:"N/A"}</p>
+                </li>
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Vehicle Number</p> <p>{selectedTrip.vehicle_no?selectedTrip.vehicle_no:"N/A"}</p>
+                </li>
+              </ul>
+              <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Total Rent/Bill Amount</p> <p>{isAdmin?(selectedTrip.total_rent?selectedTrip.total_rent: 0): "N/A"}</p>
+                </li>
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Unload Charge</p> <p>{selectedTrip.unload_charge?selectedTrip.unload_charge:0} </p>
+                </li>
+              </ul>
+              <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Additional Cost</p> <p>{selectedTrip.additional_cost?selectedTrip.additional_cost:0}</p>
+                </li>
+                <li className="w-[428px] flex text-gray-700 text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Vendor Name</p> <p>{selectedTrip.vendor_name?selectedTrip.vendor_name:"N/A"}</p>
                 </li>
               </ul>
               <div className="flex justify-end mt-10">
                 <button
                   onClick={() => setViewModalOpen(false)}
-                  className="text-white bg-primary py-1 px-2 rounded-md cursor-pointer hover:bg-secondary"
+                  className="text-white bg-primary py-1 px-2 rounded-md cursor-pointer hover:bg-primary/80"
                 >
                   Close
                 </button>
