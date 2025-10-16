@@ -261,12 +261,12 @@ const CarList = () => {
               Excel
             </button>
 
-            <button
+            {/* <button
               onClick={exportDriversToPDF}
               className="py-1 px-5 bg-white shadow  font-semibold rounded-md hover:bg-primary hover:text-white transition-all cursor-pointer"
             >
               PDF
-            </button>
+            </button> */}
 
             <button
               onClick={printDriversTable}
@@ -335,7 +335,7 @@ const CarList = () => {
                   </td>
                   <td className="p-2">{driver.driver_name}</td>
                   <td className="p-2">{driver.driver_mobile}</td>
-                  <td className="p-2 line-clamp-1">{driver.address}</td>
+                  <td className="p-2 ">{driver.address}</td>
                   {/* <td className="p-2">{driver.opening_balance}</td> */}
                   <td className="p-2">{driver.lincense}</td>
                   <td className="p-2">{tableFormatDate(driver.expire_date)}</td>
@@ -433,11 +433,11 @@ const CarList = () => {
               <ul className="flex border border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Name:</p>{" "}
-                  <p>{selectedDriver.driver_name}</p>
+                  <p>{selectedDriver.driver_name||"N/A"}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Mobile:</p>{" "}
-                  <p>{selectedDriver.driver_mobile}</p>
+                  <p>{selectedDriver.driver_mobile||"N/A"}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
@@ -447,22 +447,22 @@ const CarList = () => {
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Address:</p>{" "}
-                  <p>{selectedDriver.address}</p>
+                  <p>{selectedDriver.address||"N/A"}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">NID:</p> <p>{selectedDriver.nid}</p>
+                  <p className="w-48">NID:</p> <p>{selectedDriver.nid||"N/A"}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">License:</p>{" "}
-                  <p>{selectedDriver.lincense}</p>
+                  <p>{selectedDriver.lincense||"N/A"}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">License Expiry:</p>{" "}
-                  <p>{tableFormatDate(selectedDriver.expire_date)}</p>
+                  <p>{tableFormatDate(selectedDriver.expire_date||"N/A")}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">Note:</p>{" "}
@@ -471,10 +471,10 @@ const CarList = () => {
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Opening Balance:</p> <p>{selectedDriver.opening_balance}</p>
+                  <p className="w-48">Opening Balance:</p> <p>{selectedDriver.opening_balance? selectedDriver.opening_balance: 0}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Status:</p> <p>{selectedDriver.status}</p>
+                  <p className="w-48">Status:</p> <p>{selectedDriver.status||"N/A"}</p>
                 </li>
               </ul>
               <div className="flex justify-end mt-10">

@@ -61,11 +61,29 @@ const vehicleSizes = {
 
       // যদি Update হয় → API থেকে পুরোনো ডেটা এনে reset করা
   useEffect(() => {
+    const formatDateSafely = (value) => {
+  if (!value || value === "null" || value === "0000-00-00") return "";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "";
+  return d.toISOString().slice(0, 10);
+};
     if (id) {
       const fetchVehicle = async () => {
         try {
           const response = await api.get(`/vehicle/${id}`);
-          reset(response.data); 
+          const vehicle = response.data;
+          // সব date ফিল্ডকে format করো
+         const formattedData = {
+          ...vehicle,
+          reg_date: formatDateSafely(vehicle.reg_date),
+          tax_date: formatDateSafely(vehicle.tax_date),
+          route_per_date: formatDateSafely(vehicle.route_per_date),
+          fitness_date: formatDateSafely(vehicle.fitness_date),
+          insurance_date: formatDateSafely(vehicle.insurance_date),
+          date: formatDateSafely(vehicle.date),
+        };
+
+        reset(formattedData);
         } catch (error) {
           console.error("Error fetching vehicle data:", error);
         }
@@ -154,9 +172,6 @@ const vehicleSizes = {
                   { value: "open_truck", label: "Open Truck" },
                   { value: "trailer", label: "Trailer" },
                   { value: "freezer_van", label: "Freezer Van" },
-                  { value: "car", label: "Car" },
-                  { value: "bus", label: "Bus" },
-                  { value: "micro_bus", label: "Micro Bus" },
                 ]}
            
               />
@@ -173,7 +188,7 @@ const vehicleSizes = {
         />
       </div>
             <div className="w-full">
-              <InputField name="fuel_capcity" label="Fuel Capacity" required={id? false:true} />
+              <InputField name="fuel_capcity" label="Fuel Capacity" required={false} />
             </div>
           </div>
 
@@ -306,7 +321,7 @@ const vehicleSizes = {
                 name="reg_date"
                 label="Registration Date Exp."
                 type="date"
-                required={id? false:true}
+                required={false}
                 inputRef={(e) => {
                   register("reg_date").ref(e);
                   registrationDateRef.current = e;
@@ -328,7 +343,7 @@ const vehicleSizes = {
                 name="tax_date"
                 label="Tax Expiry Date"
                 type="date"
-                required={id? false:true}
+                required={false}
                 inputRef={(e) => {
                   register("tax_date").ref(e);
                   taxDateRef.current = e;
@@ -348,7 +363,7 @@ const vehicleSizes = {
                 name="route_per_date"
                 label="Road Permit Date Exp."
                 type="date"
-                required={id? false:true}
+                required={ false}
                 inputRef={(e) => {
                   register("route_per_date").ref(e);
                   roadPermitRef.current = e;
@@ -373,7 +388,7 @@ const vehicleSizes = {
                 name="fitness_date"
                 label="Fitness Expiry Date"
                 type="date"
-                required={id? false:true}
+                required={false}
                 inputRef={(e) => {
                   register("fitness_date").ref(e);
                   fitnessDateRef.current = e;
@@ -393,7 +408,7 @@ const vehicleSizes = {
                 name="insurance_date"
                 label="Insurance Expiry Date"
                 type="date"
-                required={id? false:true}
+                required={false}
                 inputRef={(e) => {
                   register("insurance_date").ref(e);
                   insuranceDateRef.current = e;

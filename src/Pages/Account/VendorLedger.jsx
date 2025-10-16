@@ -350,13 +350,13 @@ const VendorLedger = () => {
                 <FaFileExcel className="" />
                 Excel
               </button>
-              <button
+              {/* <button
                 onClick={exportToPDF}
                 className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-gray-50 shadow font-semibold hover:text-white rounded-md transition-all duration-300 cursor-pointer"
               >
                 <FaFilePdf className="" />
                 PDF
-              </button>
+              </button> */}
               <button
                 onClick={printTable}
                 className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-gray-50 shadow font-semibold hover:text-white rounded-md transition-all duration-300 cursor-pointer"

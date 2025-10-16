@@ -254,19 +254,31 @@ const AddVendorForm = () => {
 
             {/* Row 2 */}
             <div className="mt-3 md:flex justify-between gap-3">
-              <div className="w-full relative">
-                <InputField name="email" label="Email" />
+               <div className="w-full">
+                <InputField
+                  name="date"
+                  label="Date"
+                  type="date"
+                  required={!isUpdateMode}
+                  inputRef={(e) => {
+                    register("date").ref(e);
+                    dateRef.current = e;
+                  }}
+                />
               </div>
               <div className="w-full relative">
                 <SelectField
                   name="rent_category"
                   label="Rent Category"
                   required={!isUpdateMode}
-                 options={[
-                    { value: "", label: "Select rent category..." },
-                    { value: "Pickup", label: "Pickup" },
-                    { value: "Covered Van", label: "Covered Van" },
-                  ]}
+                options={[
+                  // { value: "", label: "Select Vehicle category..." },
+                  { value: "pickup", label: "Pickup" },
+                  { value: "covered_van", label: "Covered Van" },
+                  { value: "open_truck", label: "Open Truck" },
+                  { value: "trailer", label: "Trailer" },
+                  { value: "freezer_van", label: "Freezer Van" },
+                ]}
                 />
               </div>
             </div>
@@ -283,19 +295,8 @@ const AddVendorForm = () => {
 
             {/* Row 4 */}
             <div className="mt-3 md:flex justify-between gap-3">
-              <div className="w-full">
-                <InputField
-                  name="date"
-                  label="Date"
-                  type="date"
-                  required={!isUpdateMode}
-                  inputRef={(e) => {
-                    register("date").ref(e);
-                    dateRef.current = e;
-                  }}
-                />
-              </div>
-              <div className="w-full relative">
+             
+              <div className="w-[50%] relative">
                 <SelectField
                   name="status"
                   label="Status"

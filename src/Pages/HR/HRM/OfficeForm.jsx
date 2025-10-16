@@ -156,19 +156,18 @@ const OfficeForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      const formData = new FormData();
-      for (const key in data) {
-        formData.append(key, data[key]);
-      }
-      if (!isEditMode) {
-        formData.append("ref_id", generateRefId()); // শুধু Add করার সময় Ref Id দেবে
-      }
+      const payload = { ...data };
+
+    // ref_id only generate if not in update mode
+    if (!id) {
+      payload.ref_id = generateRefId();
+    }
 
       let response;
       if (isEditMode) {
-        response = await api.put(`/office/${id}`, formData);
+        response = await api.put(`/office/${id}`, payload);
       } else {
-        response = await api.post(`/office`, formData);
+        response = await api.post(`/office`, payload);
       }
 
       if (response.data.success) {

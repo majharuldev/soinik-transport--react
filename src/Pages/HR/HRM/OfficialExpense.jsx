@@ -15,6 +15,7 @@ import { FiFileText, FiX } from "react-icons/fi"
 import { BiEdit } from "react-icons/bi"
 import Pagination from "../../../components/Shared/Pagination"
 import api from "../../../../utils/axiosConfig"
+import DatePicker from "react-datepicker"
 
 
 const OfficialExpense = () => {
@@ -70,7 +71,7 @@ const OfficialExpense = () => {
     if (record) {
       try {
         const res = await api.get(`/expense/${record.id}`)
-        const data = res.data?.data
+        const data = res.data
         setFormData({
           date: data?.date || "",
           paid_to: data?.paid_to || "",
@@ -281,9 +282,9 @@ const OfficialExpense = () => {
           <td>${item.date || ""}</td>
           <td>${item.branch_name || ""}</td>
           <td>${item.paid_to || ""}</td>
-          <td>${item.pay_amount || ""}</td>
+          <td>${item.amount || ""}</td>
           <td>${item.payment_category || ""}</td>
-          <td>${item.remarks || ""}</td>
+          <td>${item.particulars || ""}</td>
            <td>${item.status || ""}</td>
         </tr>
       `
@@ -309,6 +310,12 @@ const OfficialExpense = () => {
           th, td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 12px; }
           thead { background-color: #11375B; color: white; }
           tbody tr:nth-child(odd) { background-color: #f9f9f9; }
+          thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         </style>
       </head>
       <body>
@@ -362,13 +369,13 @@ const OfficialExpense = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 gap-4">
           <div className="flex flex-wrap gap-2">
 
-            <button
+            {/* <button
               onClick={exportCSV}
               className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-white shadow  hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FiFileText size={16} />
               CSV
-            </button>
+            </button> */}
             <button
               onClick={exportExcel}
               className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-white shadow   hover:text-white rounded-md transition-all duration-300 cursor-pointer"
@@ -377,13 +384,13 @@ const OfficialExpense = () => {
               Excel
             </button>
 
-            <button
+            {/* <button
               onClick={exportPDF}
               className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-white shadow   hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FaFilePdf className="" />
               PDF
-            </button>
+            </button> */}
 
             <button
               onClick={printTable}
@@ -398,7 +405,7 @@ const OfficialExpense = () => {
             {/* <span className="text-sm font-medium text-gray-700">Search:</span> */}
             <input
               type="text"
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="lg:w-60 px-3 py-2 border border-gray-300 rounded-md text-sm w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -410,7 +417,7 @@ const OfficialExpense = () => {
                   setSearchTerm("");
                   setCurrentPage(1);
                 }}
-                className="absolute right-12 top-[11.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+                className="absolute right-12 top-[6.7rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
               >
                 ✕
               </button>
@@ -421,25 +428,31 @@ const OfficialExpense = () => {
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
-
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
             <div className="mt-3 md:mt-0 flex gap-2">
               <button
                 onClick={() => {
@@ -507,13 +520,13 @@ const OfficialExpense = () => {
                     <td className="px-3 py-3 text-sm">{item.date}</td>
                     <td className="px-3 py-3 text-sm">{item.branch_name}</td>
                     <td className="px-3 py-3 text-sm">{item.paid_to}</td>
-                    <td className="px-3 py-3 text-sm">{item.pay_amount}</td>
+                    <td className="px-3 py-3 text-sm">{item.amount}</td>
                     <td className="px-3 py-3 text-sm">{item.payment_category}</td>
                     <td className="px-3 py-3 text-sm">{item.particulars}</td>
                     <td
                       className={`px-3 py-2 font-semibold ${item.status === "Paid"
-                          ? "text-green-600"
-                          : "text-red-500"
+                        ? "text-green-600"
+                        : "text-red-500"
                         }`}
                     >
                       {item.status}
@@ -545,7 +558,7 @@ const OfficialExpense = () => {
 
       {/* Modal */}
       {isModalVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50 overflow-auto scroll-hidden">
           <div className="relative bg-white rounded-lg shadow-lg p-6  max-w-2xl border border-gray-300">
             {/* Modal Header */}
             <div className="flex justify-between items-center p-5 ">

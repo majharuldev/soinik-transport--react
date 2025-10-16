@@ -15,11 +15,11 @@ const OfficialProductForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = Boolean(id);
-  const {user} = useContext(AuthContext)
+  const { user } = useContext(AuthContext)
   const methods = useForm({
-     defaultValues: {
-    sms_sent: "yes",
-  },
+    defaultValues: {
+      sms_sent: "yes",
+    },
   });
   const isAdmin = useAdmin();
   const { handleSubmit, register, watch, reset, setValue, control } = methods;
@@ -32,17 +32,17 @@ const OfficialProductForm = () => {
   const [existingImage, setExistingImage] = useState(null);
 
   const selectedCategory = watch("category");
-  
+
   // Calculate Total Expense
   const quantity = parseFloat(watch("quantity") || 0);
   const unitPrice = parseFloat(watch("unit_price") || 0);
   const totalPrice = quantity * unitPrice;
-  
+
   useEffect(() => {
     const totalPrice = quantity * unitPrice;
     setValue("purchase_amount", totalPrice);
   }, [quantity, unitPrice, setValue]);
-  
+
   // Preview image
   const [previewImage, setPreviewImage] = useState(null);
 
@@ -52,17 +52,17 @@ const OfficialProductForm = () => {
     api.get(`/driver`)
       .then((res) => setDrivers(res.data))
       .catch((error) => console.error("Error fetching driver data:", error));
-    
+
     // Fetch vehicles
     api.get(`/vehicle`)
       .then((res) => setVehicle(res.data))
       .catch((error) => console.error("Error fetching vehicle data:", error));
-    
+
     // Fetch branches
     api.get(`/office`)
       .then((res) => setBranch(res.data.data))
       .catch((error) => console.error("Error fetching branch data:", error));
-    
+
     // Fetch suppliers
     api.get(`/supplier`)
       .then((res) => setSupplier(res.data.data))
@@ -79,7 +79,7 @@ const OfficialProductForm = () => {
           );
           const purchaseData = response.data.data;
           console.log("Fetched purchase data:", purchaseData);
-          
+
           // Set form values
           setValue("date", purchaseData.date);
           setValue("category", purchaseData.category);
@@ -93,14 +93,15 @@ const OfficialProductForm = () => {
           setValue("purchase_amount", purchaseData.purchase_amount);
           setValue("remarks", purchaseData.remarks);
           setValue("priority", purchaseData.priority);
-          
+          setValue("created_by", purchaseData.created_by);
+
           // Set image preview if exists
           // if (purchaseData.bill_image) {
           //   const imageUrl = `${import.meta.env.VITE_BASE_URL}/uploads/${purchaseData.bill_image}`;
           //   setPreviewImage(imageUrl);
           //   setExistingImage(purchaseData.bill_image); // existing image নাম সংরক্ষণ করুন
           // }
-          
+
           setIsLoading(false);
         } catch (error) {
           console.error("Error fetching purchase data:", error);
@@ -108,7 +109,7 @@ const OfficialProductForm = () => {
           setIsLoading(false);
         }
       };
-      
+
       fetchPurchaseData();
     }
   }, [id, isEditMode, setValue]);
@@ -134,68 +135,73 @@ const OfficialProductForm = () => {
   }));
 
   // Handle form submission for both add and update
-   const onSubmit = async (data) => {
-  try {
-    // const payload = {
-    //   date: new Date(data.date).toISOString().split("T")[0],
-    //   category: data.category ?? "",
-    //   item_name: data.item_name ?? "",
-    //   driver_name: data.driver_name ?? "",
-    //   vehicle_no: data.vehicle_no ?? "",
-    //   vehicle_category: data.vehicle_category ?? "",
-    //   branch_name: data.branch_name ?? "",
-    //   supplier_name: data.supplier_name ?? "",
-    //   quantity: Number(data.quantity) || 0,
-    //   unit_price: Number(data.unit_price) || 0,
-    //   purchase_amount: Number(data.purchase_amount) || 0,
-    //   remarks: data.remarks ?? "",
-    //   priority: data.priority ?? "",
-    //   // bill_image: যদি backend JSON support করে, Base64 encode পাঠাও
-    // };
+  const onSubmit = async (data) => {
+    try {
+      // const payload = {
+      //   date: new Date(data.date).toISOString().split("T")[0],
+      //   category: data.category ?? "",
+      //   item_name: data.item_name ?? "",
+      //   driver_name: data.driver_name ?? "",
+      //   vehicle_no: data.vehicle_no ?? "",
+      //   vehicle_category: data.vehicle_category ?? "",
+      //   branch_name: data.branch_name ?? "",
+      //   supplier_name: data.supplier_name ?? "",
+      //   quantity: Number(data.quantity) || 0,
+      //   unit_price: Number(data.unit_price) || 0,
+      //   purchase_amount: Number(data.purchase_amount) || 0,
+      //   remarks: data.remarks ?? "",
+      //   priority: data.priority ?? "",
+      //   // bill_image: যদি backend JSON support করে, Base64 encode পাঠাও
+      // };
 
-    // date format local 
+      // date format local 
       ["date", "service_date", "next_service_date"].forEach((field) => {
-  if (data[field]) {
-    const d = new Date(data[field]);
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-    data[field] = d.toISOString().split("T")[0];
-  }
-});
+        if (data[field]) {
+          const d = new Date(data[field]);
+          d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+          data[field] = d.toISOString().split("T")[0];
+        }
+      });
+      // created_by ঠিকভাবে সেট করা
+    let createdByValue = "Unknown";
+    if (user?.name) createdByValue = user.name;
+    else if (user?.email) createdByValue = user.email;
 
-//  Create করলে বর্তমান ইউজার
-    if (!isEditMode) {
-      data.created_by = user?.name || user?.email || "Unknown";
-    } 
-    //  Update করলে আগের created_by অপরিবর্তিত থাকবে (form theke paoa)
-    else {
-      data.created_by = data.created_by || existingData?.created_by || "Unknown";
+    // যদি Edit mode হয়, তাহলে আগেরটা রেখে দাও
+    if (isEditMode && data.created_by) {
+      createdByValue = data.created_by;
     }
 
-    const response = isEditMode
-      ? await api.put(`/purchase/${id}`, data)   // JSON
-      : await api.post(`/purchase`, data);
-    
-    if (response.data.success) {
+    const payload = {
+      ...data,
+      created_by: createdByValue,
+    };
+
+      const response = isEditMode
+        ? await api.put(`/purchase/${id}`, payload)
+        : await api.post(`/purchase`, payload);
+
+      if (response.data.success) {
         toast.success(isEditMode ? "Official Products Purchase updated!" : "Official Products Purchase submitted!");
         //  Only send SMS if it's a new trip and sms_sent = "yes"
         if (!id && !isAdmin && data.sms_sent === "yes") {
           const purchase = response.data.data; // Assuming your backend returns created trip data
-          const purchaseDate = purchase.date|| "";
+          const purchaseDate = purchase.date || "";
           const supplierName = purchase.supplier_name || "";
-          const userName= user.name || "";
+          const userName = user.name || "";
           const purchaseItem = purchase?.item_name || "";
 
           // Build message content
           const messageContent = `Dear Sir, A new Official Product created by ${userName}.\nPurchase Date: ${purchaseDate}\nSupplier: ${supplierName}\nPurchase Name: ${purchaseItem}`;
 
           // SMS Config
-        const adminNumber = "01773288109"; // or multiple separated by commas
-        const API_KEY = "3b82495582b99be5";
-        const SECRET_KEY = "ae771458";
-        const CALLER_ID = "1234";
+          const adminNumber = "01773288109"; // or multiple separated by commas
+          const API_KEY = "3b82495582b99be5";
+          const SECRET_KEY = "ae771458";
+          const CALLER_ID = "1234";
 
-        // Correct URL (same structure as your given example)
-        const smsUrl = `http://smpp.revesms.com:7788/sendtext?apikey=${API_KEY}&secretkey=${SECRET_KEY}&callerID=${CALLER_ID}&toUser=${adminNumber}&messageContent=${encodeURIComponent(messageContent)}`;
+          // Correct URL (same structure as your given example)
+          const smsUrl = `http://smpp.revesms.com:7788/sendtext?apikey=${API_KEY}&secretkey=${SECRET_KEY}&callerID=${CALLER_ID}&toUser=${adminNumber}&messageContent=${encodeURIComponent(messageContent)}`;
           try {
             await fetch(smsUrl);
             toast.success("SMS sent to admin!");
@@ -204,16 +210,16 @@ const OfficialProductForm = () => {
             // toast.error("Trip saved, but SMS failed to send.");
           }
         }
-           navigate("/tramessy/Purchase/official-product");
+        navigate("/tramessy/Purchase/official-product");
         reset();
       } else {
         throw new Error(isEditMode ? "Failed to update Purchase" : "Failed to create Purchase");
       }
-  } catch (error) {
-    console.error(error);
-    toast.error(error.response?.data?.message || "Server error");
-  }
-};
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Server error");
+    }
+  };
 
 
   if (isLoading) {
@@ -225,62 +231,62 @@ const OfficialProductForm = () => {
       <Toaster />
       <div className="mx-auto p-6 border-t-2 border-primary rounded-md shadow">
         <h3 className=" pb-4 text-primary font-semibold ">
-        {isEditMode ? "Update Official Purchase " : "Add Official Purchase"}
-      </h3>
-      <FormProvider {...methods}>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="mx-auto p-6 space-y-4"
-        >
-          <h5 className="text-2xl font-bold text-center text-[#EF9C07]">
-            {selectedCategory === "fuel"
-              ? "Fuel Purchase" 
-              : selectedCategory === "engine_oil" || selectedCategory === "parts" 
-                ? "Maintenance" 
-                : ""}
-          </h5>
-          
-          {/* Form fields */}
-          <div className="flex flex-col lg:flex-row justify-between gap-x-3">
-            <div className="w-full">
-              <InputField
-                name="date"
-                label="Purchase Date"
-                type="date"
-                required={!isEditMode} 
-                inputRef={(e) => {
-                  register("date").ref(e);
-                  purChaseDateRef.current = e;
-                }}
-                icon={
-                  <span
-                    className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2  rounded-r"
-                    onClick={() => purChaseDateRef.current?.showPicker?.()}
-                  >
-                    <FiCalendar className="text-gray-700 cursor-pointer" />
-                  </span>
-                }
-              />
-            </div>
-            <div className="w-full">
-              <SelectField
-                name="category"
-                label="Category"
-                required={!isEditMode}
-                options={[
-                  { value: "It Product", label: "It Product" },
-                  { value: "Electrical", label: "Electrical" },
-                  { value: "Stationary", label: "Stationary" },
-                  
-                ]}
-              />
-            </div>         
+          {isEditMode ? "Update Official Purchase " : "Add Official Purchase"}
+        </h3>
+        <FormProvider {...methods}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="mx-auto p-6 space-y-4"
+          >
+            <h5 className="text-2xl font-bold text-center text-[#EF9C07]">
+              {selectedCategory === "fuel"
+                ? "Fuel Purchase"
+                : selectedCategory === "engine_oil" || selectedCategory === "parts"
+                  ? "Maintenance"
+                  : ""}
+            </h5>
+
+            {/* Form fields */}
+            <div className="flex flex-col lg:flex-row justify-between gap-x-3">
+              <div className="w-full">
+                <InputField
+                  name="date"
+                  label="Purchase Date"
+                  type="date"
+                  required={!isEditMode}
+                  inputRef={(e) => {
+                    register("date").ref(e);
+                    purChaseDateRef.current = e;
+                  }}
+                  icon={
+                    <span
+                      className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2  rounded-r"
+                      onClick={() => purChaseDateRef.current?.showPicker?.()}
+                    >
+                      <FiCalendar className="text-gray-700 cursor-pointer" />
+                    </span>
+                  }
+                />
+              </div>
+              <div className="w-full">
+                <SelectField
+                  name="category"
+                  label="Category"
+                  required={!isEditMode}
+                  options={[
+                    { value: "It Product", label: "It Product" },
+                    { value: "Electrical", label: "Electrical" },
+                    { value: "Stationary", label: "Stationary" },
+
+                  ]}
+                />
+              </div>
               <div className="w-full">
                 <InputField name="item_name" label="Item Name" required={!isEditMode} />
               </div>
-          </div>
-          
-          {/* <div className="md:flex justify-between gap-x-3">
+            </div>
+
+            {/* <div className="md:flex justify-between gap-x-3">
             <div className="w-full">
               <SelectField
                 name="driver_name"
@@ -301,62 +307,62 @@ const OfficialProductForm = () => {
             </div>
           </div> */}
 
-          <div className="flex flex-col lg:flex-row justify-between gap-x-3">
-            <div className="w-full">
-              <SelectField
-                name="branch_name"
-                label="Branch Name"
-                required={!isEditMode}
-                options={branchOptions}
-                control={control}
-              />
+            <div className="flex flex-col lg:flex-row justify-between gap-x-3">
+              <div className="w-full">
+                <SelectField
+                  name="branch_name"
+                  label="Branch Name"
+                  required={!isEditMode}
+                  options={branchOptions}
+                  control={control}
+                />
+              </div>
+              <div className="w-full">
+                <SelectField
+                  name="supplier_name"
+                  label="Supplier Name"
+                  required={!isEditMode}
+                  options={supplyOptions}
+                  control={control}
+                />
+              </div>
+              <div className="w-full">
+                <InputField
+                  name="quantity"
+                  label="Quantity"
+                  type="number"
+                  required={!isEditMode}
+                />
+              </div>
             </div>
-            <div className="w-full">
-              <SelectField
-                name="supplier_name"
-                label="Supplier Name"
-                required={!isEditMode}
-                options={supplyOptions}
-                control={control}
-              />
+
+            <div className="flex flex-col lg:flex-row justify-between gap-3">
+              <div className="w-full">
+                <InputField
+                  name="unit_price"
+                  label="Unit Price"
+                  type="number"
+                  required={!isEditMode}
+                />
+              </div>
+              <div className="w-full">
+                <InputField
+                  name="purchase_amount"
+                  label="Total"
+                  readOnly
+                  value={totalPrice}
+                  required={!isEditMode}
+                />
+              </div>
+              <div className="w-full">
+                <InputField name="remarks" label="Remark" />
+              </div>
+              <div className="w-full">
+                <InputField name="priority" label="priority" />
+              </div>
             </div>
-            <div className="w-full">
-              <InputField
-                name="quantity"
-                label="Quantity"
-                type="number"
-                required={!isEditMode}
-              />
-            </div>
-          </div>
-          
-          <div className="flex flex-col lg:flex-row justify-between gap-3">
-            <div className="w-full">
-              <InputField
-                name="unit_price"
-                label="Unit Price"
-                type="number"
-                required={!isEditMode}
-              />
-            </div>
-            <div className="w-full">
-              <InputField
-                name="purchase_amount"
-                label="Total"
-                readOnly
-                value={totalPrice}
-                required={!isEditMode}
-              />
-            </div>
-            <div className="w-full">
-              <InputField name="remarks" label="Remark" />
-            </div>
-            <div className="w-full">
-              <InputField name="priority" label="priority" />
-            </div>
-          </div>
-          
-          {/* <div className="md:flex justify-between gap-3">
+
+            {/* <div className="md:flex justify-between gap-3">
             <div className="w-full">
               <label className="text-gray-700 text-sm font-semibold">
                 Bill Image {!isEditMode && "(Required)"}
@@ -409,9 +415,9 @@ const OfficialProductForm = () => {
               />
             </div>
           </div> */}
-          
-          {/* Preview */}
-          {/* {previewImage && (
+
+            {/* Preview */}
+            {/* {previewImage && (
             <div className="mt-2 relative flex justify-end">
               <button
                 type="button"
@@ -437,7 +443,7 @@ const OfficialProductForm = () => {
               />
             </div>
           )} */}
-           {!isAdmin && <div className="mt-4">
+            {!isAdmin && <div className="mt-4">
               <h3 className="text-secondary font-medium mb-2">SMS Sent</h3>
               <div className="flex gap-6">
                 <label className="flex items-center gap-2">
@@ -458,10 +464,10 @@ const OfficialProductForm = () => {
                 </label>
               </div>
             </div>}
-          
-          <BtnSubmit>{isEditMode ? "Update Purchase" : "Submit"}</BtnSubmit>
-        </form>
-      </FormProvider>
+
+            <BtnSubmit>{isEditMode ? "Update Purchase" : "Submit"}</BtnSubmit>
+          </form>
+        </FormProvider>
       </div>
     </div>
   );

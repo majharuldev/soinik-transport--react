@@ -152,6 +152,7 @@ const {user} = useContext(AuthContext)
           setValue("purchase_amount", purchaseData.purchase_amount);
           setValue("remarks", purchaseData.remarks);
           setValue("priority", purchaseData.priority);
+          setValue("created_by", purchaseData.created_by);
 
           // Set image preview if exists
           // if (purchaseData.bill_image) {
@@ -229,18 +230,24 @@ const {user} = useContext(AuthContext)
     data[field] = d.toISOString().split("T")[0];
   }
 });
-//  Create করলে বর্তমান ইউজার
-    if (!isEditMode) {
-      data.created_by = user?.name || user?.email || "Unknown";
-    } 
-    //  Update করলে আগের created_by অপরিবর্তিত থাকবে (form theke paoa)
-    else {
-      data.created_by = data.created_by || existingData?.created_by || "Unknown";
+  // created_by ঠিকভাবে সেট করা
+    let createdByValue = "Unknown";
+    if (user?.name) createdByValue = user.name;
+    else if (user?.email) createdByValue = user.email;
+
+    // যদি Edit mode হয়, তাহলে আগেরটা রেখে দাও
+    if (isEditMode && data.created_by) {
+      createdByValue = data.created_by;
     }
 
+    const payload = {
+      ...data,
+      created_by: createdByValue,
+    };
+
       const response = isEditMode
-        ? await api.put(`/purchase/${id}`, data)   // JSON
-        : await api.post(`/purchase`, data);
+        ? await api.put(`/purchase/${id}`, payload)   // JSON
+        : await api.post(`/purchase`, payload);
 
       if (response.data.success) {
         toast.success(isEditMode ? "Purchase updated!" : "Purchase submitted!");

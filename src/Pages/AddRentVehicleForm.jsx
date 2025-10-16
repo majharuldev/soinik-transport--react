@@ -279,15 +279,21 @@ const AddRentVehicleForm = () => {
   const generateRefId = useRefId();
 
   const vehicleSizes = {
-    pickup: ["1 Ton", "2 Ton", "3 Ton", "7 Feet", "9 Feet"],
-    covered_van: ["12 Feet", "14 Feet", "16 Feet", "18 Feet", "20 Feet", "23 Feet"],
-    open_truck: ["3 Ton", "5 Ton", "10 Ton", "15 Ton", "30 Ton"],
-    trailer: ["20 Feet", "23 Feet", "40 Feet", "30 Ton"],
-    freezer_van: ["1 Ton", "3 Ton", "5 Ton", "10 Ton"],
-    car: ["4 Seater", "7 Seater"],
-    micro_bus: ["12 Seater", "14 Seater"],
-    bus: ["30 Seater", "40 Seater", "50 Seater"],
-  };
+    pickup: ["0.5 Ton", "1 Ton", "1.5 Ton", "2 Ton", "3 Ton", "7 Feet", "9 Feet",
+  ],
+
+  covered_van: [ "10 Feet", "12 Feet", "14 Feet", "16 Feet", "18 Feet", "20 Feet", "23 Feet",
+  ],
+
+  open_truck: [ "3 Ton", "5 Ton", "7 Ton",  "10 Ton",  "15 Ton",  "20 Ton",
+  ],
+
+  trailer: [  "20 Feet",   "23 Feet",  "32 Feet",  "40 Feet", "45 Feet",
+  ],
+
+  freezer_van: [ "1 Ton", "3 Ton",  "5 Ton", "10 Ton",
+  ],
+};
 
   const sizeOptions =
     selectedCategory && vehicleSizes[selectedCategory]
@@ -319,16 +325,16 @@ const AddRentVehicleForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      const formData = new FormData();
-      for (const key in data) {
-        formData.append(key, data[key]);
-      }
+      const payload = { ...data };
 
-      if (!id) formData.append("ref_id", generateRefId());
+    // ref_id only generate if not in update mode
+    if (!id) {
+      payload.ref_id = generateRefId();
+    }
 
       const response = id
-        ? await api.put(`/rentVehicle/${id}`, formData)
-        : await api.post(`/rentVehicle`, formData);
+        ? await api.put(`/rentVehicle/${id}`, payload)
+        : await api.post(`/rentVehicle`, payload);
 
       const resData = response.data;
 

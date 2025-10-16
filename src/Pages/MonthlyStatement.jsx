@@ -59,11 +59,15 @@ const trips = (tripsRes.data?.data || []).filter(
           monthlyData[month].ownTripIncome += parseFloat(trip.total_rent) || 0;
           monthlyData[month].ownTripCost += 
             (parseFloat(trip.fuel_cost) || 0) +
-            (parseFloat(trip.driver_commission) || 0) +
+            // (parseFloat(trip.driver_commission) || 0) +
             (parseFloat(trip.food_cost) || 0) +
             (parseFloat(trip.parking_cost) || 0) +
             (parseFloat(trip.toll_cost) || 0) +
+            (parseFloat(trip.others_cost) || 0) +
+            (parseFloat(trip.chada_cost) || 0) +
+            (parseFloat(trip.challan_cost) || 0) +
             (parseFloat(trip.feri_cost) || 0) +
+            (parseFloat(trip.night_guard) || 0) +
             (parseFloat(trip.police_cost) || 0) +
             (parseFloat(trip.labor) || 0);
         } else if (trip.transport_type === "vendor_transport") {
@@ -311,12 +315,12 @@ const trips = (tripsRes.data?.data || []).filter(
         >
           <FaFileExcel /> Excel
         </button>
-        <button
+        {/* <button
           onClick={exportToPDF}
           className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-white shadow  rounded hover:text-white transition-all duration-300 cursor-pointer"
         >
           <FaFilePdf /> PDF
-        </button>
+        </button> */}
         <button
           onClick={handlePrint}
           className="flex items-center gap-2 py-1 px-5 no-print hover:bg-primary bg-white  rounded shadow hover:text-white transition-all duration-300 cursor-pointer"

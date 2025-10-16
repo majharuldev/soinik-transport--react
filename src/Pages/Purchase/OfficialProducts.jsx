@@ -262,6 +262,12 @@ const PurchaseList = () => {
           tr:hover { background-color: #f1f5f9; }
           .footer { margin-top: 20px; text-align: right; font-size: 12px; color: #555; }
           @media print { body { margin: 0; } }
+           thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         </style>
       </head>
       <body>
@@ -309,12 +315,12 @@ const PurchaseList = () => {
             >
               Excel
             </button>
-            <button
+            {/* <button
               onClick={exportPDF}
               className="py-1 px-5 shadow hover:bg-primary bg-white hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
               PDF
-            </button>
+            </button> */}
             <button
               onClick={printTable}
               className="py-1 px-5 shadow hover:bg-primary bg-white hover:text-white rounded transition-all duration-300 cursor-pointer"
@@ -534,7 +540,7 @@ const PurchaseList = () => {
             <div className="flex justify-end mt-5">
               <button
                 onClick={() => setViewModalOpen(false)}
-                className="bg-primary text-white px-5 py-2 rounded-md hover:bg-secondary transition"
+                className="bg-primary text-white px-5 py-2 rounded-md hover:bg-primary/80 transition"
               >
                 Close
               </button>

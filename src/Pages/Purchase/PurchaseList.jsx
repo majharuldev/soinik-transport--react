@@ -11,6 +11,7 @@ import autoTable from "jspdf-autotable";
 import Pagination from "../../components/Shared/Pagination";
 import { tableFormatDate } from "../../hooks/formatDate";
 import api from "../../../utils/axiosConfig";
+import DatePicker from "react-datepicker";
 
 const PurchaseList = () => {
   const [purchase, setPurchase] = useState([]);
@@ -260,6 +261,12 @@ const PurchaseList = () => {
           tr:hover { background-color: #f1f5f9; }
           .footer { margin-top: 20px; text-align: right; font-size: 12px; color: #555; }
           @media print { body { margin: 0; } }
+           thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         </style>
       </head>
       <body>
@@ -308,12 +315,12 @@ const PurchaseList = () => {
             >
               Excel
             </button>
-            <button
+            {/* <button
               onClick={exportPDF}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
               PDF
-            </button>
+            </button> */}
             <button
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
@@ -326,13 +333,13 @@ const PurchaseList = () => {
             {/* <span className="text-primary font-semibold pr-3">Search: </span> */}
             <input
               type="text"
-              // value={searchTerm}
+              value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
               placeholder="Search by Product ..."
-              className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+              className="lg:w-60 border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}
             {searchTerm && (
@@ -341,7 +348,7 @@ const PurchaseList = () => {
                   setSearchTerm("");
                   setCurrentPage(1);
                 }}
-                className="absolute right-5 top-[5.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+                className="absolute right-5 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
               >
                 ✕
               </button>
@@ -351,24 +358,31 @@ const PurchaseList = () => {
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex items-center gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
             <select
               value={vehicleFilter}
               onChange={(e) => {
@@ -525,7 +539,7 @@ const PurchaseList = () => {
               </div>
               <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Item Name:</span>
-                <span>{selectedPurchase.item_name}</span>
+                <span>{selectedPurchase.item_name||"N/A"}</span>
               </div>
               <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Quantity:</span>
@@ -533,19 +547,19 @@ const PurchaseList = () => {
               </div>
               <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Service Date:</span>
-                <span>{tableFormatDate(selectedPurchase.service_date)}</span>
+                <span>{tableFormatDate(selectedPurchase.service_date||"N/A")}</span>
               </div>
               <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Next Service Date:</span>
-                <span>{tableFormatDate(selectedPurchase.next_service_date)}</span>
+                <span>{tableFormatDate(selectedPurchase.next_service_date||"N/A")}</span>
               </div>
               <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Last KM:</span>
-                <span>{selectedPurchase.last_km}</span>
+                <span>{selectedPurchase.last_km||"N/A"}</span>
               </div>
               <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Next KM:</span>
-                <span>{selectedPurchase.next_km}</span>
+                <span>{selectedPurchase.next_km||"N/A"}</span>
               </div>
               <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Unit Price:</span>

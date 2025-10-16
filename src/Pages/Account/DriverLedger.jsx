@@ -488,12 +488,12 @@ const toNumber = (val) => {
             >
               Excel
             </button>
-            <button
+            {/* <button
               onClick={exportDriversToPDF}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
               PDF
-            </button>
+            </button> */}
             <button
               onClick={printDriversTable}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"

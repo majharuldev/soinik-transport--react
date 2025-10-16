@@ -180,18 +180,16 @@ const SupplyForm = () => {
   // submit handler
   const onSubmit = async (data) => {
     try {
-      const formData = new FormData();
-      for (const key in data) {
-        formData.append(key, data[key]);
-      }
+      const payload = { ...data };
 
-      if (!id) {
-        formData.append("ref_id", generateRefId()); // only add when new
-      }
+    // ref_id only generate if not in update mode
+    if (!id) {
+      payload.ref_id = generateRefId();
+    }
 
       const response = id
-        ? await api.put(`/supplier/${id}`, formData)
-        : await api.post(`/supplier`, formData);
+        ? await api.put(`/supplier/${id}`, payload)
+        : await api.post(`/supplier`, payload);
 
       const resData = response.data;
       if (resData.success) {
@@ -274,7 +272,7 @@ const SupplyForm = () => {
                 </div>
                 <div className="w-full">
                   <InputField
-                    name="due_amount"
+                    name="opening_balance"
                     label="Opening Balance"
                     type="number"
                     required

@@ -13,7 +13,7 @@ import { tableFormatDate } from "../../hooks/formatDate";
 const SupplierList = () => {
   const [supply, setSupply] = useState([]);
   const [loading, setLoading] = useState(true);
-   // search state
+  // search state
   const [searchTerm, setSearchTerm] = useState("");
   // delete modal
   const [isOpen, setIsOpen] = useState(false);
@@ -40,7 +40,7 @@ const SupplierList = () => {
   }, []);
 
   // filtered
-   const filteredSupply = supply.filter((dt) => {
+  const filteredSupply = supply.filter((dt) => {
     const term = searchTerm.toLowerCase();
     return (
       dt.supplier_name?.toLowerCase().includes(term) ||
@@ -52,41 +52,33 @@ const SupplierList = () => {
 
   // delete by id
   const handleDelete = async (id) => {
-    try {
-      const response = await api.delete(
-        `/supplier/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+  try {
+    const response = await api.delete(`/supplier/${id}`);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete supply");
-      }
-      // Remove driver from local list
-      setSupply((prev) => prev.filter((driver) => driver.id !== id));
-      toast.success("Supply information deleted successfully", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+    // Remove driver from local list
+    setSupply((prev) => prev.filter((driver) => driver.id !== id));
+    toast.success("Supplier deleted successfully", {
+      position: "top-right",
+      autoClose: 3000,
+    });
 
-      setIsOpen(false);
-      setSelectedSupplyId(null);
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("There was a problem deleting!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    }
-  };
+    setIsOpen(false);
+    setSelectedSupplyId(null);
+  } catch (error) {
+    console.error("Delete error:", error.response || error);
+    toast.error("There was a problem deleting!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  }
+};
   // view driver by id
   const handleView = async (id) => {
     try {
       const response = await api.get(
         `/supplier/${id}`
       );
-      if (response.data.status === "Success") {
+      if (response.data.success) {
         setSelectedSupply(response.data.data);
         setViewModalOpen(true);
       } else {
@@ -103,7 +95,7 @@ const SupplierList = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentSupplier = filteredSupply.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredSupply.length / itemsPerPage);
- 
+
   if (loading) return <p className="text-center mt-16">Loading data...</p>;
   return (
     <div className="p-2">
@@ -134,20 +126,20 @@ const SupplierList = () => {
                 setCurrentPage(1);
               }}
               placeholder="Search by  ..."
-              className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+              className="lg:w-60 border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
-             {/*  Clear button */}
-    {searchTerm && (
-      <button
-        onClick={() => {
-          setSearchTerm("");
-          setCurrentPage(1);
-        }}
-        className="absolute right-7 top-[6rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
-      >
-        ✕
-      </button>
-    )}
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-7 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
         <div className="mt-5 overflow-x-auto rounded-xl">
@@ -166,66 +158,66 @@ const SupplierList = () => {
               </tr>
             </thead>
             <tbody className="text-gray-700">
-              { currentSupplier.length === 0 ? (
+              {currentSupplier.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="text-center p-4 text-gray-500">
                     No supplier found
                   </td>
-                  </tr>)
-              :(currentSupplier?.map((dt, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 transition-all border border-gray-200"
-                >
-                  <td className="p-2 font-bold">
-                    {indexOfFirstItem + index + 1}.
-                  </td>
-                  <td className="p-2">{tableFormatDate(dt.created_at)}</td>
-                  <td className="p-2">{dt.supplier_name}</td>
-                  <td className="p-2">{dt.business_category}</td>
-                  <td className="p-2">{dt.phone}</td>
-                  <td className="p-2">{dt.address}</td>
-                  <td className="p-2">{dt.due_amount}</td>
-                  <td className="p-2">{dt.status}</td>
-                  <td className="px-2 action_column">
-                    <div className="flex gap-1">
-                      <Link to={`/tramessy/UpdateSupplyForm/${dt.id}`}>
-                        <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                          <FaPen className="text-[12px]" />
+                </tr>)
+                : (currentSupplier?.map((dt, index) => (
+                  <tr
+                    key={index}
+                    className="hover:bg-gray-50 transition-all border border-gray-200"
+                  >
+                    <td className="p-2 font-bold">
+                      {indexOfFirstItem + index + 1}.
+                    </td>
+                    <td className="p-2">{tableFormatDate(dt.created_at)}</td>
+                    <td className="p-2">{dt.supplier_name}</td>
+                    <td className="p-2">{dt.business_category}</td>
+                    <td className="p-2">{dt.phone}</td>
+                    <td className="p-2">{dt.address}</td>
+                    <td className="p-2">{dt.opening_balance}</td>
+                    <td className="p-2">{dt.status}</td>
+                    <td className="px-2 action_column">
+                      <div className="flex gap-1">
+                        <Link to={`/tramessy/UpdateSupplyForm/${dt.id}`}>
+                          <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                            <FaPen className="text-[12px]" />
+                          </button>
+                        </Link>
+                        <button
+                          onClick={() => handleView(dt.id)}
+                          className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                        >
+                          <FaEye className="text-[12px]" />
                         </button>
-                      </Link>
-                      <button
-                        onClick={() => handleView(dt.id)}
-                        className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                      >
-                        <FaEye className="text-[12px]" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedSupplyId(dt.id);
-                          setIsOpen(true);
-                        }}
-                        className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                      >
-                        <FaTrashAlt className="text-[12px]" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )))
+                        <button
+                          onClick={() => {
+                            setSelectedSupplyId(dt.id);
+                            setIsOpen(true);
+                          }}
+                          className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                        >
+                          <FaTrashAlt className="text-[12px]" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )))
               }
             </tbody>
           </table>
         </div>
         {/* pagination */}
-       {currentSupplier.length > 0 && totalPages >= 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          maxVisible={8} 
-        />
-      )}
+        {currentSupplier.length > 0 && totalPages >= 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxVisible={8}
+          />
+        )}
       </div>
       {/* Delete Modal */}
       <div className="flex justify-center items-center">
@@ -293,7 +285,7 @@ const SupplierList = () => {
                   <p className="w-48">Business Category:</p>{" "}
                   <p>{selectedSupply.business_category}</p>
                 </li>
-               
+
               </ul>
               <div className="flex justify-end mt-10">
                 <button

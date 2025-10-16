@@ -68,7 +68,7 @@ const RentList = () => {
   XLSX.writeFile(workbook, "rent_data.xlsx");
 };
 
-
+// pdf
   const exportPDF = () => {
   const doc = new jsPDF("landscape");
 
@@ -103,7 +103,7 @@ const RentList = () => {
   doc.save("rent_data.pdf");
 };
 
-
+// print
   const printTable = () => {
   const tableHeader = `
     <thead>
@@ -157,34 +157,31 @@ const RentList = () => {
 
   // delete by id
   const handleDelete = async (id) => {
-    try {
-      const response = await api.delete(
-        `/rent/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+  try {
+    const response = await api.delete(`/rentVehicle/${id}`);
 
-      if (!response.success) {
-        throw new Error("Failed to delete trip");
-      }
-      // Remove fuel from local list
-      setFuel((prev) => prev.filter((driver) => driver.id !== id));
-      toast.success("Rent list deleted successfully", {
+    // Axios er jonno check
+    if (response.status === 200) {
+      // UI update
+      setFuel((prev) => prev.filter((item) => item.id !== id));
+      toast.success("Rent Vehicle deleted successfully", {
         position: "top-right",
         autoClose: 3000,
       });
 
       setIsOpen(false);
       setselectedFuelId(null);
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("There was a problem deleting.!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+    } else {
+      throw new Error("Delete request failed");
     }
-  };
+  } catch (error) {
+    console.error("Delete error:", error);
+    toast.error("There was a problem deleting!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  }
+};
   // search
   const filteredFuel = fuel.filter((dt) => {
     const term = searchTerm.toLowerCase();
@@ -242,12 +239,12 @@ const RentList = () => {
             >
               Excel
             </button>
-            <button
+            {/* <button
               onClick={exportPDF}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
               PDF
-            </button>
+            </button> */}
             <button
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"

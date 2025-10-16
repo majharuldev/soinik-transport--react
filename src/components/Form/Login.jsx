@@ -85,13 +85,13 @@ const Login = () => {
               </div>
             </ReusableForm>
 
-            <div className="mt-4 text-center">
+            {/* <div className="mt-4 text-center">
               <Link to="/tramessy/ResetPass">
                 <span className="text-sm text-[#11375B] underline hover:text-red-500 transition-all duration-700">
                   Forget password?
                 </span>
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

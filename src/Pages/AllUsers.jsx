@@ -186,26 +186,26 @@ const AllUsers = () => {
         {/* Export */}
         <div className="md:flex justify-between items-center">
           <div className="flex gap-1 md:gap-3 text-gray-700 font-semibold rounded-md">
-            <CSVLink
+            {/* <CSVLink
               data={csvData}
               headers={headers}
               filename={"user_data.csv"}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
               CSV
-            </CSVLink>
+            </CSVLink> */}
             <button
               onClick={exportExcel}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
               Excel
             </button>
-            <button
+            {/* <button
               onClick={exportPDF}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
               PDF
-            </button>
+            </button> */}
             <button
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"

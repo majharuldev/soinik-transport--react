@@ -43,19 +43,13 @@ const CarList = () => {
   }, []);
   // delete by id
   const handleDelete = async (id) => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/vehicle/delete/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+  try {
+    const response = await api.delete(`/vehicle/${id}`);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete driver");
-      }
-      // Remove car from local list
-      setVehicle((prev) => prev.filter((driver) => driver.id !== id));
+    // Axios er jonno check
+    if (response.status === 200) {
+      // UI update
+      setVehicle((prev) => prev.filter((item) => item.id !== id));
       toast.success("Vehicle deleted successfully", {
         position: "top-right",
         autoClose: 3000,
@@ -63,14 +57,19 @@ const CarList = () => {
 
       setIsOpen(false);
       setSelectedDriverId(null);
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("There was a problem deleting!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+    } else {
+      throw new Error("Delete request failed");
     }
-  };
+  } catch (error) {
+    console.error("Delete error:", error);
+    toast.error("There was a problem deleting!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  }
+};
+
+// loading page
   if (loading) return <p className="text-center mt-16">Loading vehicle...</p>;
   const csvData = vehicles.map((dt, index) => ({
     index: index + 1,
@@ -258,12 +257,12 @@ const CarList = () => {
             >
               Excel
             </button>
-            <button
+            {/* <button
               onClick={exportPDF}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow-sm transition-all duration-300 cursor-pointer"
             >
               PDF
-            </button>
+            </button> */}
             <button
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow-sm transition-all duration-300 cursor-pointer"
@@ -282,7 +281,7 @@ const CarList = () => {
                 setCurrentPage(1);
               }}
               placeholder="Search Vehicle..."
-              className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+              className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5 lg:w-60"
             />
             {/*  Clear button */}
     {searchTerm && (
@@ -291,7 +290,7 @@ const CarList = () => {
           setSearchTerm("");
           setCurrentPage(1);
         }}
-        className="absolute right-8 top-[6.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+        className="absolute right-8 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
       >
         ✕
       </button>

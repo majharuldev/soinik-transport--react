@@ -265,9 +265,9 @@ const OfficeLedger = () => {
             <button onClick={exportExcel} className="py-1 px-5 bg-white shadow  font-semibold rounded hover:bg-primary hover:text-white transition-all cursor-pointer">
               Excel
             </button>
-            <button onClick={exportPDF} className="py-1 px-5 bg-white shadow  font-semibold rounded hover:bg-primary hover:text-white transition-all cursor-pointer">
+            {/* <button onClick={exportPDF} className="py-1 px-5 bg-white shadow  font-semibold rounded hover:bg-primary hover:text-white transition-all cursor-pointer">
               PDF
-            </button>
+            </button> */}
             <button onClick={printTable} className="py-1 px-5 bg-white shadow  font-semibold rounded hover:bg-primary hover:text-white transition-all cursor-pointer">
               Print
             </button>

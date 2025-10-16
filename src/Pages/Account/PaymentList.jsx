@@ -201,6 +201,12 @@ const PaymentList = () => {
             background-color: #11375B;
             color: white;
           }
+             thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         </style>
       </head>
       <body>
@@ -369,13 +375,13 @@ const PaymentList = () => {
               Excel
             </button>
 
-            <button
+            {/* <button
               onClick={exportToPDF}
               className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-white shadow hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FaFilePdf className="" />
               PDF
-            </button>
+            </button> */}
 
             <button
               onClick={handlePrint}
@@ -395,7 +401,7 @@ const PaymentList = () => {
                 setSearchTerm(e.target.value);
               }}
               placeholder="Search list..."
-              className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+              className="lg:w-60 border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}
             {searchTerm && (
@@ -404,7 +410,7 @@ const PaymentList = () => {
                   setSearchTerm("");
                   setCurrentPage(1);
                 }}
-                className="absolute right-5 top-[5.8rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+                className="absolute right-5 top-[5.7rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
               >
                 ✕
               </button>

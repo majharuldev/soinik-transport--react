@@ -8,6 +8,7 @@ import autoTable from "jspdf-autotable"
 import Pagination from "../../components/Shared/Pagination"
 import api from "../../../utils/axiosConfig"
 import DatePicker from "react-datepicker"
+import { tableFormatDate } from "../../hooks/formatDate"
 
 export default function VehicleProfitReport() {
   const [tripData, setTripData] = useState([])
@@ -79,9 +80,9 @@ export default function VehicleProfitReport() {
         //   dateMatch = trip.date <= toDate
         // }
         if (fromDate && toDate) {
-          dateMatch = trip.date >= fromDate && trip.date <= toDate
+          dateMatch = trip.start_date >= fromDate && trip.start_date <= toDate
         } else if (fromDate) {
-          dateMatch = trip.date === fromDate  // শুধু একদিন
+          dateMatch = trip.start_date === fromDate  // শুধু একদিন
         } else {
           dateMatch = true
         }
@@ -97,7 +98,7 @@ export default function VehicleProfitReport() {
         if (!vehicleDateMap.has(key)) {
           vehicleDateMap.set(key, {
             vehicle_no: trip.vehicle_no,
-            date: trip.date,
+            date: trip.start_date,
             total_revenue: 0,
             trip_expenses: 0,
             parts_cost: 0,
@@ -285,7 +286,7 @@ export default function VehicleProfitReport() {
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
       profitData.map((d) => ({
-        Date: d.date,
+        Date: tableFormatDate(d.date),
         "Vehicle No": d.vehicle_no,
         Trips: d.trip_count,
         "Trip Rent": d.total_revenue,
@@ -358,7 +359,7 @@ export default function VehicleProfitReport() {
   const printTable = () => {
     const allRows = profitData.map((d) => `
     <tr>
-      <td>${d.date}</td>
+      <td>${tableFormatDate(d.date)}</td>
       <td>${d.vehicle_no}</td>
       <td>${d.trip_count}</td>
       <td>${d.total_revenue.toLocaleString()}</td>
@@ -393,6 +394,12 @@ export default function VehicleProfitReport() {
           th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
           th { background-color: #11375B; color: white; }
           tr:nth-child(even) { background-color: #f2f2f2; }
+           thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         </style>
       </head>
       <body>
@@ -461,12 +468,12 @@ export default function VehicleProfitReport() {
           >
             Excel
           </button>
-          <button
+          {/* <button
             onClick={exportToPDF}
             className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
           >
             PDF
-          </button>
+          </button> */}
           <button
             onClick={printTable}
             className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
@@ -585,7 +592,7 @@ export default function VehicleProfitReport() {
                       key={`${vehicleDate.vehicle_no}-${vehicleDate.date}-${index}`}
                       className="hover:bg-gray-50 transition-all"
                     >
-                      <td className="px-4 py-4 font-medium text-[#11375B]">{vehicleDate.date}</td>
+                      <td className="px-4 py-4 font-medium text-[#11375B]">{tableFormatDate(vehicleDate.date)}</td>
                       <td className="px-4 py-4 font-bold">{vehicleDate.vehicle_no}</td>
                       <td className="px-4 py-4 text-gray-700">{vehicleDate.trip_count}</td>
                       <td className="px-4 py-4 text-gray-700 font-semibold">

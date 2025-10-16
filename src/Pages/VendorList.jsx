@@ -123,6 +123,12 @@ const VendorList = () => {
             background-color: #11375B;
             color: white;
           }
+             thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         </style>
       </head>
       <body>
@@ -170,19 +176,13 @@ const VendorList = () => {
 
   // delete by id
   const handleDelete = async (id) => {
-    try {
-      const response = await api.delete(
-        `/vendor/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+  try {
+    const response = await api.delete(`/vendor/${id}`);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete trip");
-      }
-      // Remove vendor from local list
-      setVendor((prev) => prev.filter((driver) => driver.id !== id));
+    // Axios er jonno check
+    if (response.status === 200) {
+      // UI update
+      setVendor((prev) => prev.filter((item) => item.id !== id));
       toast.success("Vendor deleted successfully", {
         position: "top-right",
         autoClose: 3000,
@@ -190,14 +190,17 @@ const VendorList = () => {
 
       setIsOpen(false);
       setselectedvendorId(null);
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("Failed to delete vendor!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+    } else {
+      throw new Error("Delete request failed");
     }
-  };
+  } catch (error) {
+    console.error("Delete error:", error);
+    toast.error("There was a problem deleting!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  }
+};
   // search
   const filteredvendor = vendor.filter((dt) => {
     const term = searchTerm.toLowerCase();

@@ -45,34 +45,26 @@ const HelperList = () => {
 
   // delete by id
   const handleDelete = async (id) => {
-    try {
-      const response = await api.delete(
-        `/helper/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+  try {
+    const response = await api.delete(`/helper/${id}`);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete Helper");
-      }
-      // Remove Helper from local list
-      setHelper((prev) => prev.filter((Helper) => Helper.id !== id));
-      toast.success("Helper deleted successfully", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+    // Remove driver from local list
+    setHelper((prev) => prev.filter((driver) => driver.id !== id));
+    toast.success("Helper deleted successfully", {
+      position: "top-right",
+      autoClose: 3000,
+    });
 
-      setIsOpen(false);
-      setSelectedHelperId(null);
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("There was a problem deleting!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    }
-  };
+    setIsOpen(false);
+    setSelectedHelperId(null);
+  } catch (error) {
+    console.error("Delete error:", error.response || error);
+    toast.error("There was a problem deleting!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  }
+};
   // view Helper by id
   const handleView = async (id) => {
     try {
@@ -198,6 +190,12 @@ const HelperList = () => {
           th, td { border: 1px solid #000; padding: 8px; text-align: left; }
           thead { background-color: #11375B; color: white; }
           tbody tr:nth-child(odd) { background-color: #f3f4f6; }
+           thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         </style>
       </head>
       <body>
@@ -264,12 +262,12 @@ const HelperList = () => {
               Excel
             </button>
 
-            <button
+            {/* <button
               onClick={exportHelpersToPDF}
               className="py-2 px-5 bg-white shadow text-gray-700 font-semibold rounded hover:bg-primary hover:text-white transition-all cursor-pointer"
             >
               PDF
-            </button>
+            </button> */}
 
             <button
               onClick={printHelpersTable}
@@ -297,7 +295,7 @@ const HelperList = () => {
           setSearchTerm("");
           setCurrentPage(1);
         }}
-        className="absolute right-7 top-[6rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+        className="absolute right-7 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
       >
         ✕
       </button>

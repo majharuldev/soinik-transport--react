@@ -17,6 +17,7 @@ import Pagination from "../../../components/Shared/Pagination"
 import SalaryPaySlip from "./PaySlipPrint"
 import { useReactToPrint } from "react-to-print"
 import api from "../../../../utils/axiosConfig"
+import DatePicker from "react-datepicker"
 
 
 const SalaryExpense = () => {
@@ -89,25 +90,27 @@ const SalaryExpense = () => {
     fetchEmployees();
     // fetchExpenses();
   }, []);
+
   // modal show handler
   const showModal = async (record = null) => {
     if (record) {
       try {
         const res = await api.get(`/expense/${record.id}`)
-        const data = res.data?.data
+        const data = res.data
+
         setFormData({
           date: data?.date || "",
           paid_to: data?.paid_to || "",
           amount: data?.amount || "",
-          payment_category: data?.payment_category || "",
-          branch_name: data?.branch_name || "",
-          particulars: data?.particulars || "",
+          payment_category: data?.payment_category || data?.category || "",
+          branch_name: data?.branch_name || data?.branch || "",
+          particulars: data?.particulars || data?.remarks || "",
           status: data?.status || "",
         })
+
         setEditingId(record.id)
       } catch (err) {
-        // showToast("ডেটা লোড করতে সমস্যা হয়েছে", "error")
-        console.log("error show modal")
+        console.log("Error fetching data:", err)
       }
     } else {
       setFormData({
@@ -121,6 +124,7 @@ const SalaryExpense = () => {
       })
       setEditingId(null)
     }
+
     setIsModalVisible(true)
   }
 
@@ -209,7 +213,7 @@ const SalaryExpense = () => {
   const filteredData = expenses.filter((item) => {
     const itemDate = dayjs(item.date).format("YYYY-MM-DD");
 
-    const matchesSearch = [item.paid_to, item.amount, item.payment_category, item.remarks, item.branch_name, item.status]
+    const matchesSearch = [item.paid_to, item.amount, item.payment_category, item.particulars, item.branch_name, item.status]
       .join(" ")
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -280,11 +284,11 @@ const SalaryExpense = () => {
   const exportExcel = () => {
     const data = filteredData.map((item, i) => ({
       SL: i + 1,
-     Date: item.date,
+      Date: item.date,
       "Paid To": item.paid_to,
       Amount: item.amount,
       Category: item.payment_category,
-      Remarks: item.remarks,
+      Remarks: item.particulars,
       status: item.status
     }))
 
@@ -305,7 +309,7 @@ const SalaryExpense = () => {
         item.paid_to,
         item.amount,
         item.payment_category,
-        item.remarks,
+        item.particulars,
         item.status,
       ]),
     })
@@ -324,7 +328,6 @@ const SalaryExpense = () => {
         <th>Amount</th>
         <th>Category</th>
         <th>Remarks</th>
-        <th>Status</th>
       </tr>
     </thead>
   `;
@@ -339,8 +342,7 @@ const SalaryExpense = () => {
           <td>${item.paid_to || ""}</td>
           <td>${item.amount || ""}</td>
           <td>${item.payment_category || ""}</td>
-          <td>${item.remarks || ""}</td>
-          <td>${item.remarks || ""}</td>
+          <td>${item.particulars || ""}</td>
         </tr>
       `
       )
@@ -365,6 +367,12 @@ const SalaryExpense = () => {
           th, td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 12px; }
           thead { background-color: #11375B; color: white; }
           tbody tr:nth-child(odd) { background-color: #f9f9f9; }
+           thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         </style>
       </head>
       <body>
@@ -418,13 +426,13 @@ const SalaryExpense = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 gap-4">
           <div className="flex flex-wrap text-gray-700 gap-2">
 
-            <button
+            {/* <button
               onClick={exportCSV}
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-white shadow hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FiFileText size={16} />
               CSV
-            </button>
+            </button> */}
             <button
               onClick={exportExcel}
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-white shadow  hover:text-white rounded-md transition-all duration-300 cursor-pointer"
@@ -433,13 +441,13 @@ const SalaryExpense = () => {
               Excel
             </button>
 
-            <button
+            {/* <button
               onClick={exportPDF}
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-white shadow  hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FaFilePdf className="" />
               PDF
-            </button>
+            </button> */}
 
             <button
               onClick={printTable}
@@ -454,7 +462,7 @@ const SalaryExpense = () => {
             {/* <span className="text-sm font-medium text-gray-700">Search:</span> */}
             <input
               type="text"
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-60 px-3 py-2 border border-gray-300 rounded-md text-sm w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -466,7 +474,7 @@ const SalaryExpense = () => {
                   setSearchTerm("");
                   setCurrentPage(1);
                 }}
-                className="absolute right-12 top-[11.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+                className="absolute right-14 top-[11.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
               >
                 ✕
               </button>
@@ -477,25 +485,31 @@ const SalaryExpense = () => {
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
-            </div>
-
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
-            </div>
             <div className="mt-3 md:mt-0 flex gap-2">
               <button
                 onClick={() => {
@@ -565,7 +579,7 @@ const SalaryExpense = () => {
                     <td className="px-3 py-3 text-sm">{item.paid_to}</td>
                     <td className="px-3 py-3 text-sm">{item.amount}</td>
                     <td className="px-3 py-3 text-sm">{item.payment_category}</td>
-                    <td className="px-3 py-3 text-sm">{item.remarks}</td>
+                    <td className="px-3 py-3 text-sm">{item.particulars}</td>
                     <td
                       className={`px-3 py-2 font-semibold ${item.status === "Paid"
                         ? "text-green-600"
@@ -581,7 +595,7 @@ const SalaryExpense = () => {
                       >
                         <BiEdit size={16} />
                       </button>
-                      <button
+                      {/* <button
                         onClick={() => {
                           setSelectedSlip(item);
                           handlePrintClick(item);
@@ -590,7 +604,7 @@ const SalaryExpense = () => {
                       >
                         <BiPrinter className="mr-1 h-4 w-4" />
                         PaySlip
-                      </button>
+                      </button> */}
                     </td>
                   </tr>
                 ))
@@ -616,10 +630,10 @@ const SalaryExpense = () => {
 
       {/* Modal */}
       {isModalVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50 overflow-auto scroll-hidden">
           <div className="relative bg-white rounded-lg shadow-lg p-6  max-w-2xl border border-gray-300">
             {/* Modal Header */}
-            <div className="flex justify-between items-center p-5 ">
+            <div className="flex justify-between items-center p-2 ">
               <h2 className="text-lg font-semibold text-gray-900">{editingId ? "Update Salary Expense" : "Add New Salary Expense"}</h2>
               <button onClick={handleCancel} className="p-1 hover:bg-gray-100 rounded transition-colors">
                 <FiX size={20} />
@@ -628,7 +642,7 @@ const SalaryExpense = () => {
 
             {/* Modal Body */}
             <form onSubmit={handleFormSubmit}>
-              <div className="p-5">
+              <div className="p-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Date <span className="text-red-500">*</span></label>
@@ -648,8 +662,8 @@ const SalaryExpense = () => {
                       disabled={employeesLoading} >
                       <option value=""> {employeesLoading ? "Loading..." : "Select Employee"}
                       </option>
-                      {!employeesLoading && employees.map((employee) => (<option key={employee.id} value={employee.full_name}>
-                        {employee.full_name} </option>))} </select>
+                      {!employeesLoading && employees.map((employee) => (<option key={employee.id} value={employee.employee_name}>
+                        {employee.employee_name} </option>))} </select>
                     {errors.paid_to && <p className="text-red-500 text-xs mt-1">{errors.paid_to}</p>}
                   </div>
 

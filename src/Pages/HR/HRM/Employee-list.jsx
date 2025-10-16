@@ -45,34 +45,32 @@ const EmployeeList = () => {
       });
   }, []);
   // delete by id
-  const handleDelete = async (id) => {
-    try {
-      const response = await api.delete(
-        `/employee/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+   const handleDelete = async (id) => {
+  try {
+    const response = await api.delete(`/employee/${id}`);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete employee");
-      }
-      // Remove employee from local list
-      setEmployee((prev) => prev.filter((dt) => dt.id !== id));
+    // Axios er jonno check
+    if (response.status === 200) {
+      // UI update
+      setEmployee((prev) => prev.filter((item) => item.id !== id));
       toast.success("Employee deleted successfully", {
         position: "top-right",
         autoClose: 3000,
       });
+
       setIsOpen(false);
       setSelectedEmployeeId(null);
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("There was a problem deleting!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+    } else {
+      throw new Error("Delete request failed");
     }
-  };
+  } catch (error) {
+    console.error("Delete error:", error);
+    toast.error("There was a problem deleting!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  }
+};
   // search
   const filteredEmployeeList = employee.filter((dt) => {
     const term = searchTerm.toLowerCase();
@@ -262,7 +260,7 @@ const EmployeeList = () => {
 
       {/* view modal */}
       {viewModal && selectedEmployee && (
-        <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50 overflow-auto scroll-hidden">
           <div className="relative bg-white rounded-lg shadow-lg p-6 w-[700px] max-w-3xl border border-gray-300">
             <button
               onClick={() => setViewModal(false)}
@@ -277,16 +275,17 @@ const EmployeeList = () => {
 
             <div className="flex items-center gap-4 mb-4">
               <img
-                src={
-                  selectedEmployee.image
-                    ? `${import.meta.env.VITE_BASE_URL}/public/uploads/employee/${selectedEmployee.image}`
-                    : "https://via.placeholder.com/100"
-                }
+                // src={
+                //   selectedEmployee.image
+                //     ? `${import.meta.env.VITE_BASE_URL}/public/uploads/employee/${selectedEmployee.image}`
+                //     : "https://i.ibb.co.com/CsSbwNvk/download.png"
+                // }
+                src="https://i.ibb.co.com/CsSbwNvk/download.png"
                 alt={selectedEmployee.full_name || "Employee"}
                 className="w-24 h-24 rounded-full border"
               />
               <div>
-                <p><span className="font-semibold">Name:</span> {selectedEmployee.full_name}</p>
+                <p><span className="font-semibold">Name:</span> {selectedEmployee.employee_name}</p>
                 <p><span className="font-semibold">Email:</span> {selectedEmployee.email}</p>
                 <p><span className="font-semibold">Mobile:</span> {selectedEmployee.mobile}</p>
                 <p><span className="font-semibold">Designation:</span> {selectedEmployee.designation}</p>

@@ -13,6 +13,7 @@ import { saveAs } from "file-saver"
 import Pagination from "../components/Shared/Pagination"
 import api from "../../utils/axiosConfig"
 import { tableFormatDate } from "../hooks/formatDate"
+import DatePicker from "react-datepicker"
 
 const DailyIncome = () => {
   const [trips, setTrips] = useState([])
@@ -64,7 +65,7 @@ const DailyIncome = () => {
   // search and filter
   // search off, only filter by date + customer + vehicle
   const filteredIncome = trips.filter((dt) => {
-    const tripDate = new Date(dt.date);
+    const tripDate = new Date(dt.start_date);
     const start = startDate ? new Date(startDate) : null;
     const end = endDate ? new Date(endDate) : null;
 
@@ -79,7 +80,7 @@ const DailyIncome = () => {
     // vehicle filter (dropdown বা input field নিলে সেভাবে handle করতে হবে)
     const matchesVehicle =
       !selectedVehicle || dt.vehicle_no?.toLowerCase() === selectedVehicle.toLowerCase();
-       const isApproved = dt.status === "Approved";
+    const isApproved = dt.status === "Approved";
 
     return matchesDate && matchesCustomer && matchesVehicle && isApproved;
   });
@@ -107,7 +108,7 @@ const DailyIncome = () => {
 
     return {
       index: index + 1,
-      date: new Date(dt.date).toLocaleDateString("en-GB"),
+      date: tableFormatDate(dt.date),
       customer: dt.customer,
       vehicle_no: dt.vehicle_no,
       load_point: dt.load_point,
@@ -199,14 +200,14 @@ const DailyIncome = () => {
         {/* Export & Search */}
         <div className="md:flex justify-between items-center">
           <div className="flex flex-wrap md:flex-row gap-1 md:gap-3 text-gray-700 font-semibold rounded">
-            <CSVLink
+            {/* <CSVLink
               data={csvData}
               headers={headers}
               filename={"dailyincome_data.csv"}
               className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-white shadow  hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
               CSV
-            </CSVLink>
+            </CSVLink> */}
             <button
               onClick={exportExcel}
               className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-white shadow   hover:text-white rounded transition-all duration-300 cursor-pointer"
@@ -214,13 +215,13 @@ const DailyIncome = () => {
               <FaFileExcel className="" />
               Excel
             </button>
-            <button
+            {/* <button
               onClick={exportPDF}
               className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-white shadow   hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
               <FaFilePdf className="" />
               PDF
-            </button>
+            </button> */}
             <button
               onClick={printTable}
               className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-white  shadow hover:text-white rounded transition-all duration-300 cursor-pointer"
@@ -247,24 +248,31 @@ const DailyIncome = () => {
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
             <select
               value={selectedCustomer}
               onChange={(e) => {

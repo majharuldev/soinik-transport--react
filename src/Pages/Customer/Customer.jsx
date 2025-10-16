@@ -112,7 +112,7 @@ const Customer = () => {
                 setCurrentPage(1);
               }}
               placeholder="Search by  ..."
-              className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+              className="lg:w-60 border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
              {/*  Clear button */}
     {searchTerm && (
@@ -121,7 +121,7 @@ const Customer = () => {
           setSearchTerm("");
           setCurrentPage(1);
         }}
-        className="absolute right-9 top-[6.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+        className="absolute right-9 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
       >
         ✕
       </button>

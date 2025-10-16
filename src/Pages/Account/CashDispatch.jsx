@@ -38,32 +38,38 @@ const CashDispatch = () => {
   }, []);
 
   const filteredAccounts = useMemo(() => {
-    return account.filter((item) => {
-      if (!item.date) return false;
-      const itemDate = parseISO(item.date);
+  return account.filter((item) => {
+    if (!item.date) return false;
+    // Convert API date string safely to Date
+    const itemDate = new Date(item.date);
+    if (isNaN(itemDate)) return false;
 
-      // If only startDate is set, match exactly that date
-      if (startDate && !endDate) {
-        return isEqual(itemDate, parseISO(startDate));
-      }
+    // If only startDate is set
+    if (startDate && !endDate) {
+      return (
+        itemDate.toDateString() === startDate.toDateString()
+      );
+    }
 
-      // If only endDate is set, match exactly that date
-      if (!startDate && endDate) {
-        return isEqual(itemDate, parseISO(endDate));
-      }
+    // If only endDate is set
+    if (!startDate && endDate) {
+      return (
+        itemDate.toDateString() === endDate.toDateString()
+      );
+    }
 
-      // If both startDate and endDate are set, filter range
-      if (startDate && endDate) {
-        return (
-          (isAfter(itemDate, parseISO(startDate)) || isEqual(itemDate, parseISO(startDate))) &&
-          (isBefore(itemDate, parseISO(endDate)) || isEqual(itemDate, parseISO(endDate)))
-        );
-      }
+    // If both are set (range)
+    if (startDate && endDate) {
+      return (
+        (isAfter(itemDate, startDate) || isEqual(itemDate, startDate)) &&
+        (isBefore(itemDate, endDate) || isEqual(itemDate, endDate))
+      );
+    }
 
-      // If no date filter, include all
-      return true;
-    });
-  }, [account, startDate, endDate]);
+    // No filter → include all
+    return true;
+  });
+}, [account, startDate, endDate]);
 
 
   const totalAmount = useMemo(() => {

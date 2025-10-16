@@ -43,34 +43,27 @@ const Office = () => {
       });
   }, []);
   // delete by id
-  const handleDelete = async (id) => {
-    try {
-      const response = await api.delete(
-        `/office/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Failed to delete office data");
-      }
-      // Remove office data from local list
-      setOffice((prev) => prev.filter((office) => office.id !== id));
-      toast.success("Office data deleted successfully", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+    const handleDelete = async (id) => {
+  try {
+    const response = await api.delete(`/office/${id}`);
 
-      setIsOpen(false);
-      setSelectedOfficeId(null);
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("There was a problem deleting!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    }
-  };
+    // Remove driver from local list
+    setOffice((prev) => prev.filter((driver) => driver.id !== id));
+    toast.success("Office deleted successfully", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+
+    setIsOpen(false);
+    setSelectedOfficeId(null);
+  } catch (error) {
+    console.error("Delete error:", error.response || error);
+    toast.error("There was a problem deleting!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  }
+};
   if (loading) return <p className="text-center mt-16">Loading office...</p>;
   // search
   const filteredOfficeList = office.filter((dt) => {
@@ -200,6 +193,12 @@ const printOfficeTable = () => {
           th, td { border: 1px solid #000; padding: 8px; text-align: left; }
           thead { background-color: #11375B; color: white; }
           tbody tr:nth-child(odd) { background-color: #f3f4f6; }
+          thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         </style>
       </head>
       <body>
@@ -241,12 +240,12 @@ const printOfficeTable = () => {
               Excel
             </button>
 
-            <button
+            {/* <button
               onClick={exportOfficeToPDF}
               className="py-1 px-5 bg-white shadow font-semibold rounded hover:bg-primary hover:text-white transition-all cursor-pointer"
             >
               PDF
-            </button>
+            </button> */}
 
             <button
               onClick={printOfficeTable}
@@ -275,7 +274,7 @@ const printOfficeTable = () => {
           setSearchTerm("");
           setCurrentPage(1);
         }}
-        className="absolute right-7 top-[6rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+        className="absolute right-7 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
       >
         ✕
       </button>
@@ -291,7 +290,7 @@ const printOfficeTable = () => {
                 <th className="p-2">Branch</th>
                 <th className="p-2">Address</th>
                  <th className="p-2">Opening Balance</th>
-                <th className="p-2">Factory/CompanyName</th>
+                {/* <th className="p-2">Factory/CompanyName</th> */}
                 <th className="p-2">Action</th>
               </tr>
             </thead>
@@ -314,7 +313,7 @@ const printOfficeTable = () => {
                   <td className="p-2">{dt.branch_name}</td>
                   <td className="p-2">{dt.address}</td>
                   <td className="p-2">{dt.opening_balance}</td>
-                  <td className="p-2">{dt.factory_name}</td>
+                  {/* <td className="p-2">{dt.factory_name}</td> */}
                   <td className="px-2 action_column">
                     <div className="flex gap-1">
                       <Link to={`/tramessy/HR/HRM/UpdateOfficeForm/${dt.id}`}>

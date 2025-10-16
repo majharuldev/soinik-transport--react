@@ -37,21 +37,19 @@ const AddCustomer = () => {
   // Add & update handler function
    const onSubmit = async (data) => {
     try {
-      const formData = new FormData();
-      for (const key in data) {
-        if (data[key] !== undefined && data[key] !== null) {
-          formData.append(key, data[key]);
-        }
-      }
+      const payload = { ...data };
+
+    // ref_id only generate if not in update mode
+    if (!id) {
+      payload.ref_id = generateRefId();
+    }
 
       let response;
       if (id) {
         // Update
-        response = await api.put(`/customer/${id}`, formData);
+        response = await api.put(`/customer/${id}`, payload);
       } else {
-        // Create
-        formData.append("ref_id", generateRefId());
-        response = await api.post(`/customer`, formData);
+        response = await api.post(`/customer`, payload);
       }
 
       toast.success(

@@ -33,7 +33,7 @@ const Bill = () => {
   useEffect(() => {
     api.get(`/trip`)
       .then((res) => {
-          setYamaha(res.data)
+        setYamaha(res.data)
         setLoading(false)
       })
       .catch((error) => {
@@ -46,7 +46,7 @@ const Bill = () => {
   useEffect(() => {
     api.get(`/customer`)
       .then((res) => {
-          setCustomerList(res.data)
+        setCustomerList(res.data)
       })
       .catch((error) => console.error("Error fetching customer list:", error))
   }, [])
@@ -69,6 +69,7 @@ const Bill = () => {
     }
   }, [])
 
+  // excel
   const exportToExcel = () => {
     const selectedData = yamaha.filter((trip) => selectedRows[trip.id])
     if (!selectedData.length) {
@@ -93,6 +94,7 @@ const Bill = () => {
     saveAs(new Blob([wbout], { type: "application/octet-stream" }), "Bill.xlsx")
   }
 
+  // pdf
   const exportToPDF = () => {
     const selectedData = yamaha.filter((trip) => selectedRows[trip.id])
     if (!selectedData.length) {
@@ -239,6 +241,7 @@ const Bill = () => {
   const tripsToCalculate = selectedTripsForCalculation.length > 0 ? selectedTripsForCalculation : filteredTrips
   const { totalRent, totalDemurrage, grandTotal } = calculateTotals(tripsToCalculate)
 
+  // print
   const handlePrint = () => {
     const selectedData = filteredTrips.filter((trip) => selectedRows[trip.id])
     if (!selectedData.length) {
@@ -396,6 +399,7 @@ const Bill = () => {
     newWindow.print()
   }
 
+  // submit func
   const handleSubmit = async () => {
     const selectedData = filteredTrips.filter(
       (dt, i) => selectedRows[dt.id] && dt.status === "Pending"
@@ -410,88 +414,57 @@ const Bill = () => {
 
       // Create array of promises for all updates
       const updatePromises = selectedData.map((dt) =>
-        api.post(`/customerLedger`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            bill_date: new Date().toISOString().split("T")[0],
-            customer_name: dt.customer,
-            vehicle_no: dt.vehicle_no,
-            chalan: dt.challan,
-            load_point: dt.load_point,
-            unload_point: dt.unload_point,
-            qty: dt.quantity,
-            body_cost: dt.body_fare,
-            fuel_cost: dt.fuel_cost,
-            driver_name: dt.driver_name,
-            bill_amount: dt.total_rent,
-          }),
-        }).then(() =>
-          api.put(`/trip${dt.id}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              status: "Approved",
-              customer: dt.customer,
-              date: dt.date,
-              load_point: dt.load_point,
-              unload_point: dt.unload_point,
-              transport_type: dt.transport_type,
-              vehicle_no: dt.vehicle_no,
-              total_rent: dt.total_rent,
-              quantity: dt.quantity,
-              dealer_name: dt.dealer_name,
-              driver_name: dt.driver_name,
-              fuel_cost: dt.fuel_cost,
-              do_si: dt.do_si,
-              driver_mobile: dt.driver_mobile,
-              challan: dt.challan,
-              sti: dt.sti,
-              model_no: dt.model_no,
-              co_u: dt.co_u,
-              masking: dt.masking,
-              unload_charge: dt.unload_charge,
-              extra_fare: dt.extra_fare,
-              vehicle_rent: dt.vehicle_rent,
-              goods: dt.goods,
-              distribution_name: dt.distribution_name,
-              remarks: dt.remarks,
-              no_of_trip: dt.no_of_trip,
-              vehicle_mode: dt.vehicle_mode,
-              per_truck_rent: dt.per_truck_rent,
-              vat: dt.vat,
-              total_rent_cost: dt.total_rent_cost,
-              driver_commission: dt.driver_commission,
-              road_cost: dt.road_cost,
-              food_cost: dt.food_cost,
-              total_exp: dt.total_exp,
-              trip_rent: dt.trip_rent,
-              advance: dt.advance,
-              due_amount: dt.due_amount,
-              ref_id: dt.ref_id,
-              body_fare: dt.body_fare,
-              parking_cost: dt.parking_cost,
-              night_guard: dt.night_guard,
-              toll_cost: dt.toll_cost,
-              feri_cost: dt.feri_cost,
-              police_cost: dt.police_cost,
-              driver_adv: dt.driver_adv,
-              chada: dt.chada,
-              labor: dt.labor,
-              additional_load: dt.additional_load,
-              trip_type: dt.trip_type,
-              additional_cost: dt.additional_cost,
-            }),
-          }),
-        ),
-      )
+        api.put(`/trip/${dt.id}`, {
+          status: "Submitted",
+          start_date: dt.start_date,
+          end_date: dt.end_date,
+          customer: dt.customer,
+          branch_name: dt.branch_name,
+          load_point: dt.load_point,
+          additional_load: dt.additional_load,
+          unload_point: dt.unload_point,
+          transport_type: dt.transport_type,
+          trip_type: dt.trip_type,
+          trip_id: dt.trip_id,
+          sms_sent: dt.sms_sent,
+          vehicle_no: dt.vehicle_no,
+          driver_name: dt.driver_name,
+          vehicle_category: dt.vehicle_category,
+          vehicle_size: dt.vehicle_size,
+          product_details: dt.product_details,
+          driver_mobile: dt.driver_mobile,
+          challan: dt.challan,
+          driver_adv: dt.driver_adv,
+          remarks: dt.remarks,
+          food_cost: dt.food_cost,
+          total_exp: dt.total_exp,
+          total_rent: dt.total_rent,
+          vendor_rent: dt.vendor_rent,
+          advance: dt.advance,
+          due_amount: dt.due_amount,
+          parking_cost: dt.parking_cost,
+          night_guard: dt.night_guard,
+          toll_cost: dt.toll_cost,
+          feri_cost: dt.feri_cost,
+          police_cost: dt.police_cost,
+          others_cost: dt.others_cost,
+          chada: dt.chada,
+          labor: dt.labor,
+          vendor_name: dt.vendor_name,
+          fuel_cost: dt.fuel_cost,
+          challan_cost: dt.challan_cost,
+          d_day: dt.d_day,
+          d_amount: dt.d_amount,
+          d_total: dt.d_total,
+        })
+      );
 
       // Wait for all updates to complete
       await Promise.all(updatePromises)
 
       // Update local state immediately
       setYamaha((prev) =>
-        prev.map((trip) => (selectedData.some((dt) => dt.id === trip.id) ? { ...trip, status: "Approved" } : trip)),
+        prev.map((trip) => (selectedData.some((dt) => dt.id === trip.id) ? { ...trip, status: "Submitted" } : trip)),
       )
 
       toast.success("Successfully submitted!", { id: loadingToast })
@@ -629,18 +602,18 @@ const Bill = () => {
               />
             </div>
             <div className="w-xs ">
-                          <button
-                            onClick={() => {
-                              setStartDate("");
-                              setEndDate("");
-                              setShowFilter(false);
-                              setSelectedCustomer("")
-                            }}
-                            className="w-full bg-gradient-to-r from-primary to-[#115e15] text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
-                          >
-                            <IoIosRemoveCircle /> Clear
-                          </button>
-                        </div>
+              <button
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                  setShowFilter(false);
+                  setSelectedCustomer("")
+                }}
+                className="w-full bg-gradient-to-r from-primary to-[#115e15] text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              >
+                <IoIosRemoveCircle /> Clear
+              </button>
+            </div>
           </div>
         )}
 
@@ -655,9 +628,9 @@ const Bill = () => {
                 <th className="border border-gray-700 px-2 py-1">Truck No</th>
                 <th className="border border-gray-700 px-2 py-1">Load Point</th>
                 <th className="border border-gray-700 px-2 py-1">Unload Point</th>
-                <th className="border border-gray-700 px-2 py-1">Bill Amount</th>
+                <th className="border border-gray-700 px-2 py-1">Rent Rent</th>
                 <th className="border border-gray-700 px-2 py-1">Demurrage</th>
-                <th className="border border-gray-700 px-2 py-1">Total</th>
+                <th className="border border-gray-700 px-2 py-1">Bill Amount</th>
                 <th className="border border-gray-700 px-2 py-1">BillStatus</th>
               </tr>
             </thead>
@@ -676,17 +649,6 @@ const Bill = () => {
                   <td className="border border-gray-700 p-1">
                     {(Number.parseFloat(dt.total_rent) || 0) + (Number.parseFloat(dt.d_total) || 0)}
                   </td>
-                  {/* <td className="border border-gray-700 p-1 text-center">
-                    {dt.status === "Pending" ? (
-                      <input
-                        type="checkbox"
-                        className="w-4 h-4"
-                        checked={!!selectedRows[dt.id]}
-                        onChange={() => handleCheckBox(dt.id)}
-                      />
-                    ) : (
-                      <span className="inline-block px-2 py-1 text-xs text-green-700 rounded">Submitted</span>
-                    )} */}
                   <td className="border border-gray-700 p-1 text-center ">
                     <div className="flex items-center">
                       <input
@@ -696,16 +658,16 @@ const Bill = () => {
                         onChange={() => handleCheckBox(dt.id)}
                         disabled={false}
                       />
-                      {/* {dt.status === "Pending" && (
+                      {dt.status === "Pending" && (
                         <span className=" inline-block px-2  text-xs text-yellow-600 rounded">
                           Not Submitted
                         </span>
                       )}
-                      {dt.status === "Approved" && (
+                      {dt.status === "Submitted" && (
                         <span className=" inline-block px-2  text-xs text-green-700 rounded">
                           Submitted
                         </span>
-                      )} */}
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -717,7 +679,7 @@ const Bill = () => {
                   Total
                 </td>
                 <td className="border border-black px-2 py-1">{totalRent}</td>
-                {/* <td className="border border-black px-2 py-1">{totalDemurrage}</td> */}
+                <td className="border border-black px-2 py-1">{totalDemurrage}</td>
                 <td className="border border-black px-2 py-1">{grandTotal}</td>
                 <td className="border border-black px-2 py-1"></td>
               </tr>
@@ -739,14 +701,14 @@ const Bill = () => {
             />
           )}
 
-          {/* <div className="flex justify-end mt-5">
+          <div className="flex justify-end mt-5">
             <button
               className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 cursor-pointer"
               onClick={handleSubmit}
             >
               Save Change
             </button>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>

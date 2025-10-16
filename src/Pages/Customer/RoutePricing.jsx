@@ -198,6 +198,12 @@ const RoutePricing = () => {
           tr:hover { background-color: #f1f5f9; }
           .footer { margin-top: 20px; text-align: right; font-size: 12px; color: #555; }
           @media print { body { margin: 0; } }
+           thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         </style>
       </head>
       <body>
@@ -277,12 +283,12 @@ const RoutePricing = () => {
             >
               Excel
             </button>
-            <button
+            {/* <button
               onClick={exportTripsToPDF}
               className="py-1 px-5 hover:bg-primary shadow bg-white hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               PDF
-            </button>
+            </button> */}
             <button
               onClick={printTripsTable}
               className="py-1 px-5 hover:bg-primary shadow bg-white hover:text-white rounded-md transition-all duration-300 cursor-pointer"
@@ -302,7 +308,7 @@ const RoutePricing = () => {
                   setCurrentPage(1);
                 }}
                 placeholder="Search..."
-                className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-7 w-full"
+                className="lg:w-60 border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-7 w-full"
               />
 
               {/*  Clear button */}

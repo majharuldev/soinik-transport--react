@@ -18,6 +18,8 @@ const AdvanceSalaryForm = () => {
   const { id } = useParams();
   const navigate = useNavigate()
 
+  console.log(employees, "employee")
+
   // Fetch employees & user info
   useEffect(() => {
     const fetchData = async () => {
@@ -118,7 +120,7 @@ const AdvanceSalaryForm = () => {
                 label="Select Employee"
                 required
                 options={employees.map((emp) => ({
-                  label: emp.name || emp.full_name || emp.email,
+                  label: emp.employee_name || emp.email,
                   value: emp.id,
                 }))}
                 control={control}

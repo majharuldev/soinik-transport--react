@@ -42,12 +42,12 @@ const HelperForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      const formData = new FormData();
-      for (const key in data) {
-        if (data[key] !== undefined && data[key] !== null) {
-          formData.append(key, data[key]);
-        }
-      }
+      // const formData = new FormData();
+      // for (const key in data) {
+      //   if (data[key] !== undefined && data[key] !== null) {
+      //     formData.append(key, data[key]);
+      //   }
+      // }
 
       const url = isEditMode 
         ? `/helper/${id}`
@@ -55,7 +55,7 @@ const HelperForm = () => {
 
       const method = isEditMode ? 'put' : 'post';
 
-      const response = await api[method](url, formData);
+      const response = await api[method](url, data);
       const resData = response.data;
 
       if (resData.success) {

@@ -94,9 +94,8 @@ const VendorPaymentForm = () => {
   const onSubmit = async (data) => {
   setLoading(true)
   try {
-    const formData = new FormData()
-    for (const key in data) {
-      formData.append(key, data[key])
+    const payload = {
+      ...data,
     }
 
     let paymentResponse
@@ -104,7 +103,7 @@ const VendorPaymentForm = () => {
 
     if (id) {
       // Update existing vendor payment
-      paymentResponse = await api.put(`/vendor-payment/${id}`, formData)
+      paymentResponse = await api.put(`/vendor-payment/${id}`, payload)
       paymentData = paymentResponse.data
 
       if (paymentData.success) {
@@ -115,7 +114,7 @@ const VendorPaymentForm = () => {
       }
     } else {
       // Create new vendor payment
-      paymentResponse = await api.post(`/vendor-payment`, formData)
+      paymentResponse = await api.post(`/vendor-payment`, payload)
       paymentData = paymentResponse.data
 
       if (paymentData.success) {

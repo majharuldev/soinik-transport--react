@@ -37,33 +37,34 @@ const PaymentReceive = () => {
 
   // filter logic
   useEffect(() => {
-    if (!startDate && !endDate) {
-      setFilteredPayment(payment);
-      return;
+  if (!startDate && !endDate) {
+    setFilteredPayment(payment);
+    return;
+  }
+
+  const result = payment.filter((item) => {
+    if (!item.date) return false;
+
+    // Convert API string to Date
+    const itemDate = new Date(item.date);
+    if (isNaN(itemDate)) return false;
+
+    if (startDate && endDate) {
+      return (
+        (isEqual(itemDate, startDate) || isAfter(itemDate, startDate)) &&
+        (isEqual(itemDate, endDate) || isBefore(itemDate, endDate))
+      );
+    } else if (startDate) {
+      return isEqual(itemDate, startDate) || isAfter(itemDate, startDate);
+    } else if (endDate) {
+      return isEqual(itemDate, endDate) || isBefore(itemDate, endDate);
     }
 
-    const start = startDate ? parseISO(startDate) : null;
-    const end = endDate ? parseISO(endDate) : null;
+    return true;
+  });
 
-    const result = payment.filter((item) => {
-      if (!item.date) return false;
-      const itemDate = parseISO(item.date);
-
-      if (start && end) {
-        return (
-          (isEqual(itemDate, start) || isAfter(itemDate, start)) &&
-          (isEqual(itemDate, end) || isBefore(itemDate, end))
-        );
-      } else if (start) {
-        return isEqual(itemDate, start) || isAfter(itemDate, start);
-      } else if (end) {
-        return isEqual(itemDate, end) || isBefore(itemDate, end);
-      }
-      return true;
-    });
-
-    setFilteredPayment(result);
-  }, [startDate, endDate, payment]);
+  setFilteredPayment(result);
+}, [startDate, endDate, payment]);
   // total amount footer
   const totalAmount = filteredPayment.reduce(
     (sum, item) => sum + Number(item.amount || 0),

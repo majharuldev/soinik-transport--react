@@ -88,25 +88,23 @@ const PaymentReceiveForm = () => {
     const refId = isEditing ? data.ref_id : generateRefId();
     
     try {
-      const formData = new FormData();
-      for (const key in data) {
-        if (key !== 'ref_id') {
-          formData.append(key, data[key]);
-        }
-      }
+      const payload = {
+      ...data,
+    }
 
-      if (!isEditing) {
-        formData.append("ref_id", refId);
-      }
+    // যদি create হয়, নতুন ref_id generate করো
+    if (!isEditing) {
+      payload.ref_id = generateRefId()
+    }
 
       // Use appropriate endpoint and method based on mode
       const endpoint = isEditing 
-        ? `/payment-recieve/update/${id}`
+        ? `/payment-recieve/${id}`
         : `/payment-recieve`;
       
       const method = isEditing ? "put" : "post";
 
-      const paymentResponse = await api[method](endpoint, formData);
+      const paymentResponse = await api[method](endpoint, payload);
       const paymentData = paymentResponse.data;
 
       if (paymentData.success) {
