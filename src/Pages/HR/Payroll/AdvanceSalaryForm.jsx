@@ -84,7 +84,7 @@ const AdvanceSalaryForm = () => {
           : "Advance Salary Added Successfully!"
       );
       reset();
-      navigate("/tramessy/HRM/Payroll/Advance-Salary");
+      navigate("/tramessy/HR/Payroll/Advance-Salary");
       return;
     }
 
@@ -114,17 +114,26 @@ const AdvanceSalaryForm = () => {
 
           {/* Employee + Amount */}
           <div className="md:flex justify-between gap-3">
-            <div className="w-full">
-              <SelectField
-                name="employee_id"
-                label="Select Employee"
-                required
-                options={employees.map((emp) => ({
-                  label: emp.employee_name || emp.email,
-                  value: emp.id,
-                }))}
-                control={control}
-              />
+           <div className="w-full">
+              <label className="block text-sm font-medium mb-1">
+                Select Employee <span className="text-red-500">*</span>
+              </label>
+              <select
+                {...methods.register("employee_id", { required: "Employee is required" })}
+                className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-primary focus:border-primary"
+              >
+                <option value="">Select Employee</option>
+                {employees.map((emp) => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.employee_name || emp.email}
+                  </option>
+                ))}
+              </select>
+              {methods.formState.errors.employee_id && (
+                <p className="text-xs text-red-500 mt-1">
+                  {methods.formState.errors.employee_id.message}
+                </p>
+              )}
             </div>
             <div className="w-full">
               <InputField

@@ -37,63 +37,77 @@ const AdvanceSalaryForm = () => {
   }, [userId]);
 
   // Fetch existing advance salary (for edit mode)
+  // useEffect(() => {
+  //   if (id) {
+  //     const fetchAdvanceSalary = async () => {
+  //       try {
+  //         const res = await api.get(`/attendence/${id}`);
+  //         const data = res.data?.data;
+  //         if (data) {
+  //           setValue("employee_id", data.employee_id);
+  //           setValue("working_day", data.working_day);
+  //           setValue("month", data.month);
+  //           setValue("created_by", data.created_by);
+  //         }
+  //       } catch (err) {
+  //         console.error("Error fetching salary data:", err);
+  //         toast.error("Failed to load advance salary info!");
+  //       }
+  //     };
+  //     fetchAdvanceSalary();
+  //   }
+  // }, [id, employees, setValue]);
+
   useEffect(() => {
-    if (id) {
-      const fetchAdvanceSalary = async () => {
-        try {
-          const res = await api.get(`/attendence/${id}`);
-          const data = res.data?.data;
-          if (data) {
-            setValue("employee_id", data.employee_id);
-            setValue("working_day", data.working_day);
-            setValue("month", data.month);
-            setValue("created_by", data.created_by);
-          }
-        } catch (err) {
-          console.error("Error fetching salary data:", err);
-          toast.error("Failed to load advance salary info!");
+    if (id && employees.length > 0) {
+      api.get(`/attendence/${id}`).then((res) => {
+        const data = res.data?.data;
+        if (data) {
+          setValue("employee_id", data.employee_id);
+          setValue("working_day", data.working_day);
+          setValue("month", data.month);
+          setValue("created_by", data.created_by);
         }
-      };
-      fetchAdvanceSalary();
+      }).catch(() => toast.error("Failed to load attendance info!"));
     }
-  }, [id, id, setValue]);
+  }, [id, employees, setValue]);
 
   // Submit handler (Add or Update)
- const onSubmit = async (data) => {
-  const payload = {
-    employee_id: data.employee_id,
-    working_day: data.working_day,
-    month: data.month,
-    created_by: userName,
+  const onSubmit = async (data) => {
+    const payload = {
+      employee_id: data.employee_id,
+      working_day: data.working_day,
+      month: data.month,
+      created_by: userName,
+    };
+
+    try {
+      const res = id
+        ? await api.put(`/attendence/${id}`, payload)
+        : await api.post(`/attendence`, payload)
+
+      // Success check
+      if (res?.data?.status === "Success") {
+        toast.success(
+          id
+            ? "Attendence Updated Successfully!"
+            : "Attendence Added Successfully!"
+        );
+        reset();
+        navigate("/tramessy/HR/Payroll/Attendance");
+        return;
+      }
+
+      // API returned something other than success
+      toast.error(res?.data?.message || "Something went wrong!");
+    } catch (err) {
+      // Prevent duplicate toast if response exists
+      if (!err.response) {
+        toast.error("Failed to submit attendence!");
+      }
+      console.error("Error submitting form:", err);
+    }
   };
-
-  try {
-    const res = id
-      ? await api.put(`/attendence/${id}`, payload)
-      : await api.post(`/attendence`, payload)
-
-    // Success check
-    if (res?.data?.status === "Success") {
-      toast.success(
-        id
-          ? "Attendence Updated Successfully!"
-          : "Attendence Added Successfully!"
-      );
-      reset();
-      navigate("/tramessy/HR/Payroll/Attendance");
-      return;
-    }
-
-    // API returned something other than success
-    toast.error(res?.data?.message || "Something went wrong!");
-  } catch (err) {
-    // Prevent duplicate toast if response exists
-    if (!err.response) {
-      toast.error("Failed to submit attendence!");
-    }
-    console.error("Error submitting form:", err);
-  }
-};
 
   return (
     <div className="p-2">
@@ -110,7 +124,7 @@ const AdvanceSalaryForm = () => {
 
           {/* Employee + Amount */}
           <div className="md:flex justify-between gap-3">
-            <div className="w-full">
+            {/* <div className="w-full">
               <SelectField
                 name="employee_id"
                 label="Select Employee"
@@ -121,6 +135,27 @@ const AdvanceSalaryForm = () => {
                 }))}
                 control={control}
               />
+            </div> */}
+            <div className="w-full">
+              <label className="block text-sm font-medium mb-1">
+                Select Employee <span className="text-red-500">*</span>
+              </label>
+              <select
+                {...methods.register("employee_id", { required: "Employee is required" })}
+                className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-primary focus:border-primary"
+              >
+                <option value="">Select Employee</option>
+                {employees.map((emp) => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.employee_name || emp.email}
+                  </option>
+                ))}
+              </select>
+              {methods.formState.errors.employee_id && (
+                <p className="text-xs text-red-500 mt-1">
+                  {methods.formState.errors.employee_id.message}
+                </p>
+              )}
             </div>
             <div className="w-full">
               <InputField

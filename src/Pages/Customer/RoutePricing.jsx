@@ -20,6 +20,9 @@ const RoutePricing = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedRateId, setSelectedRateId] = useState(null);
+  const toggleModal = () => setIsOpen(!isOpen);
 
   const [formData, setFormData] = useState({
     customer_name: "",
@@ -80,6 +83,29 @@ const RoutePricing = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // delete by id
+  const handleDelete = async (id) => {
+    try {
+      const response = await api.delete(`/rate/${id}`);
+
+      // Remove driver from local list
+      setRoutePricing((prev) => prev.filter((customer) => customer.id !== id));
+      toast.success("Customer deleted successfully", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      setIsOpen(false);
+      setSelectedRateId(null);
+    } catch (error) {
+      console.error("Delete error:", error.response || error);
+      toast.error("There was a problem deleting!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
   // Handle add or update
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -105,6 +131,7 @@ const RoutePricing = () => {
       });
   };
 
+  // edit handler
   const handleEdit = (item) => {
     setFormData({
       customer_name: item.customer_name,
@@ -236,7 +263,7 @@ const RoutePricing = () => {
     printWindow.close();
   };
 
-
+  // filter data
   const filteredData = routePricing.filter(item =>
     item.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.vehicle_category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -361,12 +388,20 @@ const RoutePricing = () => {
                   <td className="px-2 py-4">{dt.unload_point}</td>
                   <td className="px-2 py-4">{dt.rate}</td>
                   {/* <td className="p-2">{dt.vat}</td> */}
-                  <td className="p-2 flex gap-1">
+                  <td className="p-2 flex gap-2 items-center">
 
                     <button onClick={() => handleEdit(dt)} className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md">
                       <FaPen className="text-[12px]" />
                     </button>
-
+                    <button
+                      onClick={() => {
+                        setSelectedRateId(dt.id);
+                        setIsOpen(true);
+                      }}
+                      className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                    >
+                      <FaTrashAlt className="text-[12px]" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -504,6 +539,41 @@ const RoutePricing = () => {
           </div>
         </div>
       )}
+      {/* Delete Modal */}
+      <div className="flex justify-center items-center">
+        {isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+            <div className="relative bg-white rounded-lg shadow-lg p-6 w-72 max-w-sm border border-gray-300">
+              <button
+                onClick={toggleModal}
+                className="text-2xl absolute top-2 right-2 text-white bg-red-500 hover:bg-red-700 cursor-pointer rounded-sm"
+              >
+                <IoMdClose />
+              </button>
+              <div className="flex justify-center mb-4 text-red-500 text-4xl">
+                <FaTrashAlt />
+              </div>
+              <p className="text-center text-gray-700 font-medium mb-6">
+                Are you sure you want to delete this Customer?
+              </p>
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={toggleModal}
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
+                >
+                  No
+                </button>
+                <button
+                  onClick={() => handleDelete(selectedRateId)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </main>
   );
 };

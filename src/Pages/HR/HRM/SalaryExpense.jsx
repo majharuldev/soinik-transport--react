@@ -18,6 +18,7 @@ import SalaryPaySlip from "./PaySlipPrint"
 import { useReactToPrint } from "react-to-print"
 import api from "../../../../utils/axiosConfig"
 import DatePicker from "react-datepicker"
+import { IoMdClose } from "react-icons/io"
 
 
 const SalaryExpense = () => {
@@ -44,8 +45,9 @@ const SalaryExpense = () => {
   const [endDate, setEndDate] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedSlip, setSelectedSlip] = useState(null)
-  const printSlipRef = useRef();
+  const [selectedExpenseId, setSelectedExpenseId] = useState(null)
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleModal = () => setIsOpen(!isOpen);
   const salaryCategories = [
     "Salary",
   ];
@@ -233,33 +235,28 @@ const SalaryExpense = () => {
     return matchesSearch && matchesDate;
   })
 
-  // challan print func
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: "Invoice Print",
-    onAfterPrint: () => {
-      console.log("Print completed")
-      setSelectedSlip(null)
-    },
-    onPrintError: (error) => {
-      console.error("Print error:", error)
-    },
-  })
+  // delete by id
+  const handleDelete = async (id) => {
+    try {
+      const response = await api.delete(`/expense/${id}`);
 
-  const handlePrintClick = (item) => {
-    const formatted = {
-      date: item.date,
-      branch: item.branch_name,
+      // Remove driver from local list
+      setExpenses((prev) => prev.filter((expense) => expense.id !== id));
+      toast.success("Salary Expense deleted successfully", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      setIsOpen(false);
+      setSelectedExpenseId(null);
+    } catch (error) {
+      console.error("Delete error:", error.response || error);
+      toast.error("There was a problem deleting!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
-
-    setSelectedSlip(formatted)
-
-    // Use setTimeout to ensure the component is rendered before printing
-    setTimeout(() => {
-      handlePrint()
-    }, 100)
-  }
-
+  };
   // csv
   const exportCSV = () => {
     const csvContent = [
@@ -462,7 +459,7 @@ const SalaryExpense = () => {
             {/* <span className="text-sm font-medium text-gray-700">Search:</span> */}
             <input
               type="text"
-              className="w-60 px-3 py-2 border border-gray-300 rounded-md text-sm w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="lg:w-60 px-3 py-2 border border-gray-300 rounded-md text-sm  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -597,7 +594,7 @@ const SalaryExpense = () => {
                       </button>
                       <button
                         onClick={() => {
-                          setSelectedOfficeId(dt.id);
+                          setSelectedExpenseId(item.id);
                           setIsOpen(true);
                         }}
                         className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
@@ -620,11 +617,6 @@ const SalaryExpense = () => {
             maxVisible={8}
           />
         )}
-      </div>
-
-      {/* Hidden Component for Printing */}
-      <div style={{ display: "none" }} >
-        {selectedSlip && <SalaryPaySlip ref={printSlipRef} data={selectedSlip} />}
       </div>
 
       {/* Modal */}
@@ -772,6 +764,42 @@ const SalaryExpense = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Modal */}
+      <div className="flex justify-center items-center">
+        {isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+            <div className="relative bg-white rounded-lg shadow-lg p-6 w-72 max-w-sm border border-gray-300">
+              <button
+                onClick={toggleModal}
+                className="text-2xl absolute top-2 right-2 text-white bg-red-500 hover:bg-red-700 cursor-pointer rounded-sm"
+              >
+                <IoMdClose />
+              </button>
+              <div className="flex justify-center mb-4 text-red-500 text-4xl">
+                <FaTrashAlt />
+              </div>
+              <p className="text-center text-gray-700 font-medium mb-6">
+                Are you sure you want to delete this Customer?
+              </p>
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={toggleModal}
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
+                >
+                  No
+                </button>
+                <button
+                  onClick={() => handleDelete(selectedExpenseId)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

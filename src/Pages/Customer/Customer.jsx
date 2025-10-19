@@ -45,34 +45,28 @@ const Customer = () => {
       c.status?.toLowerCase().includes(term)
     );
   });
-  // delete by id
+ // delete by id
   const handleDelete = async (id) => {
-    try {
-      const response = await api.delete(
-        `/customer/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Failed to delete customer data");
-      }
-      // Remove office data from local list
-      setCustomer((prev) => prev.filter((customer) => customer.id !== id));
-      toast.success("Customer data deleted successfully", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-      setIsOpen(false);
-      setSelectedCustomerId(null);
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("There was a problem deleting!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    }
-  };
+  try {
+    const response = await api.delete(`/customer/${id}`);
+
+    // Remove driver from local list
+    setCustomer((prev) => prev.filter((customer) => customer.id !== id));
+    toast.success("Customer deleted successfully", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+
+    setIsOpen(false);
+    setSelectedCustomerId(null);
+  } catch (error) {
+    console.error("Delete error:", error.response || error);
+    toast.error("There was a problem deleting!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  }
+};
   if (loading) return <p className="text-center mt-16">Loading customer...</p>;
   // pagination
   const itemsPerPage = 10;
@@ -178,15 +172,15 @@ const Customer = () => {
                       {/* <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
                         <FaEye className="text-[12px]" />
                       </button> */}
-                      {/* <button
+                      <button
                         onClick={() => {
                           setSelectedCustomerId(dt.id);
                           setIsOpen(true);
                         }}
-                        className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                        className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                       >
                         <FaTrashAlt className="text-[12px]" />
-                      </button> */}
+                      </button>
                     </div>
                   </td>
                 </tr>

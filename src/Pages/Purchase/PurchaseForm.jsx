@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useRef, useState } from "react";
 import BtnSubmit from "../../components/Button/BtnSubmit";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { InputField, SelectField } from "../../components/Form/FormFields";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
@@ -15,12 +15,13 @@ const PurchaseForm = () => {
   const { id } = useParams();
   const isEditMode = Boolean(id);
   const isAdmin = useAdmin();
-const {user} = useContext(AuthContext)
-    const methods = useForm({
-  defaultValues: {
-    sms_sent: "yes",
-  },
-});
+  const { user } = useContext(AuthContext)
+  const methods = useForm({
+    defaultValues: {
+      sms_sent: "yes",
+       items: [{ item_name: "", quantity: 0, unit_price: 0, total: 0 }],
+    },
+  });
 
   const { handleSubmit, register, watch, reset, setValue, control } = methods;
   const purChaseDateRef = useRef(null);
@@ -38,6 +39,12 @@ const {user} = useContext(AuthContext)
   const unitPrice = parseFloat(watch("unit_price") || 0);
   const totalPrice = quantity * unitPrice;
 
+   // Dynamic item fields
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "items",
+  }); 
+  // Update purchase_amount when quantity or unit_price changes
   useEffect(() => {
     const totalPrice = quantity * unitPrice;
     setValue("purchase_amount", totalPrice);
@@ -193,14 +200,14 @@ const {user} = useContext(AuthContext)
     label: supply.supplier_name,
   }));
 
-//   const formData = new FormData();
-// Object.entries(data).forEach(([key, value]) => {
-//   formData.append(key, value);
-// });
+  //   const formData = new FormData();
+  // Object.entries(data).forEach(([key, value]) => {
+  //   formData.append(key, value);
+  // });
 
-// await api.post("/purchase", formData, {
-//   headers: { "Content-Type": "multipart/form-data" },
-// });
+  // await api.post("/purchase", formData, {
+  //   headers: { "Content-Type": "multipart/form-data" },
+  // });
 
 
   // Handle form submission for both add and update
@@ -222,28 +229,28 @@ const {user} = useContext(AuthContext)
       //   priority: data.priority ?? "",
       //   // bill_image: যদি backend JSON support করে, Base64 encode পাঠাও
       // };
-// date format local 
+      // date format local 
       ["date", "service_date", "next_service_date"].forEach((field) => {
-  if (data[field]) {
-    const d = new Date(data[field]);
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-    data[field] = d.toISOString().split("T")[0];
-  }
-});
-  // created_by ঠিকভাবে সেট করা
-    let createdByValue = "Unknown";
-    if (user?.name) createdByValue = user.name;
-    else if (user?.email) createdByValue = user.email;
+        if (data[field]) {
+          const d = new Date(data[field]);
+          d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+          data[field] = d.toISOString().split("T")[0];
+        }
+      });
+      // created_by ঠিকভাবে সেট করা
+      let createdByValue = "Unknown";
+      if (user?.name) createdByValue = user.name;
+      else if (user?.email) createdByValue = user.email;
 
-    // যদি Edit mode হয়, তাহলে আগেরটা রেখে দাও
-    if (isEditMode && data.created_by) {
-      createdByValue = data.created_by;
-    }
+      // যদি Edit mode হয়, তাহলে আগেরটা রেখে দাও
+      if (isEditMode && data.created_by) {
+        createdByValue = data.created_by;
+      }
 
-    const payload = {
-      ...data,
-      created_by: createdByValue,
-    };
+      const payload = {
+        ...data,
+        created_by: createdByValue,
+      };
 
       const response = isEditMode
         ? await api.put(`/purchase/${id}`, payload)   // JSON
@@ -255,9 +262,9 @@ const {user} = useContext(AuthContext)
         if (!id && !isAdmin && data.sms_sent === "yes") {
           const purchase = response.data.data; // Assuming your backend returns created trip data
           const purchaseId = purchase.id;
-          const purchaseDate= purchase.date || "";
+          const purchaseDate = purchase.date || "";
           const supplierName = purchase.supplier_name || "";
-          const userName= user.name || "";
+          const userName = user.name || "";
           const purchaseCategory = purchase?.category || "";
           const vehicleNo = purchase?.vehicle_no || "";
 
@@ -265,13 +272,13 @@ const {user} = useContext(AuthContext)
           const messageContent = `Dear Sir, A new Maintenance created by ${userName}.\nPurchase Id: ${purchaseId}\nPurchase Date: ${purchaseDate}\nSupplier: ${supplierName}\nVehicle: ${vehicleNo}\nPurchase Name: ${purchaseCategory}`;
 
           // SMS Config
-        const adminNumber = "01872121862"; // or multiple separated by commas
-        const API_KEY = "3b82495582b99be5";
-        const SECRET_KEY = "ae771458";
-        const CALLER_ID = "1234";
+          const adminNumber = "01872121862"; // or multiple separated by commas
+          const API_KEY = "3b82495582b99be5";
+          const SECRET_KEY = "ae771458";
+          const CALLER_ID = "1234";
 
-        // Correct URL (same structure as your given example)
-        const smsUrl = `http://smpp.revesms.com:7788/sendtext?apikey=${API_KEY}&secretkey=${SECRET_KEY}&callerID=${CALLER_ID}&toUser=${adminNumber}&messageContent=${encodeURIComponent(messageContent)}`;
+          // Correct URL (same structure as your given example)
+          const smsUrl = `http://smpp.revesms.com:7788/sendtext?apikey=${API_KEY}&secretkey=${SECRET_KEY}&callerID=${CALLER_ID}&toUser=${adminNumber}&messageContent=${encodeURIComponent(messageContent)}`;
           try {
             await fetch(smsUrl);
             toast.success("SMS sent to admin!");
@@ -280,7 +287,7 @@ const {user} = useContext(AuthContext)
             // toast.error("Trip saved, but SMS failed to send.");
           }
         }
-           navigate("/tramessy/Purchase/maintenance");
+        navigate("/tramessy/Purchase/maintenance");
         reset();
       } else {
         throw new Error(isEditMode ? "Failed to update Purchase" : "Failed to create Purchase");
@@ -355,6 +362,15 @@ const {user} = useContext(AuthContext)
             <div className="md:flex justify-between gap-x-3">
               <div className="w-full">
                 <SelectField
+                  name="vehicle_no"
+                  label="Vehicle No."
+                  required={!isEditMode}
+                  options={vehicleOptions}
+                  control={control}
+                />
+              </div>
+              <div className="w-full">
+                <SelectField
                   name="category"
                   label="Category"
                   required={!isEditMode}
@@ -365,11 +381,12 @@ const {user} = useContext(AuthContext)
                   ]}
                 />
               </div>
-              {selectedCategory === "parts" && (
+              {/* {selectedCategory === "parts" || selectedCategory==="documents" && (
                 <div className="w-full">
                   <InputField name="item_name" label="Item Name" required={!isEditMode} />
                 </div>
-              )}
+              )} */}
+              
               <div className="w-full hidden">
                 <InputField
                   name="driver_name"
@@ -389,119 +406,153 @@ const {user} = useContext(AuthContext)
                   {...register("vehicle_category")}
                 />
               </div>
-              <div className="w-full">
-                <SelectField
-                  name="vehicle_no"
-                  label="Vehicle No."
-                  required={!isEditMode}
-                  options={vehicleOptions}
-                  control={control}
-                />
-              </div>
-              <div className="w-full">
-                <InputField
-                  name="quantity"
-                  label="Quantity"
-                  type="number"
-                  required={!isEditMode}
-                />
-              </div>
+
+            {selectedCategory==="engine_oil"&&(<div className="w-full">
+              <InputField
+                name="quantity"
+                label="Quantity"
+                type="number"
+                required={!isEditMode}
+              />
+            </div>)}
+            </div>
+            <div>
+              {/* 🔹 Dynamic Item Fields */}
+              {selectedCategory !=="engine_oil" &&(<div className="space-y-4">
+                <h4 className="text-lg font-semibold text-primary">Items</h4>
+
+                {fields.map((field, index) => {
+                  const quantity = watch(`items.${index}.quantity`) || 0;
+                  const unitPrice = watch(`items.${index}.unit_price`) || 0;
+                  const total = quantity * unitPrice;
+                  setValue(`items.${index}.total`, total);
+
+                  return (
+                    <div key={field.id} className="flex flex-col md:flex-row gap-3 border border-gray-300 p-3 rounded-md relative">
+                      <InputField name={`items.${index}.item_name`} label="Item Name" required={!isEditMode} className="!w-full" />
+                      <InputField name={`items.${index}.quantity`} label="Quantity" type="number" required={!isEditMode}  className="!w-full" />
+                      <InputField name={`items.${index}.unit_price`} label="Unit Price" type="number" required={!isEditMode}  className="!w-full"/>
+                      <InputField name={`items.${index}.total`} label="Total" readOnly value={total} className="!salw-full" />
+
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold hover:bg-red-600"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                })}
+
+                <button
+                  type="button"
+                  onClick={() => append({ item_name: "", quantity: 0, unit_price: 0, total: 0 })}
+                  className="bg-primary text-white px-3 py-1 rounded-md hover:bg-primary/80"
+                >
+                  + Add Item
+                </button>
+              </div>)}
             </div>
 
-            {selectedCategory !=="documents" &&(<div className="flex flex-col lg:flex-row justify-between gap-x-3">
+            <div className="flex flex-col lg:flex-row  gap-x-3">
+              {selectedCategory=== "engine_oil" &&(<div className="flex flex-col lg:flex-row  gap-x-3 w-full">
+                <div className="w-full">
+                  <InputField
+                    name="unit_price"
+                    label="Unit Price"
+                    type="number"
+                    required={!isEditMode}
+                  />
+                </div>
+                <div className="w-full">
+                  <InputField
+                    name="purchase_amount"
+                    label="Total"
+                    readOnly
+                    value={totalPrice}
+                    required={!isEditMode}
+                  />
+                </div>
+              </div>)}
 
-              <div className="w-full">
-                <InputField
-                  name="service_date"
-                  label="Service Date"
-                  type="date"
-                  required={!isEditMode}
-                  inputRef={(e) => {
-                    register("date").ref(e);
-                    purChaseDateRef.current = e;
-                  }}
+              {selectedCategory !== "documents" && (<div className="flex gap-x-3 flex-col lg:flex-row w-full">
+                <div className="w-full">
+                  <InputField
+                    name="service_date"
+                    label="Service Date"
+                    type="date"
+                    required={!isEditMode}
+                    inputRef={(e) => {
+                      register("date").ref(e);
+                      purChaseDateRef.current = e;
+                    }}
 
-                />
-              </div>
-              <div className="w-full">
-                <InputField
-                  name="next_service_date"
-                  label="Next Service Date"
-                  type="date"
-                  required={!isEditMode}
-                  inputRef={(e) => {
-                    register("date").ref(e);
-                    purChaseDateRef.current = e;
-                  }}
+                  />
+                </div>
+                <div className="w-full">
+                  <InputField
+                    name="next_service_date"
+                    label="Next Service Date"
+                    type="date"
+                    required={!isEditMode}
+                    inputRef={(e) => {
+                      register("date").ref(e);
+                      purChaseDateRef.current = e;
+                    }}
 
-                />
-              </div>
-              <div className="w-full">
+                  />
+                </div>
+              </div>)}
+              {selectedCategory === "documents" && (<div className="flex flex-col lg:flex-row gap-x-3 w-full">
+
+                <div className="w-full">
+                  <InputField
+                    name="service_date"
+                    label="Document Renew Date"
+                    type="date"
+                    required={!isEditMode}
+                    inputRef={(e) => {
+                      register("date").ref(e);
+                      purChaseDateRef.current = e;
+                    }}
+
+                  />
+                </div>
+                <div className="w-full">
+                  <InputField
+                    name="next_service_date"
+                    label="Document Next Expire Date"
+                    type="date"
+                    required={!isEditMode}
+                    inputRef={(e) => {
+                      register("date").ref(e);
+                      purChaseDateRef.current = e;
+                    }}
+
+                  />
+                </div>
+              </div>)}
+
+            </div>
+
+            <div className="flex flex-col lg:flex-row justify-between gap-3">
+              {selectedCategory!=="documents"&&(<div className="w-full">
                 <InputField
                   name="last_km"
                   label="Last KM"
-                  required={!isEditMode}
+                  required={false}
                   type="number"
                 />
-              </div>
-              <div className="w-full">
+              </div>)}
+              {selectedCategory!=="documents"&&(<div className="w-full">
                 <InputField
                   name="next_km"
                   label="Next KM"
-                  required={!isEditMode}
+                  required={false}
                   type="number"
                 />
-              </div>
-
-            </div>)}
-            {selectedCategory ==="documents" &&(<div className="flex flex-col lg:flex-row justify-between gap-x-3">
-
-              <div className="w-full">
-                <InputField
-                  name="service_date"
-                  label="Document Renew Date"
-                  type="date"
-                  required={!isEditMode}
-                  inputRef={(e) => {
-                    register("date").ref(e);
-                    purChaseDateRef.current = e;
-                  }}
-
-                />
-              </div>
-              <div className="w-full">
-                <InputField
-                  name="next_service_date"
-                  label="Document Next Expire Date"
-                  type="date"
-                  required={!isEditMode}
-                  inputRef={(e) => {
-                    register("date").ref(e);
-                    purChaseDateRef.current = e;
-                  }}
-
-                />
-              </div>
-            </div>)}
-
-            <div className="flex flex-col lg:flex-row justify-between gap-3">
-              <div className="w-full">
-                <InputField
-                  name="unit_price"
-                  label="Unit Price"
-                  type="number"
-                  required={!isEditMode}
-                />
-              </div>
-              <div className="w-full">
-                <InputField
-                  name="purchase_amount"
-                  label="Total"
-                  readOnly
-                  value={totalPrice}
-                  required={!isEditMode}
-                />
-              </div>
+              </div>)}
               <div className="w-full">
                 <InputField name="remarks" label="Remark" />
               </div>

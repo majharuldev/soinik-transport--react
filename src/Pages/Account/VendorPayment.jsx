@@ -1,16 +1,21 @@
-import axios from "axios";
+
 import { useEffect, useState } from "react";
 import { FaPen, FaPlus, FaTrashAlt } from "react-icons/fa";
-import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { MdOutlineAirplaneTicket } from "react-icons/md";
 import { Link } from "react-router-dom";
 import Pagination from "../../components/Shared/Pagination";
 import api from "../../../utils/axiosConfig";
 import { tableFormatDate } from "../../hooks/formatDate";
+import { IoMdClose } from "react-icons/io";
+import toast from "react-hot-toast";
 
 const VendorPayment = () => {
   const [payment, setPayment] = useState([]);
   const [loading, setLoading] = useState(true);
+  // delete modal
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
+  const toggleModal = () => setIsOpen(!isOpen);
   // Fetch payment data
   useEffect(() => {
     api.get(`/vendor-payment`)
@@ -31,6 +36,29 @@ const VendorPayment = () => {
     (sum, item) => sum + Number(item.amount || 0),
     0
   );
+
+  // delete by id
+  const handleDelete = async (id) => {
+    try {
+      const response = await api.delete(`/vendor-payment/${id}`);
+
+      // Remove driver from local list
+      setPayment((prev) => prev.filter((account) => account.id !== id));
+      toast.success("Payment deleted successfully", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      setIsOpen(false);
+      setSelectedPaymentId(null);
+    } catch (error) {
+      console.error("Delete error:", error.response || error);
+      toast.error("There was a problem deleting!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
 
   // pagination
   const [currentPage, setCurrentPage] = useState([1]);
@@ -112,27 +140,27 @@ const VendorPayment = () => {
                       <td className="p-2">{dt.status}</td>
                       <td className="px-2 action_column">
                         <div className="flex gap-1">
-                          {dt.status === "Unpaid" && <Link to={`/tramessy/account/update-vendor-payment/${dt.id}`}>
+                          {dt.status === "Unpaid" ? (<Link to={`/tramessy/account/update-vendor-payment/${dt.id}`}>
                             <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
                               <FaPen className="text-[12px]" />
                             </button>
-                          </Link>}
-                          {/* <button
-                        // onClick={() => {
-                        //   setSelectedEmployeeId(dt.id);
-                        //   setIsOpen(true);
-                        // }}
-                        className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                      >
-                        <FaTrashAlt className="text-[12px]" />
-                      </button> */}
+                          </Link>): (<div className="w-7"></div>)}
+                          <button
+                            onClick={() => {
+                              setSelectedPaymentId(dt.id);
+                              setIsOpen(true);
+                            }}
+                            className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                          >
+                            <FaTrashAlt className="text-[12px]" />
+                          </button>
                         </div>
                       </td>
                     </tr>
                   )))
               }
             </tbody>
-            {/* ✅ মোট যোগফল row */}
+            {/*  মোট যোগফল row */}
             {currentPayment.length > 0 && (
               <tfoot className="bg-gray-100 font-bold">
                 <tr>
@@ -152,6 +180,41 @@ const VendorPayment = () => {
             onPageChange={(page) => setCurrentPage(page)}
             maxVisible={8}
           />
+        )}
+      </div>
+      {/* Delete Modal */}
+      <div className="flex justify-center items-center">
+        {isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+            <div className="relative bg-white rounded-lg shadow-lg p-6 w-72 max-w-sm border border-gray-300">
+              <button
+                onClick={toggleModal}
+                className="text-2xl absolute top-2 right-2 text-white bg-red-500 hover:bg-red-700 cursor-pointer rounded-sm"
+              >
+                <IoMdClose />
+              </button>
+              <div className="flex justify-center mb-4 text-red-500 text-4xl">
+                <FaTrashAlt />
+              </div>
+              <p className="text-center text-gray-700 font-medium mb-6">
+                Are you sure you want to delete this Customer?
+              </p>
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={toggleModal}
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
+                >
+                  No
+                </button>
+                <button
+                  onClick={() => handleDelete(selectedPaymentId)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

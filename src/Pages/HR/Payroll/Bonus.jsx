@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { FaPen, FaPlus, FaUserSecret } from "react-icons/fa";
+import { FaPen, FaPlus, FaTrashAlt, FaUserSecret } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import api from "../../../../utils/axiosConfig";
 import Pagination from "../../../components/Shared/Pagination";
@@ -9,6 +9,7 @@ import { InputField } from "../../../components/Form/FormFields";
 import BtnSubmit from "../../../components/Button/BtnSubmit";
 import { AuthContext } from "../../../providers/AuthProvider";
 import toast, { Toaster } from "react-hot-toast";
+import { IoMdClose } from "react-icons/io";
 
 const Bonus = () => {
   const [advanceSalary, setAdvanceSalary] = useState([]);
@@ -17,10 +18,14 @@ const Bonus = () => {
   const [itemsPerPage] = useState(5);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBonous, setSelectedBonous] = useState(null);
-  const {user} = useContext(AuthContext);
+  // delete modal
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedBonusId, setSelectedBonusId] = useState(null);
+  const toggleModal = () => setIsOpen(!isOpen);
+  const { user } = useContext(AuthContext);
   const bonousDateRef = useRef(null);
-    const methods = useForm();
-    const { handleSubmit, reset, control, setValue, register } = methods;
+  const methods = useForm();
+  const { handleSubmit, reset, control, setValue, register } = methods;
   // salary advance fetch
   useEffect(() => {
     const fetchSalaryAdvance = async () => {
@@ -49,6 +54,30 @@ const Bonus = () => {
     fetchEmployee();
   }, []);
 
+  // delete by id
+  const handleDelete = async (id) => {
+    try {
+      const response = await api.delete(`/bonous/${id}`);
+
+      // Remove driver from local list
+      setAdvanceSalary((prev) => prev.filter((account) => account.id !== id));
+      toast.success("Bonous deleted successfully", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      setIsOpen(false);
+      setSelectedBonusId(null);
+    } catch (error) {
+      console.error("Delete error:", error.response || error);
+      toast.error("There was a problem deleting!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
+
   // Handle modal open for add/edit
   const handleEdit = (bonous) => {
     setSelectedBonous(bonous);
@@ -64,45 +93,45 @@ const Bonus = () => {
     }
   };
 
-   // Submit handler
-    const onSubmit = async (data) => {
-      const payload = {
-        employee_id: data.employee_id,
-        amount: data.amount,
-        month_of: data.month_of,
-        status: data.status,
-        created_by: user.name,
-      };
-  
-      try {
-        const res = selectedBonous
-          ? await api.put(`/bonous/${selectedBonous.id}`, payload)
-          : await api.post(`/bonous`, payload);
-  
-        if (res?.data?.status === "Success") {
-          toast.success(
-            selectedBonous ? "Bonous Updated Successfully!" : "Bonous Added Successfully!"
-          );
-          setIsModalOpen(false);
-          reset();
-          // Option 1: Update local table state
-      if (!selectedBonous) {
-        setAdvanceSalary((prev) => [res.data.data, ...prev]);
-      } else {
-        setAdvanceSalary((prev) =>
-          prev.map((item) =>
-            item.id === selectedBonous.id ? res.data.data : item
-          )
-        );
-      }
-        } else {
-          toast.error("Something went wrong!");
-        }
-      } catch (err) {
-        console.error("Error submitting loan:", err);
-        toast.error("Failed to save loan!");
-      }
+  // Submit handler
+  const onSubmit = async (data) => {
+    const payload = {
+      employee_id: data.employee_id,
+      amount: data.amount,
+      month_of: data.month_of,
+      status: data.status,
+      created_by: user.name,
     };
+
+    try {
+      const res = selectedBonous
+        ? await api.put(`/bonous/${selectedBonous.id}`, payload)
+        : await api.post(`/bonous`, payload);
+
+      if (res?.data?.status === "Success") {
+        toast.success(
+          selectedBonous ? "Bonous Updated Successfully!" : "Bonous Added Successfully!"
+        );
+        setIsModalOpen(false);
+        reset();
+        // Option 1: Update local table state
+        if (!selectedBonous) {
+          setAdvanceSalary((prev) => [res.data.data, ...prev]);
+        } else {
+          setAdvanceSalary((prev) =>
+            prev.map((item) =>
+              item.id === selectedBonous.id ? res.data.data : item
+            )
+          );
+        }
+      } else {
+        toast.error("Something went wrong!");
+      }
+    } catch (err) {
+      console.error("Error submitting loan:", err);
+      toast.error("Failed to save loan!");
+    }
+  };
 
   // pagination logic
   const indexOfLast = currentPage * itemsPerPage;
@@ -118,7 +147,7 @@ const Bonus = () => {
 
   return (
     <div className="p-2">
-      <Toaster/>
+      <Toaster />
       <div className="w-[22rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -170,12 +199,21 @@ const Bonus = () => {
                     <td className="p-2">
                       {(item.created_by)}
                     </td>
-                    <td className="p-2">
+                    <td className="p-2 flex gap-2 items-center">
                       <Link >
                         <button onClick={() => handleEdit(item)} className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
                           <FaPen className="text-[12px]" />
                         </button>
                       </Link>
+                      <button
+                        onClick={() => {
+                          setSelectedBonusId(item.id);
+                          setIsOpen(true);
+                        }}
+                        className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                      >
+                        <FaTrashAlt className="text-[12px]" />
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -251,13 +289,13 @@ const Bonus = () => {
                     name="amount"
                     label="Bonous Amount"
                     type="number"
-                    required={selectedBonous? false:true}
+                    required={selectedBonous ? false : true}
                   />
                   <InputField
                     name="month_of"
                     label="Monthly Bonous"
                     placeholder="2025-05(Year-Month)"
-                    required={selectedBonous? false:true}
+                    required={selectedBonous ? false : true}
                   />
                   <div className="w-full">
                     <label className="block text-sm font-medium mb-1">
@@ -294,6 +332,41 @@ const Bonus = () => {
           </div>
         </div>
       )}
+      {/* Delete Modal */}
+      <div className="flex justify-center items-center">
+        {isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+            <div className="relative bg-white rounded-lg shadow-lg p-6 w-72 max-w-sm border border-gray-300">
+              <button
+                onClick={toggleModal}
+                className="text-2xl absolute top-2 right-2 text-white bg-red-500 hover:bg-red-700 cursor-pointer rounded-sm"
+              >
+                <IoMdClose />
+              </button>
+              <div className="flex justify-center mb-4 text-red-500 text-4xl">
+                <FaTrashAlt />
+              </div>
+              <p className="text-center text-gray-700 font-medium mb-6">
+                Are you sure you want to delete this Customer?
+              </p>
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={toggleModal}
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
+                >
+                  No
+                </button>
+                <button
+                  onClick={() => handleDelete(selectedBonusId)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

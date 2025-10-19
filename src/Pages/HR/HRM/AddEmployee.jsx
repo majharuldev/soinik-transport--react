@@ -416,7 +416,7 @@ const EmployeeForm = () => {
                 <InputField name="employee_name" label="Full Name" required={isEditMode? false:true} />
               </div>
               <div className="w-full">
-                <InputField name="email" label="Email" />
+                <InputField name="email" label="Email" required={false}/>
               </div>
             </div>
 

@@ -331,7 +331,7 @@
 
 
 import { useEffect, useState } from "react";
-import { FaCheck } from "react-icons/fa";
+import { FaCheck, FaTrashAlt } from "react-icons/fa";
 import { FaEye, FaPen, FaPlus, FaUserSecret } from "react-icons/fa6";
 import { IoCloseOutline, IoCloseSharp } from "react-icons/io5";
 import { Link } from "react-router-dom";
@@ -340,12 +340,18 @@ import autoTable from "jspdf-autotable";
 import Pagination from "../../../components/Shared/Pagination";
 import api from "../../../../utils/axiosConfig";
 import { tableFormatDate } from "../../../hooks/formatDate";
+import { IoMdClose } from "react-icons/io";
+import toast from "react-hot-toast";
 
 const AttendanceList = () => {
   const [employee, setEmployee] = useState([]);
   const [attendanceList, setAttendanceList] = useState([]);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  // delete modal
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedAttendanceId, setSelectedAttendanceId] = useState(null);
+  const toggleModal = () => setIsOpen(!isOpen);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -367,7 +373,30 @@ const AttendanceList = () => {
     setSelectedEmployeeId(id === selectedEmployeeId ? null : id);
   };
 
- // pagination
+  // delete by id
+  const handleDelete = async (id) => {
+    try {
+      const response = await api.delete(`/attendence/${id}`);
+
+      // Remove driver from local list
+      setAttendanceList((prev) => prev.filter((account) => account.id !== id));
+      toast.success("Attendence deleted successfully", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      setIsOpen(false);
+      setSelectedAttendanceId(null);
+    } catch (error) {
+      console.error("Delete error:", error.response || error);
+      toast.error("There was a problem deleting!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
+  // pagination
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -377,7 +406,7 @@ const AttendanceList = () => {
   );
   const totalPages = Math.ceil(attendanceList.length / itemsPerPage);
 
-// helper to get employee name
+  // helper to get employee name
   const getEmployeeName = (empId) => {
     const emp = employee.find((e) => (e.id) === Number(empId));
     return emp ? emp.employee_name || emp.email : empId;
@@ -486,7 +515,7 @@ const AttendanceList = () => {
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr>
                 <th className="p-2">SL.</th>
-                 <th className="p-2">Date</th>
+                <th className="p-2">Date</th>
                 <th className="p-2">Employee Name</th>
                 <th className="p-2">Working Day</th>
                 <th className="p-2">Month</th>
@@ -507,7 +536,7 @@ const AttendanceList = () => {
                     key={emp.id}
                     className="hover:bg-gray-50 transition-all border border-gray-200"
                   >
-                    <td className="p-2 font-bold">{ index + 1}</td>
+                    <td className="p-2 font-bold">{index + 1}</td>
                     <td className="p-2">{tableFormatDate(emp.created_at)}</td>
                     <td className="p-2">{getEmployeeName(emp.employee_id)}</td>
                     <td className="p-2">{emp.working_day}</td>
@@ -520,12 +549,15 @@ const AttendanceList = () => {
                             <FaPen className="text-[12px]" />
                           </button>
                         </Link>
-                        {/* <button
-                          onClick={() => handleViewClick(emp.id)}
-                          className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                        <button
+                          onClick={() => {
+                            setSelectedAttendanceId(emp.id);
+                            setIsOpen(true);
+                          }}
+                          className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                         >
-                          <FaEye className="text-[12px]" />
-                        </button> */}
+                          <FaTrashAlt className="text-[12px]" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -643,6 +675,42 @@ const AttendanceList = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Modal */}
+      <div className="flex justify-center items-center">
+        {isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+            <div className="relative bg-white rounded-lg shadow-lg p-6 w-72 max-w-sm border border-gray-300">
+              <button
+                onClick={toggleModal}
+                className="text-2xl absolute top-2 right-2 text-white bg-red-500 hover:bg-red-700 cursor-pointer rounded-sm"
+              >
+                <IoMdClose />
+              </button>
+              <div className="flex justify-center mb-4 text-red-500 text-4xl">
+                <FaTrashAlt />
+              </div>
+              <p className="text-center text-gray-700 font-medium mb-6">
+                Are you sure you want to delete this Customer?
+              </p>
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={toggleModal}
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
+                >
+                  No
+                </button>
+                <button
+                  onClick={() => handleDelete(selectedAttendanceId)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
