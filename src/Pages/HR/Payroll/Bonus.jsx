@@ -18,6 +18,7 @@ const Bonus = () => {
   const [itemsPerPage] = useState(5);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBonous, setSelectedBonous] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   // delete modal
   const [isOpen, setIsOpen] = useState(false);
   const [selectedBonusId, setSelectedBonusId] = useState(null);
@@ -132,19 +133,65 @@ const Bonus = () => {
       toast.error("Failed to save loan!");
     }
   };
-
-  // pagination logic
-  const indexOfLast = currentPage * itemsPerPage;
-  const indexOfFirst = indexOfLast - itemsPerPage;
-  const currentItems = advanceSalary.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(advanceSalary.length / itemsPerPage);
-
+  
   // helper to get employee name
   const getEmployeeName = (empId) => {
     const emp = employee.find((e) => e.id === Number(empId));
     return emp ? emp.employee_name || emp.email : empId;
   };
+    // Pagination & Search
+  const filteredItems = advanceSalary.filter(
+    (item) =>
+      getEmployeeName(item.employee_id).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.amount.toString().includes(searchTerm) ||
+      item.month_of.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
+  // pagination logic
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+  const currentItems = filteredItems.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+ // Export Excel
+  const exportExcel = () => {
+    const data = filteredItems.map((item, index) => ({
+      SL: index + 1,
+      Date: tableFormatDate(item.created_at),
+      "Employee Name": getEmployeeName(item.employee_id),
+      Amount: item.amount,
+      "Salary Month": item.month_of,
+      Status: item.status,
+      "Created By": item.created_by
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Bonus");
+    XLSX.writeFile(wb, "bonus.xlsx");
+  };
+
+  // Print table
+  const printTable = () => {
+    const printContent = document.getElementById("bonus-table").innerHTML;
+    const newWindow = window.open("", "", "width=900,height=600");
+    newWindow.document.write(`
+      <html>
+        <head>
+          <title>Bonus Report</title>
+          <style>
+            table, th, td { border: 1px solid black; border-collapse: collapse; }
+            th, td { padding: 6px; text-align: left; }
+          </style>
+        </head>
+        <body>
+          ${printContent}
+        </body>
+      </html>
+    `);
+    newWindow.document.close();
+    newWindow.focus();
+    newWindow.print();
+  };
   return (
     <div className="p-2">
       <Toaster />
@@ -161,6 +208,49 @@ const Bonus = () => {
                 <FaPlus /> Bonus
               </button>
             </Link>
+          </div>
+        </div>
+        {/* export */}
+        <div className="md:flex justify-between items-center">
+          <div className="flex gap-1 md:gap-3 text-gray-700 font-semibold rounded-md">
+            <button
+              onClick={exportExcel}
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
+            >
+              Excel
+            </button>
+            <button
+              onClick={printTable}
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
+            >
+              Print
+            </button>
+          </div>
+          {/* search */}
+          <div className="mt-3 md:mt-0">
+            {/* <span className="text-primary font-semibold pr-3">Search: </span> */}
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search by Product ..."
+              className="lg:w-60 border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+            />
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-5 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
 

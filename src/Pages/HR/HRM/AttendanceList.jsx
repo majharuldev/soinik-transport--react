@@ -335,8 +335,7 @@ import { FaCheck, FaTrashAlt } from "react-icons/fa";
 import { FaEye, FaPen, FaPlus, FaUserSecret } from "react-icons/fa6";
 import { IoCloseOutline, IoCloseSharp } from "react-icons/io5";
 import { Link } from "react-router-dom";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 import Pagination from "../../../components/Shared/Pagination";
 import api from "../../../../utils/axiosConfig";
 import { tableFormatDate } from "../../../hooks/formatDate";
@@ -348,6 +347,7 @@ const AttendanceList = () => {
   const [attendanceList, setAttendanceList] = useState([]);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   // delete modal
   const [isOpen, setIsOpen] = useState(false);
   const [selectedAttendanceId, setSelectedAttendanceId] = useState(null);
@@ -395,102 +395,105 @@ const AttendanceList = () => {
       });
     }
   };
-
-  // pagination
-  const itemsPerPage = 10;
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentAttedence = attendanceList.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
-  const totalPages = Math.ceil(attendanceList.length / itemsPerPage);
-
+  
   // helper to get employee name
   const getEmployeeName = (empId) => {
     const emp = employee.find((e) => (e.id) === Number(empId));
     return emp ? emp.employee_name || emp.email : empId;
   };
 
-  // print table
+
+   // Search filter
+  const filteredAttendance = attendanceList.filter((item) => {
+    const empName = getEmployeeName(item.employee_id).toLowerCase();
+    const month = item.month?.toLowerCase() || "";
+    const date = tableFormatDate(item.created_at).toLowerCase();
+    const term = searchTerm.toLowerCase();
+    return empName.includes(term) || month.includes(term) || date.includes(term);
+  });
+
+  // pagination
+  const itemsPerPage = 10;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentAttedence = filteredAttendance.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+  const totalPages = Math.ceil(filteredAttendance.length / itemsPerPage);
+
+  // Excel Export
+  const exportExcel = () => {
+    if (filteredAttendance.length === 0) {
+      toast.error("No data to export!");
+      return;
+    }
+
+    const data = filteredAttendance.map((att, index) => ({
+      SL: index + 1,
+      Date: tableFormatDate(att.created_at),
+      Employee: getEmployeeName(att.employee_id),
+      "Working Day": att.working_day,
+      Month: att.month,
+      "Created By": att.created_by,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+    XLSX.writeFile(workbook, "attendance_list.xlsx");
+  };
+
+  // Print
   const printTable = () => {
-    const printContent = document.getElementById("print-section").innerHTML;
-    const newWindow = window.open("", "", "width=900,height=600");
-    newWindow.document.write(`
+    const printWindow = window.open("", "", "width=900,height=600");
+    const tableHTML = `
       <html>
         <head>
           <title>Attendance Report</title>
           <style>
-            @media print {
-              table, th, td {
-                border: 1px solid black !important;
-                border-collapse: collapse !important;
-              }
-              th, td {
-                padding: 6px;
-                text-align: left;
-              }
-            }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th, td { border: 1px solid #333; padding: 6px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            h2 { text-align: center; margin-bottom: 10px; }
           </style>
         </head>
         <body>
-          ${printContent}
+          <h2>Attendance Report</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>SL</th>
+                <th>Date</th>
+                <th>Employee Name</th>
+                <th>Working Day</th>
+                <th>Month</th>
+                <th>Created By</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredAttendance
+                .map(
+                  (att, i) => `
+                <tr>
+                  <td>${i + 1}</td>
+                  <td>${tableFormatDate(att.created_at)}</td>
+                  <td>${getEmployeeName(att.employee_id)}</td>
+                  <td>${att.working_day}</td>
+                  <td>${att.month}</td>
+                  <td>${att.created_by}</td>
+                </tr>`
+                )
+                .join("")}
+            </tbody>
+          </table>
         </body>
       </html>
-    `);
-    newWindow.document.close();
-    newWindow.focus();
-    newWindow.print();
-  };
-
-  // export PDF
-  const exportPDF = () => {
-    if (!selectedEmployee || attendanceData.length === 0) {
-      alert("No data to export.");
-      return;
-    }
-
-    const doc = new jsPDF("landscape");
-    doc.setFontSize(16);
-    doc.text("Attendance Report", 14, 20);
-
-    doc.setFontSize(12);
-    doc.text(`Employee: ${selectedEmployee.full_name}`, 14, 30);
-
-    const rows = attendanceData.map((att, index) => [
-      index + 1,
-      att.date,
-      att.present === "1" ? "1" : "-",
-      att.absent === "1" ? "1" : "-",
-    ]);
-
-    // Add total row at the end
-    rows.push([
-      "",
-      "Total",
-      totalPresent.toString().padStart(2, "0"),
-      totalAbsent.toString().padStart(2, "0"),
-    ]);
-
-    autoTable(doc, {
-      head: [["SL", "Date", "Present", "Absent"]],
-      body: rows,
-      startY: 40,
-      theme: "grid",
-      styles: { halign: "center" },
-      headStyles: {
-        fillColor: "#CDCDCD",
-        textColor: 0,
-        fontStyle: "bold",
-      },
-      didParseCell: (data) => {
-        if (data.row.index === rows.length - 1) {
-          data.cell.styles.fontStyle = "bold";
-        }
-      },
-    });
-
-    doc.save("attendance_report.pdf");
+    `;
+    printWindow.document.write(tableHTML);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
   };
 
   return (
@@ -509,7 +512,49 @@ const AttendanceList = () => {
             </Link>
           </div>
         </div>
-
+        {/* export */}
+        <div className="md:flex justify-between items-center">
+          <div className="flex gap-1 md:gap-3 text-gray-700 font-semibold rounded-md">
+            <button
+              onClick={exportExcel}
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
+            >
+              Excel
+            </button>
+            <button
+              onClick={printTable}
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
+            >
+              Print
+            </button>
+          </div>
+          {/* search */}
+          <div className="mt-3 md:mt-0">
+            {/* <span className="text-primary font-semibold pr-3">Search: </span> */}
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search by Product ..."
+              className="lg:w-60 border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+            />
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-5 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
         <div className="mt-5 overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-primary capitalize text-xs">

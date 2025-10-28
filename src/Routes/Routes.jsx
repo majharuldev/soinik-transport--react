@@ -66,11 +66,6 @@ import PaymentList from "../Pages/Account/PaymentList";
 import PaymentReceiveForm from "../Pages/Account/PaymentReceiveForm";
 import PaymentReceive from "../Pages/Account/PaymentReceive";
 import DriverLedger from "../Pages/Account/DriverLedger";
-import UpdateEmployeeForm from "../Pages/HR/HRM/UpdateEmployeeForm";
-import UpdateSupplyForm from "../Pages/Purchase/UpdateSupplyForm";
-import UpdateRentVehicleForm from "../Pages/UpdateRentVehicleForm";
-import UpdateOfficeForm from "../Pages/HR/HRM/UpdateOfficeForm";
-import UpdateVendorForm from "../Pages/UpdateVendorForm";
 import UpdateLeaveForm from "../Pages/HR/UpdateLeaveForm";
 import HelperList from "../Pages/HelperList";
 import AddHelper from "../Pages/AddHelper";
@@ -91,6 +86,8 @@ import EmployeeForm from "../Pages/HR/HRM/AddEmployee";
 import SupplyForm from "../Pages/Purchase/AddSupply";
 import Loan from "../Pages/HR/Payroll/Loan";
 import Bonus from "../Pages/HR/Payroll/Bonus";
+import Requisition from "../Pages/HR/HRM/Requsition";
+import RequisitionForm from "../Pages/HR/HRM/RequisitionForm";
 export const router = createBrowserRouter([
   {
     path: "/tramessy",
@@ -416,6 +413,18 @@ export const router = createBrowserRouter([
       {
         path: "/tramessy/HR/HRM/office-expense",
         element: <OfficialExpense />,
+      },
+        {
+        path: "/tramessy/HR/advance-requisition",
+        element: <Requisition />,
+      },
+      {
+        path: "/tramessy/HR/advance-requisition-form",
+        element: <RequisitionForm />,
+      },
+      {
+        path: "/tramessy/HR/update-advance-requisition/:id",
+        element: <RequisitionForm />,
       },
       {
         path: "/tramessy/HR/HRM/OfficeForm",

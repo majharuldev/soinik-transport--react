@@ -50,62 +50,62 @@ const RentList = () => {
 
   // export
   const exportExcel = () => {
-  const worksheet = XLSX.utils.json_to_sheet(
-    filteredFuel.map((dt, index) => ({
-      "#": index + 1,
-      Driver: dt.vendor_name,
-      Vehicle: dt.vehicle_name_model,
-      Category: dt.vehicle_category,
-      Size: dt.vehicle_size_capacity,
-      RegiNo: dt.registration_number,
-      Status: dt.status,
-    }))
-  );
+    const worksheet = XLSX.utils.json_to_sheet(
+      filteredFuel.map((dt, index) => ({
+        "#": index + 1,
+        Driver: dt.vendor_name,
+        Vehicle: dt.vehicle_name_model,
+        Category: dt.vehicle_category,
+        Size: dt.vehicle_size_capacity,
+        RegiNo: dt.registration_number,
+        Status: dt.status,
+      }))
+    );
 
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Rent Data");
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Rent Data");
 
-  XLSX.writeFile(workbook, "rent_data.xlsx");
-};
+    XLSX.writeFile(workbook, "rent_data.xlsx");
+  };
 
-// pdf
+  // pdf
   const exportPDF = () => {
-  const doc = new jsPDF("landscape");
+    const doc = new jsPDF("landscape");
 
-  const tableColumn = [
-    "#",
-    "Vendor/Driver",
-    "Vehicle",
-    "Category",
-    "Size/Capacity",
-    "Regi.No",
-    "Status",
-  ];
+    const tableColumn = [
+      "#",
+      "Vendor/Driver",
+      "Vehicle",
+      "Category",
+      "Size/Capacity",
+      "Regi.No",
+      "Status",
+    ];
 
-  const tableRows = filteredFuel.map((dt, index) => [
-    index + 1,
-    dt.vendor_name,
-    dt.vehicle_name_model,
-    dt.vehicle_category,
-    dt.vehicle_size_capacity,
-    dt.registration_number,
-    dt.status,
-  ]);
+    const tableRows = filteredFuel.map((dt, index) => [
+      index + 1,
+      dt.vendor_name,
+      dt.vehicle_name_model,
+      dt.vehicle_category,
+      dt.vehicle_size_capacity,
+      dt.registration_number,
+      dt.status,
+    ]);
 
-  autoTable(doc, {
-    head: [tableColumn],
-    body: tableRows,
-    startY: 20,
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: [17, 55, 91] },
-  });
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [17, 55, 91] },
+    });
 
-  doc.save("rent_data.pdf");
-};
+    doc.save("rent_data.pdf");
+  };
 
-// print
+  // print
   const printTable = () => {
-  const tableHeader = `
+    const tableHeader = `
     <thead>
       <tr>
         <th>#</th>
@@ -119,7 +119,7 @@ const RentList = () => {
     </thead>
   `;
 
-  const tableRows = filteredFuel.map((dt, index) => `
+    const tableRows = filteredFuel.map((dt, index) => `
     <tr>
       <td>${index + 1}</td>
       <td>${dt.vendor_name}</td>
@@ -131,15 +131,15 @@ const RentList = () => {
     </tr>
   `).join("");
 
-  const printContent = `
+    const printContent = `
     <table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%">
       ${tableHeader}
       <tbody>${tableRows}</tbody>
     </table>
   `;
 
-  const WinPrint = window.open("", "", "width=1200,height=800");
-  WinPrint.document.write(`
+    const WinPrint = window.open("", "", "width=1200,height=800");
+    WinPrint.document.write(`
     <html>
       <head><title>Print</title></head>
       <body>
@@ -149,50 +149,50 @@ const RentList = () => {
     </html>
   `);
 
-  WinPrint.document.close();
-  WinPrint.focus();
-  WinPrint.print();
-  WinPrint.close();
-};
+    WinPrint.document.close();
+    WinPrint.focus();
+    WinPrint.print();
+    WinPrint.close();
+  };
 
   // delete by id
   const handleDelete = async (id) => {
-  try {
-    const response = await api.delete(`/rentVehicle/${id}`);
+    try {
+      const response = await api.delete(`/rentVehicle/${id}`);
 
-    // Axios er jonno check
-    if (response.status === 200) {
-      // UI update
-      setFuel((prev) => prev.filter((item) => item.id !== id));
-      toast.success("Rent Vehicle deleted successfully", {
+      // Axios er jonno check
+      if (response.status === 200) {
+        // UI update
+        setFuel((prev) => prev.filter((item) => item.id !== id));
+        toast.success("Rent Vehicle deleted successfully", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+
+        setIsOpen(false);
+        setselectedFuelId(null);
+      } else {
+        throw new Error("Delete request failed");
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("There was a problem deleting!", {
         position: "top-right",
         autoClose: 3000,
       });
-
-      setIsOpen(false);
-      setselectedFuelId(null);
-    } else {
-      throw new Error("Delete request failed");
     }
-  } catch (error) {
-    console.error("Delete error:", error);
-    toast.error("There was a problem deleting!", {
-      position: "top-right",
-      autoClose: 3000,
-    });
-  }
-};
+  };
   // search
   const filteredFuel = fuel.filter((dt) => {
     const term = searchTerm.toLowerCase();
     const fuelDate = dt.date_time;
     const matchesSearch =
       dt.vendor_name?.toLowerCase().includes(term) ||
-    dt.vehicle_name_model?.toLowerCase().includes(term) ||
-    dt.vehicle_category?.toLowerCase().includes(term) ||
-    dt.vehicle_size_capacity?.toLowerCase().includes(term) ||
-    dt.registration_number?.toLowerCase().includes(term) ||
-    dt.status?.toLowerCase().includes(term)
+      dt.vehicle_name_model?.toLowerCase().includes(term) ||
+      dt.vehicle_category?.toLowerCase().includes(term) ||
+      dt.vehicle_size_capacity?.toLowerCase().includes(term) ||
+      dt.registration_number?.toLowerCase().includes(term) ||
+      dt.status?.toLowerCase().includes(term)
     const matchesDateRange =
       (!startDate || new Date(fuelDate) >= new Date(startDate)) &&
       (!endDate || new Date(fuelDate) <= new Date(endDate));
@@ -205,7 +205,7 @@ const RentList = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentFuel = filteredFuel.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredFuel.length / itemsPerPage);
-  
+
   return (
     <main className=" p-2">
       <Toaster />
@@ -265,18 +265,18 @@ const RentList = () => {
               placeholder="Search vehicle..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
-             {/*  Clear button */}
-    {searchTerm && (
-      <button
-        onClick={() => {
-          setSearchTerm("");
-          setCurrentPage(1);
-        }}
-        className="absolute right-5 top-[5.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
-      >
-        ✕
-      </button>
-    )}
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-5 top-[5.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
         {/* Conditional Filter Section */}
@@ -309,7 +309,7 @@ const RentList = () => {
                 }}
                 className="bg-gradient-to-r from-primary to-[#115e15] text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <IoIosRemoveCircle /> Clear 
+                <IoIosRemoveCircle /> Clear
               </button>
             </div>
           </div>
@@ -333,57 +333,57 @@ const RentList = () => {
               {
                 currentFuel.length === 0 ? (
                   <tr>
-                  <td colSpan="8" className="text-center p-4 text-gray-500">
-                    No Rent Vehicle found
-                  </td>
+                    <td colSpan="8" className="text-center p-4 text-gray-500">
+                      No Rent Vehicle found
+                    </td>
                   </tr>)
-              :(currentFuel?.map((dt, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 transition-all border border-gray-200"
-                >
-                  <td className="p-2 font-bold">
-                    {indexOfFirstItem + index + 1}
-                  </td>
-                  <td className="p-2">{dt.vendor_name}</td>
-                  <td className="p-2">{dt.vehicle_name_model}</td>
-                  <td className="p-2">{dt.vehicle_category}</td>
-                  <td className="p-2">{dt.vehicle_size_capacity}</td>
-                  <td className="p-2">{dt.registration_number}</td>
-                  <td className="p-2">{dt.status}</td>
-                  <td className="p-2 action_column">
-                    <div className="flex gap-2">
-                      <Link to={`/tramessy/UpdateRentVehicleForm/${dt.id}`}>
-                        <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                          <FaPen className="text-[12px]" />
-                        </button>
-                      </Link>
-                      <button
-                        onClick={() => {
-                          setselectedFuelId(dt.id);
-                          setIsOpen(true);
-                        }}
-                        className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                      >
-                        <FaTrashAlt className="text-[12px]" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )))
+                  : (currentFuel?.map((dt, index) => (
+                    <tr
+                      key={index}
+                      className="hover:bg-gray-50 transition-all border border-gray-200"
+                    >
+                      <td className="p-2 font-bold">
+                        {indexOfFirstItem + index + 1}
+                      </td>
+                      <td className="p-2">{dt.vendor_name}</td>
+                      <td className="p-2">{dt.vehicle_name_model}</td>
+                      <td className="p-2">{dt.vehicle_category}</td>
+                      <td className="p-2">{dt.vehicle_size_capacity}</td>
+                      <td className="p-2">{dt.registration_number}</td>
+                      <td className="p-2">{dt.status}</td>
+                      <td className="p-2 action_column">
+                        <div className="flex gap-2">
+                          <Link to={`/tramessy/UpdateRentVehicleForm/${dt.id}`}>
+                            <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                              <FaPen className="text-[12px]" />
+                            </button>
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setselectedFuelId(dt.id);
+                              setIsOpen(true);
+                            }}
+                            className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                          >
+                            <FaTrashAlt className="text-[12px]" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )))
               }
             </tbody>
           </table>
         </div>
         {/* pagination */}
         {currentFuel.length > 0 && totalPages >= 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          maxVisible={8} 
-        />
-      )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxVisible={8}
+          />
+        )}
       </div>
       {/* Delete modal */}
       <div className="flex justify-center items-center">

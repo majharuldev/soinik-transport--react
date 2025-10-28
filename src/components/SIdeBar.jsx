@@ -360,6 +360,19 @@ const Sidebar = () => {
                                 Office Expense
                               </Link>
                             </li>
+                            <li>
+                              <Link
+                                to="/tramessy/HR/advance-requisition"
+                                className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
+                                  isActive("/tramessy/HR/advance-requisition")
+                                    ? "text-gray-700 bg-gray-200"
+                                    : "text-gray-500 hover:text-primary"
+                                }`}
+                              >
+                                
+                                <span>Requisition</span>
+                              </Link>
+                            </li>
                           </ul>
                         {/* </div> */}
                       </li>

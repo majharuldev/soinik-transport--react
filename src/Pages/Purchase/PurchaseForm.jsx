@@ -2,13 +2,14 @@
 
 import { useContext, useEffect, useRef, useState } from "react";
 import BtnSubmit from "../../components/Button/BtnSubmit";
-import { Controller, FormProvider, useFieldArray, useForm } from "react-hook-form";
+import { Controller, FormProvider, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { InputField, SelectField } from "../../components/Form/FormFields";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../../utils/axiosConfig";
 import useAdmin from "../../hooks/useAdmin";
 import { AuthContext } from "../../providers/AuthProvider";
+import { IoMdClose } from "react-icons/io";
 
 const PurchaseForm = () => {
   const navigate = useNavigate();
@@ -44,11 +45,37 @@ const PurchaseForm = () => {
     control,
     name: "items",
   });
-  // Update purchase_amount when quantity or unit_price changes
+
+  // useEffect(() => {
+  //   const items = watch("items") || [];
+  //   const serviceCharge = parseFloat(watch("service_charge")) || 0;
+
+  //   const totalItemsAmount = items.reduce((sum, item) => {
+  //     const quantity = parseFloat(item.quantity) || 0;
+  //     const unitPrice = parseFloat(item.unit_price) || 0;
+  //     return sum + quantity * unitPrice;
+  //   }, 0);
+
+  //   const grandTotal = totalItemsAmount + serviceCharge;
+  //   setValue("purchase_amount", grandTotal);
+  // }, [watch("items"), watch("service_charge"), setValue]);
+
+
+  // সব items এবং service charge এর হিসাব করার জন্য
+  const items = useWatch({ control, name: "items" });
+  const serviceCharge = useWatch({ control, name: "service_charge" });
+
   useEffect(() => {
-    const totalPrice = quantity * unitPrice;
-    setValue("purchase_amount", totalPrice);
-  }, [quantity, unitPrice, setValue]);
+    const totalItemsAmount = (items || []).reduce((sum, item) => {
+      const quantity = parseFloat(item.quantity) || 0;
+      const unitPrice = parseFloat(item.unit_price) || 0;
+      return sum + quantity * unitPrice;
+    }, 0);
+
+    const grandTotal = totalItemsAmount + (parseFloat(serviceCharge) || 0);
+    setValue("purchase_amount", grandTotal);
+  }, [items, serviceCharge, setValue]);
+
 
   // Set vehicle category when vehicle is selected
   //  useEffect(() => {
@@ -74,6 +101,10 @@ const PurchaseForm = () => {
   //   }
   // }, [selectedVehicle, vehicle, setValue]);
   // Vehicle select করলে auto Driver Name update হবে
+
+
+
+
   useEffect(() => {
     if (selectedVehicle) {
       const selectedVehicleData = vehicle.find(
@@ -286,7 +317,7 @@ const PurchaseForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      // 🔹 Date fields localize করা
+      //  Date fields localize করা
       ["date", "service_date", "next_service_date"].forEach((field) => {
         if (data[field]) {
           const d = new Date(data[field]);
@@ -295,51 +326,65 @@ const PurchaseForm = () => {
         }
       });
 
-      // 🔹 created_by
+      //  created_by
       let createdByValue = user?.name || user?.email || "Unknown";
       if (isEditMode && data.created_by) {
         createdByValue = data.created_by;
       }
-
-      // 🔹 items array থেকে আলাদা আলাদা array বানানো
+      //  items array আলাদা করে নেওয়া
       const item_name = data.items.map((item) => item.item_name);
       const quantity = data.items.map((item) => Number(item.quantity));
       const unit_price = data.items.map((item) => Number(item.unit_price));
-      const total = data.items.map((item) => Number(item.total));
+      const total = data.items.map((item) => Number(item.quantity) * Number(item.unit_price));
 
-      // 🔹 purchase_amount হিসাব করা (সব total এর যোগফল)
+      //  purchase_amount হিসাব করা
       const purchase_amount =
-        total.reduce((sum, value) => sum + value, 0) + Number(data.service_charge || 0);
+        total.reduce((sum, val) => sum + val, 0) + Number(data.service_charge || 0);
 
-      // 🔹 payload তৈরি
-      const payload = {
-        date: data.date,
-        supplier_name: data.supplier_name,
-        category: data.category,
-        purchase_amount: purchase_amount,
-        service_charge: Number(data.service_charge) || 0,
-        remarks: data.remarks || "",
-        driver_name: data.driver_name || "",
-        branch_name: data.branch_name,
-        vehicle_no: data.vehicle_no || "",
-        vehicle_category: data.vehicle_category || "",
-        priority: data.priority || "",
-        validity: data.validity || "",
-        next_service_date: data.next_service_date,
-        service_date: data.service_date,
-        last_km: Number(data.last_km) || 0,
-        next_km: Number(data.next_km) || 0,
-        created_by: createdByValue,
-        item_name,
-        quantity,
-        unit_price,
-        total,
-      };
+      //  FormData তৈরি
+      const formData = new FormData();
 
-      // 🔹 Submit request
+      formData.append("date", data.date || "");
+      formData.append("supplier_name", data.supplier_name || "");
+      formData.append("category", data.category || "");
+      formData.append("purchase_amount", purchase_amount);
+      formData.append("service_charge", data.service_charge || 0);
+      formData.append("remarks", data.remarks || "");
+      formData.append("driver_name", data.driver_name || "");
+      formData.append("branch_name", data.branch_name || "");
+      formData.append("vehicle_no", data.vehicle_no || "");
+      formData.append("vehicle_category", data.vehicle_category || "");
+      formData.append("priority", data.priority || "");
+      formData.append("validity", data.validity || "");
+      formData.append("next_service_date", data.next_service_date || "");
+      formData.append("service_date", data.service_date || "");
+      formData.append("last_km", data.last_km || 0);
+      formData.append("next_km", data.next_km || 0);
+      formData.append("created_by", createdByValue);
+
+      //  items গুলো আলাদা array হিসেবে append করা
+      item_name.forEach((name, i) => formData.append("item_name[]", name));
+      quantity.forEach((q, i) => formData.append("quantity[]", q));
+      unit_price.forEach((u, i) => formData.append("unit_price[]", u));
+      total.forEach((t, i) => formData.append("total[]", t));
+
+      // image handle
+      if (data.bill_image instanceof File) {
+        formData.append("bill_image", data.bill_image);
+      } else if (isEditMode && existingImage) {
+        // পূর্বের image থাকলে পাঠাও
+        formData.append("existing_image", existingImage);
+      }
+
+
+      //  API Call
       const response = isEditMode
-        ? await api.put(`/purchase/${id}`, payload)
-        : await api.post(`/purchase`, payload);
+        ? await api.put(`/purchase/${id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        : await api.post(`/purchase`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
 
       if (response.data.success) {
         toast.success(isEditMode ? "Purchase updated!" : "Purchase submitted!");
@@ -353,8 +398,6 @@ const PurchaseForm = () => {
       toast.error(error.response?.data?.message || "Server error");
     }
   };
-
-
 
 
   if (isLoading) {
@@ -482,7 +525,7 @@ const PurchaseForm = () => {
             </div>)} */}
             </div>
             <div>
-              {/* 🔹 Dynamic Item Fields */}
+              {/*  Dynamic Item Fields */}
               {(<div className="space-y-4">
                 <h4 className="text-lg font-semibold text-primary">Items</h4>
 
@@ -490,7 +533,6 @@ const PurchaseForm = () => {
                   const quantity = watch(`items.${index}.quantity`) || 0;
                   const unitPrice = parseFloat(watch(`items.${index}.unit_price`)) || 0;
                   const total = quantity * unitPrice;
-                  setValue(`items.${index}.total`, total);
 
                   return (
                     <div key={field.id} className="flex flex-col md:flex-row gap-3 border border-gray-300 p-3 rounded-md relative">
@@ -541,14 +583,14 @@ const PurchaseForm = () => {
                 </div>
               </div>)} */}
               <div className="w-full">
-                  <InputField
-                    name="purchase_amount"
-                    label="Total"
-                    readOnly
-                    value={totalPrice}
-                    required={!isEditMode}
-                  />
-                </div>
+                <InputField
+                  name="purchase_amount"
+                  label="Total Purchase Amount"
+                  readOnly
+                  value={watch("purchase_amount") || 0}
+                  required={!isEditMode}
+                />
+              </div>
               {selectedCategory !== "documents" && (<div className="flex gap-x-3 flex-col lg:flex-row w-full">
                 <div className="w-full">
                   <InputField
@@ -655,88 +697,88 @@ const PurchaseForm = () => {
               </div>
             </div>}
 
-            {/* <div className="md:flex justify-between gap-3">
-            <div className="w-full">
-              <label className="text-gray-700 text-sm font-semibold">
-                Bill Image {!isEditMode && "(Required)"}
-              </label>
-              <Controller
-                name="bill_image"
-                control={control}
-                rules={isEditMode ? {} : { required: "This field is required" }}
-                render={({
-                  field: { onChange, ref },
-                  fieldState: { error },
-                }) => (
-                  <div className="relative">
-                    <label
-                      htmlFor="bill_image"
-                      className="border p-2 rounded w-[50%] block bg-white text-gray-300 text-sm cursor-pointer"
-                    >
-                      {previewImage ? "Image selected" : "Choose image"}
-                    </label>
-                    <input
-                      id="bill_image"
-                      type="file"
-                      accept="image/*"
-                      ref={ref}
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          const url = URL.createObjectURL(file);
-                          setPreviewImage(url);
-                          onChange(file);
-                        } else {
-                          setPreviewImage(null);
-                          onChange(null);
-                        }
-                      }}
-                    />
-                    {error && (
-                      <span className="text-red-600 text-sm">
-                        {error.message}
-                      </span>
-                    )}
-                    {isEditMode && existingImage && (
-                      <span className="text-green-600 text-sm">
-                        Current image: {existingImage}
-                      </span>
-                    )}
-                  </div>
-                )}
-              />
+            <div className="md:flex justify-between gap-3">
+              <div className="w-full">
+                <label className="text-gray-700 text-sm font-semibold">
+                  Bill Image {!isEditMode && "(Required)"}
+                </label>
+                <Controller
+                  name="bill_image"
+                  control={control}
+                  rules={isEditMode ? {} : { required: "This field is required" }}
+                  render={({
+                    field: { onChange, ref },
+                    fieldState: { error },
+                  }) => (
+                    <div className="relative">
+                      <label
+                        htmlFor="bill_image"
+                        className="border p-2 rounded w-[50%] block bg-white text-gray-300 text-sm cursor-pointer"
+                      >
+                        {previewImage ? "Image selected" : "Choose image"}
+                      </label>
+                      <input
+                        id="bill_image"
+                        type="file"
+                        accept="image/*"
+                        ref={ref}
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const url = URL.createObjectURL(file);
+                            setPreviewImage(url);
+                            onChange(file);
+                          } else {
+                            setPreviewImage(null);
+                            onChange(null);
+                          }
+                        }}
+                      />
+                      {error && (
+                        <span className="text-red-600 text-sm">
+                          {error.message}
+                        </span>
+                      )}
+                      {isEditMode && existingImage && (
+                        <span className="text-green-600 text-sm">
+                          Current image: {existingImage}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              </div>
             </div>
-          </div> */}
 
             {/* Preview */}
-            {/* {previewImage && (
-            <div className="mt-2 relative flex justify-end">
-              <button
-                type="button"
-                onClick={() => {
-                  setPreviewImage(null);
-                  setValue("bill_image", null);
-                  const fileInput = document.getElementById("bill_image");
-                  if (fileInput) fileInput.value = "";
-                  
-                  if (!isEditMode) {
-                    setExistingImage(null);
-                  }
-                }}
-                className="absolute top-2 right-2 text-red-600 bg-white shadow rounded-sm hover:text-white hover:bg-secondary transition-all duration-300 cursor-pointer font-bold text-xl p-[2px]"
-                title="Remove image"
-              >
-                <IoMdClose />
-              </button>
-              <img
-                src={previewImage}
-                alt="Bill Preview"
-                className="max-w-xs h-auto rounded border border-gray-300"
-              />
-            </div>
-          )}
-           */}
+            {previewImage && (
+              <div className="mt-2 relative flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreviewImage(null);
+                    setValue("bill_image", null);
+                    const fileInput = document.getElementById("bill_image");
+                    if (fileInput) fileInput.value = "";
+
+                    if (!isEditMode) {
+                      setExistingImage(null);
+                    }
+                  }}
+                  className="absolute top-2 right-2 text-red-600 bg-white shadow rounded-sm hover:text-white hover:bg-secondary transition-all duration-300 cursor-pointer font-bold text-xl p-[2px]"
+                  title="Remove image"
+                >
+                  <IoMdClose />
+                </button>
+                <img
+                  src={previewImage}
+                  alt="Bill Preview"
+                  className="max-w-xs h-auto rounded border border-gray-300"
+                />
+              </div>
+            )}
+
             <BtnSubmit>{isEditMode ? "Update Purchase" : "Submit"}</BtnSubmit>
           </form>
         </FormProvider>

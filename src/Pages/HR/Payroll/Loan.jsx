@@ -26,7 +26,7 @@ const Loan = () => {
   const toggleModal = () => setIsOpen(!isOpen);
 
   const methods = useForm();
-  const { handleSubmit, reset, control, setValue, register } = methods;
+  const { handleSubmit, reset, control, setValue, register, watch } = methods;
 
   // Fetch loan & employee data
   useEffect(() => {
@@ -104,6 +104,29 @@ const Loan = () => {
     return emp ? emp.employee_name || emp.email : empId;
   };
 
+// Add Mode: amount দিলে adjustment auto-fill হবে
+const amountValue = watch("amount");
+
+useEffect(() => {
+  if (!selectedLoan && amountValue > 0) {
+    setValue("adjustment", Number(amountValue));
+  }
+}, [amountValue, selectedLoan, setValue]);
+
+// Update Mode: paid_amount দিলে adjustment থেকে কমে যাবে
+const paidAmount = watch("paid_amount");
+
+useEffect(() => {
+  if (selectedLoan && paidAmount !== undefined) {
+    const currentAdjustment = Number(selectedLoan.adjustment) || 0;
+    const newAdjustment = currentAdjustment - Number(paidAmount || 0);
+    if (!isNaN(newAdjustment) && newAdjustment >= 0) {
+      setValue("adjustment", newAdjustment);
+    }
+  }
+}, [paidAmount, selectedLoan, setValue]);
+
+
   // Handle modal open for add/edit
   const handleEdit = (loan) => {
     setSelectedLoan(loan);
@@ -124,6 +147,7 @@ const Loan = () => {
       employee_id: data.employee_id,
       amount: data.amount,
       monthly_deduction: data.monthly_deduction,
+      adjustment: data.adjustment,
       status: data.status,
       created_by: user.name,
     };
@@ -178,6 +202,7 @@ const Loan = () => {
                 <th className="p-2">Employee Name</th>
                 <th className="p-2">Amount</th>
                 <th className="p-2">Monthly Deduction</th>
+                <th className="p-2">After Adjustment</th>
                 <th className="p-2">Status</th>
                 <th className="p-2">Created By</th>
                 <th className="p-2">Action</th>
@@ -195,6 +220,7 @@ const Loan = () => {
                     <td className="p-2">{getEmployeeName(item.employee_id)}</td>
                     <td className="p-2">{item.amount} ৳</td>
                     <td className="p-2">{item.monthly_deduction}</td>
+                    <td className="p-2">{item.adjustment}</td>
                     <td className="p-2">{item.status}</td>
                     <td className="p-2">{item.created_by}</td>
                     <td className="p-2 flex gap-2 items-center">
@@ -289,14 +315,31 @@ const Loan = () => {
                     name="amount"
                     label="Loan Amount"
                     type="number"
-                    required
+                    required={!selectedLoan}
                   />
                   <InputField
                     name="monthly_deduction"
                     label="Month Deduction"
-                    placeholder="Amount"
-                    required
+                    placeholder="Monthly Amount"
+                    required={!selectedLoan}
                   />
+                  {selectedLoan && (
+                    <>
+                      <InputField
+                        name="paid_amount"
+                        label="Pay Deduction"
+                        placeholder="Monthly paid deduction"
+                        required={!selectedLoan}
+                      />
+                      <InputField
+                        name="adjustment"
+                        label="After Adjustment Amount"
+                        placeholder="Monthly Amount"
+                        required={!selectedLoan}
+                        readOnly
+                      />
+                    </>
+                  )}
                   <div className="w-full">
                     <label className="block text-sm font-medium mb-1">
                       Status <span className="text-red-500">*</span>

@@ -133,7 +133,7 @@ console.log(data, "data")
                   <td className="border-r border-black p-2 font-semibold rounded-full border  mx-2 text-center">
                     Loan
                   </td>
-                  <td className="p-2 text-right">{data?.loan}</td>
+                  <td className="p-2 text-right">{data?.monthly_deduction}</td>
                 </tr>
                 <tr className="border-t border-black">
                   <td className="border-r border-black p-2 font-semibold">Medical</td>
@@ -163,9 +163,9 @@ console.log(data, "data")
                 </tr>
                 <tr className="border-t border-r border-black bg-gray-100">
                   <td className="border-r border-black p-2 font-bold">Total Addition</td>
-                  <td className="border-r border-black p-2 text-right font-bold"> {data?.totalAddition}</td>
+                  <td className="border-r border-black p-2 text-right font-bold"> {data?.total}</td>
                   <td className="border-r border-black p-2 font-bold">Total Deductions</td>
-                  <td className=" border-black p-2 text-right font-bold">{data?.totalDeductions}.00</td>
+                  <td className=" border-black p-2 text-right font-bold">{data?.deductionTotal}.00</td>
                 </tr>
               </tbody>
             </table>

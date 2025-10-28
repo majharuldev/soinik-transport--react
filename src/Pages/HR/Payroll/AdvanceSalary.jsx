@@ -108,6 +108,7 @@ const AdvanceSalary = () => {
                 <th className="p-2">Employee Name</th>
                 <th className="p-2">Amount</th>
                 <th className="p-2">Salary Month</th>
+                <th className="p-2">After Adjustment</th>
                 <th className="p-2">Status</th>
                 <th className="p-2">Created By</th>
                 <th className="p-2">Action</th>
@@ -129,6 +130,7 @@ const AdvanceSalary = () => {
                     <td className="p-2">
                       {item.salary_month}
                     </td>
+                    <td className="p-2">{item.adjustment} ৳</td>
                     <td className="p-2">{item.status}</td>
                     <td className="p-2">
                       {(item.created_by)}

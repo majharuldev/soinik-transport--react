@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import api from "../../../../utils/axiosConfig";
 import { AuthContext } from "../../../providers/AuthProvider";
 import { useNavigate, useParams } from "react-router-dom";
+import { set } from "date-fns";
 
 const AdvanceSalaryForm = () => {
   const methods = useForm();
@@ -49,6 +50,7 @@ const AdvanceSalaryForm = () => {
             setValue("employee_id", data.employee_id);
             setValue("amount", data.amount);
             setValue("salary_month", data.salary_month);
+            setValue("adjustment", data.adjustmemnt);
             setValue("status", data.status);
             setValue("created_by", data.created_by);
           }
@@ -61,12 +63,23 @@ const AdvanceSalaryForm = () => {
     }
   }, [id, id, setValue]);
 
+  // Auto set adjustment same as amount when adding new
+useEffect(() => {
+  const subscription = methods.watch((value, { name }) => {
+    if (name === "amount" && !id) {
+      setValue("adjustment", value.amount || 0);
+    }
+  });
+  return () => subscription.unsubscribe();
+}, [methods, setValue, id]);
+
   // Submit handler (Add or Update)
  const onSubmit = async (data) => {
   const payload = {
     employee_id: data.employee_id,
     amount: data.amount,
     salary_month: data.salary_month,
+    adjustment: data.adjustment,
     status: data.status,
     created_by: userName,
   };
@@ -152,6 +165,14 @@ const AdvanceSalaryForm = () => {
                 name="salary_month"
                 label="Salary Month (YYYY-MM)"
                 placeholder="2025-09"
+                required
+              />
+            </div>
+             <div className="w-full">
+              <InputField
+                name="adjustment"
+                label="After Adjustment Amount"
+                type="number"
                 required
               />
             </div>
