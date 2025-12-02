@@ -139,60 +139,83 @@ const exportExcel = () => {
 };
 
 // Print
-  const printTable = () => {
-    const printWindow = window.open("", "", "width=900,height=600");
-    const tableHTML = `
-      <html>
-        <head>
-          <title></title>
-          <style>
-            table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            th, td { border: 1px solid #333; padding: 6px; text-align: left; }
-            th { background-color: #f2f2f2; }
-            h2 { text-align: center; margin-bottom: 10px; }
-          </style>
-        </head>
-        <body>
-          <h2>Loan Report</h2>
-          <table>
-            <thead>
-              <tr>
-              <th>"SL"</th>
-              <th>Date</th>
-              <th>Employee Name</th>
-              <th>Amount</th>
-              <th>Monthly Deduction</th>
-              <th>After Adjustment</th>
-              <th>Status</th>
-              <th>Created By</th>
-            </tr>
-            </thead>
-            <tbody>
-              ${filteredData
-        .map(
-          (item, index) => `
-                <tr>
-        <td>${index + 1}</td>
-        <td>${tableFormatDate(item.created_at)}</td>
-        <td>${getEmployeeName(item.employee_id)}</td>
-        <td>${item.amount} ৳</td>
-        <td>${item.monthly_deduction}</td>
-        <td>${item.adjustment} ৳</td>
-        <td>${item.status}</td>
-        <td>${item.created_by}</td>
-      </tr>`
-        )
-        .join("")}
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
-    printWindow.document.write(tableHTML);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-  };
+ const printTable = () => {
+
+  const fullTable = `
+    <table style="width:100%; border-collapse: collapse; font-size: 12px;">
+      <thead>
+        <tr style="background:#f2f2f2;">
+          <th style="border:1px solid #333; padding:6px;">SL</th>
+          <th style="border:1px solid #333; padding:6px;">Date</th>
+          <th style="border:1px solid #333; padding:6px;">Employee Name</th>
+          <th style="border:1px solid #333; padding:6px;">Amount</th>
+          <th style="border:1px solid #333; padding:6px;">Monthly Deduction</th>
+          <th style="border:1px solid #333; padding:6px;">After Adjustment</th>
+          <th style="border:1px solid #333; padding:6px;">Status</th>
+          <th style="border:1px solid #333; padding:6px;">Created By</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filteredData
+          .map(
+            (item, index) => `
+          <tr>
+            <td style="border:1px solid #333; padding:6px;">${index + 1}</td>
+            <td style="border:1px solid #333; padding:6px;">${tableFormatDate(item.created_at)}</td>
+            <td style="border:1px solid #333; padding:6px;">${getEmployeeName(item.employee_id)}</td>
+            <td style="border:1px solid #333; padding:6px;">${item.amount} ৳</td>
+            <td style="border:1px solid #333; padding:6px;">${item.monthly_deduction}</td>
+            <td style="border:1px solid #333; padding:6px;">${item.adjustment} ৳</td>
+            <td style="border:1px solid #333; padding:6px;">${item.status}</td>
+            <td style="border:1px solid #333; padding:6px;">${item.created_by}</td>
+          </tr>`
+          )
+          .join("")}
+      </tbody>
+    </table>
+  `;
+
+  const win = window.open("", "", "width=900,height=650");
+
+  win.document.write(`
+    <html>
+    <head>
+      <title>Loan Info</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+
+        .header {
+          width: 100%;
+          border-bottom: 2px solid #000;
+          padding-bottom: 10px;
+          margin-bottom: 10px;
+          text-align: center;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000; padding: 5px; }
+      </style>
+    </head>
+
+    <body>
+
+      <div class="header">
+        <h2>M/S A J ENTERPRISE</h2>
+        <p>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</p>
+      </div>
+
+      <h3 style="text-align:center;">Loan Report</h3>
+
+      ${fullTable}
+
+    </body>
+    </html>
+  `);
+
+  win.document.close();
+  win.focus();
+  win.print();
+};
 
   // Pagination logic
   const indexOfLast = currentPage * itemsPerPage;

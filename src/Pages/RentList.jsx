@@ -108,7 +108,7 @@ const RentList = () => {
     const tableHeader = `
     <thead>
       <tr>
-        <th>#</th>
+        <th>SL</th>
         <th>Vendor/Driver</th>
         <th>Vehicle</th>
         <th>Category</th>
@@ -138,21 +138,72 @@ const RentList = () => {
     </table>
   `;
 
-    const WinPrint = window.open("", "", "width=1200,height=800");
-    WinPrint.document.write(`
+    const WinPrint = window.open("", "", "width=900,height=650");
+  WinPrint.document.write(`
     <html>
-      <head><title>Print</title></head>
-      <body>
-        <h2 style="text-align:center;">All Rent Vehicle</h2>
-        ${printContent}
-      </body>
+    <head>
+      <title>-</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+
+        .print-container {
+          display: table;
+          width: 100%;
+        }
+
+        .print-header {
+          display: table-header-group;
+        }
+
+        .header {
+          width: 100%;
+          border-bottom: 2px solid #000;
+          padding-bottom: 10px;
+          margin-bottom: 5px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000; padding: 5px; }
+        thead th {
+         
+          color: black !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      </style>
+    </head>
+
+    <body>
+      <div class="print-container">
+
+        <div class="print-header">
+          <div class="header">
+          <div></div>
+            <div>
+              <h2>M/S A J ENTERPRISE</h2>
+              <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
+            </div>
+            <div></div>
+          </div>
+        </div>
+
+        <div class="content">
+          <h3 style="text-align:center;">Vendor Vehicle List</h3>
+          ${printContent}
+        </div>
+
+      </div>
+    </body>
     </html>
   `);
 
-    WinPrint.document.close();
-    WinPrint.focus();
-    WinPrint.print();
-    WinPrint.close();
+  WinPrint.document.close();
+  WinPrint.focus();
+  WinPrint.print();
+
   };
 
   // delete by id

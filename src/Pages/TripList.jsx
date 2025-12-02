@@ -1319,103 +1319,67 @@ const TripList = () => {
 
 
   // excel
-//   const exportTripsToExcel = async () => {
-//   try {
-//     // Filtered trip list use করবে (no API call)
-//     let filteredData = filteredTripList;
 
-//     // Non-admin হলে total_rent field বাদ দেবে
-//     if (!isAdmin) {
-//       filteredData = filteredData.map(({ total_rent, ...rest }) => rest);
-//     }
+  const exportTripsToExcel = async () => {
+    try {
+      let filteredData = filteredTripList;
 
-//     // যদি filtered data না থাকে
-//     if (!filteredData || filteredData.length === 0) {
-//       toast.error("No filtered trip data found!");
-//       return;
-//     }
+      if (!isAdmin) {
+        filteredData = filteredData.map(({ total_rent, ...rest }) => rest);
+      }
 
-//     // Excel sheet বানানো (auto header = object keys)
-//     const worksheet = XLSX.utils.json_to_sheet(filteredData);
-//     const workbook = XLSX.utils.book_new();
-//     XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Trips");
+      if (!filteredData || filteredData.length === 0) {
+        toast.error("No filtered trip data found!");
+        return;
+      }
 
-//     // Excel buffer তৈরি
-//     const excelBuffer = XLSX.write(workbook, {
-//       bookType: "xlsx",
-//       type: "array",
-//     });
-
-//     // File save
-//     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-//     saveAs(data, "filtered_trip_report.xlsx");
-//     toast.success("Filtered trip data downloaded successfully!");
-//   } catch (error) {
-//     console.error("Excel export error:", error);
-//     toast.error("Failed to download Excel file!");
-//   }
-// };
-
-const exportTripsToExcel = async () => {
-  try {
-    let filteredData = filteredTripList;
-
-    if (!isAdmin) {
-      filteredData = filteredData.map(({ total_rent, ...rest }) => rest);
-    }
-
-    if (!filteredData || filteredData.length === 0) {
-      toast.error("No filtered trip data found!");
-      return;
-    }
-
-    // 🔹 Excel-export-ready data
-    const excelData = filteredData.map((item) => {
-      const newItem = {};
-      Object.keys(item).forEach((key) => {
-        // number string → number
-        if (!isNaN(item[key]) && item[key] !== "" && item[key] !== null) {
-          newItem[key] = Number(item[key]);
-        } else {
-          newItem[key] = item[key];
-        }
+      // 🔹 Excel-export-ready data
+      const excelData = filteredData.map((item) => {
+        const newItem = {};
+        Object.keys(item).forEach((key) => {
+          // number string → number
+          if (!isNaN(item[key]) && item[key] !== "" && item[key] !== null) {
+            newItem[key] = Number(item[key]);
+          } else {
+            newItem[key] = item[key];
+          }
+        });
+        return newItem;
       });
-      return newItem;
-    });
 
-    // 🔹 Total row calculation
-    const totalRow = {};
-    const numericKeys = Object.keys(excelData[0]).filter((key) =>
-      excelData.some((item) => typeof item[key] === "number")
-    );
-    numericKeys.forEach((key) => {
-      totalRow[key] = excelData.reduce(
-        (sum, row) => sum + (row[key] || 0),
-        0
+      // 🔹 Total row calculation
+      const totalRow = {};
+      const numericKeys = Object.keys(excelData[0]).filter((key) =>
+        excelData.some((item) => typeof item[key] === "number")
       );
-    });
-    totalRow["customer"] = "TOTAL"; // যেকোনো text field এ total label
+      numericKeys.forEach((key) => {
+        totalRow[key] = excelData.reduce(
+          (sum, row) => sum + (row[key] || 0),
+          0
+        );
+      });
+      totalRow["customer"] = "TOTAL"; // যেকোনো text field এ total label
 
-    // final data with total row
-    excelData.push(totalRow);
+      // final data with total row
+      excelData.push(totalRow);
 
-    // 🔹 Excel sheet generate
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Trips");
+      // 🔹 Excel sheet generate
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Trips");
 
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
 
-    saveAs(new Blob([excelBuffer]), "filtered_trip_report.xlsx");
-    toast.success("Filtered trip data downloaded successfully!");
-  } catch (error) {
-    console.error("Excel export error:", error);
-    toast.error("Failed to download Excel file!");
-  }
-};
+      saveAs(new Blob([excelBuffer]), "filtered_trip_report.xlsx");
+      toast.success("Filtered trip data downloaded successfully!");
+    } catch (error) {
+      console.error("Excel export error:", error);
+      toast.error("Failed to download Excel file!");
+    }
+  };
 
 
 
@@ -1470,15 +1434,150 @@ const exportTripsToExcel = async () => {
   }
 
   // print
-  const printTripsTable = () => {
-    // Hide action column for printing
-    const actionColumns = document.querySelectorAll(".action_column")
-    actionColumns.forEach((col) => (col.style.display = "none"))
+  // const printTripsTable = () => {
+  //   // Hide action column for printing
+  //   const actionColumns = document.querySelectorAll(".action_column");
+  //   actionColumns.forEach((col) => (col.style.display = "none"));
 
-    const tableHTML = `
+  //   const tableHTML = `
+  //   <table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse;">
+  //     <thead style="background:#11375B; color:white;">
+  //       <tr>
+  //         <th>SL.</th>
+  //         <th>StartDate</th>
+  //         <th>EndDate</th>
+  //         <th>customer</th>
+  //         <th>Driver</th>
+  //         <th>VehicleNo</th>
+  //         <th>LoadPoint</th>
+  //         <th>UnloadPoint</th>
+  //         <th>TripRent</th>
+  //         <th>TripCost</th>
+  //         <th>Profit</th>
+  //       </tr>
+  //     </thead>
+  //     <tbody>
+  //       ${trip
+  //       .map(
+  //         (dt, index) => `
+  //         <tr>
+  //           <td>${index + 1}</td>
+  //           <td>${dt.start_date}</td>
+  //           <td>${dt.end_date}</td>
+  //           <td>${(dt.customer || "N/A") + " " + (dt.transport_type || "")}</td>
+  //           <td>${dt.driver_name || "N/A"}</td>
+  //           <td>${dt.vehicle_no || "N/A"}</td>
+  //           <td>${dt.load_point}</td>
+  //           <td>${dt.unload_point}</td>
+  //           <td>${isAdmin ? (dt.total_rent || 0) : "hide"}</td>
+  //           <td>${dt.total_exp || 0}</td>
+  //           <td>${isAdmin
+  //             ? Number(dt.total_rent || 0) - Number(dt.total_exp || 0)
+  //             : "hide"
+  //           }</td>
+  //         </tr>
+  //       `
+  //       )
+  //       .join("")}
+  //     </tbody>
+  //   </table>
+  // `;
+
+  //   const WinPrint = window.open("", "", "width=900,height=650");
+  //   WinPrint.document.write(`
+  //   <html>
+  //     <head>
+  //       <title>Print Trip Report</title>
+  //       <style>
+  //         body { font-family: Arial, sans-serif; padding: 20px; }
+
+  //         /* Header Styles */
+  //         .header {
+  //           display: flex;
+  //           justify-content: space-between;
+  //           align-items: center;
+  //           padding-bottom: 15px;
+  //           margin-bottom: 10px;
+  //           border-bottom: 2px solid #000;
+  //         }
+  //         .header-logo img {
+  //           width: 80px;
+  //         }
+  //         .header-title {
+  //           text-align: center;
+  //         }
+  //         .header-title h1 {
+  //           margin: 0;
+  //           font-size: 22px;
+  //           font-weight: bold;
+  //         }
+  //         .header-title .addr {
+  //           font-size: 12px;
+  //           color: #444;
+  //         }
+
+  //         table { width: 100%; border-collapse: collapse; }
+  //         th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+
+  //         thead th {
+  //           background-color: #11375B !important;
+  //           color: #ffffff !important;
+  //           -webkit-print-color-adjust: exact !important;
+  //           print-color-adjust: exact !important;
+  //         }
+  //                     @media print {
+  //           .print-header { 
+  //             display: table-header-group !important; 
+  //           }
+  //         }
+
+  //       </style>
+  //     </head>
+  //     <body>
+
+  //       <!-- PRINT HEADER PAD -->
+  //       <div class="header">
+  //         <div class="header-logo">
+  //           <img src="${logo}" alt="Logo" />
+  //           <div style="font-size:12px;color:#555;font-weight:bold;">
+  //             M/S A J ENTERPRISE
+  //           </div>
+  //         </div>
+
+  //         <div class="header-title">
+  //           <h1>M/S AJ Enterprise</h1>
+  //           <div class="addr">
+  //             <div>Razzak Plaza, 11th Floor, Room No: J-12</div>
+  //             <div>2 Sahid Tajuddin Sarani, Moghbazar, Dhaka-1217, Bangladesh</div>
+  //           </div>
+  //         </div>
+
+  //         <div style="width:80px;"></div>
+  //       </div>
+
+  //       <h3>Trip Report</h3>
+  //       ${tableHTML}
+  //     </body>
+  //   </html>
+  // `);
+
+  //   WinPrint.document.close();
+  //   WinPrint.focus();
+  //   WinPrint.print();
+  //   WinPrint.close();
+
+  //   // Restore action columns
+  //   actionColumns.forEach((col) => (col.style.display = ""));
+  // };
+
+  const printTripsTable = () => {
+  const actionColumns = document.querySelectorAll(".action_column");
+  actionColumns.forEach((col) => (col.style.display = "none"));
+
+  const tableHTML = `
     <table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse;">
-      <thead style="background:#11375B; color:white;">
-        <tr>
+      <thead>
+        <tr style="background:#11375B; color:white;">
           <th>SL.</th>
           <th>StartDate</th>
           <th>EndDate</th>
@@ -1494,60 +1593,129 @@ const exportTripsToExcel = async () => {
       </thead>
       <tbody>
         ${trip
-        .map(
-          (dt, index) => `
-          <tr>
+          .map(
+            (dt, index) => `
+        <tr>
             <td>${index + 1}</td>
             <td>${dt.start_date}</td>
             <td>${dt.end_date}</td>
-            <td>${(dt.customer || "N/A") + " " + (dt.transport_type || "")}</td>
-            <td>${dt.driver_name || "N/A"}</td>
-            <td>${dt.vehicle_no || "N/A"}</td>
+            <td>${(dt.customer || "") + " " + (dt.transport_type || "")}</td>
+            <td>${dt.driver_name || ""}</td>
+            <td>${dt.vehicle_no || ""}</td>
             <td>${dt.load_point}</td>
             <td>${dt.unload_point}</td>
-             <td>${isAdmin ? (dt.total_rent || 0) : "hide"}</td>
-            <td>${dt.total_exp || 0}</td>
-            <td>${isAdmin ? (Number.parseFloat(dt.total_rent || 0) - Number.parseFloat(dt.total_exp || 0)) : "hide"}</td>
-          </tr>
-        `,
-        )
-        .join("")}
+            <td>${isAdmin ? dt.total_rent : "hide"}</td>
+            <td>${dt.total_exp}</td>
+            <td>${isAdmin ? dt.total_rent - dt.total_exp : "hide"}</td>
+        </tr>
+        `
+          )
+          .join("")}
       </tbody>
     </table>
-  `
+  `;
 
-    const WinPrint = window.open("", "", "width=900,height=650")
-    WinPrint.document.write(`
+  const WinPrint = window.open("", "", "width=900,height=650");
+  WinPrint.document.write(`
     <html>
-      <head>
-        <title>Print Trip Report</title>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          table { width: 100%; border-collapse: collapse; }
-          th, td { border: 1px solid #000; padding: 5px; text-align: left; }
-          thead th {
-          color: #000000 !important;
-          background-color: #ffffff !important;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
+    <head>
+      <title>-</title>
+      <style>
+
+        body { font-family: Arial, sans-serif; }
+
+        /* --- HEADER WILL REPEAT EVERY PAGE --- */
+        .print-header {
+          display: table-header-group;
         }
-        </style>
-      </head>
-      <body>
+
+        .header {
+          width: 100%;
+          border-bottom: 2px solid #000;
+          padding-bottom: 10px;
+          margin-bottom: 5px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .header-logo img {
+          width: 80px;
+        }
+
+        .header-title {
+          text-align: center;
+        }
+
+        .header-title h1 {
+          margin: 0;
+          font-size: 22px;
+          font-weight: bold;
+        }
+
+        .addr {
+          font-size: 12px;
+          color: #444;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000; padding: 5px; }
+
+        thead th {
+          background: #11375B !important;
+          color: white !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        /* Body content repeats normally */
+        .content {
+          display: table-row-group;
+        }
+
+      </style>
+    </head>
+
+    <body>
+
+      <!-- HEADER THAT REPEATS -->
+      <div class="print-header">
+        <div class="header">
+          <div class="header-logo">
+            <img src="${logo}" />
+            <div style="font-size:12px; font-weight:bold;">M/S A J ENTERPRISE</div>
+          </div>
+
+          <div class="header-title">
+            <h1>M/S AJ Enterprise</h1>
+            <div class="addr">
+              Razzak Plaza, 11th Floor, Room J-12<br/>
+              2 Sahid Tajuddin Sarani, Moghbazar, Dhaka-1217
+            </div>
+          </div>
+
+          <div style="width:80px;"></div>
+        </div>
+      </div>
+
+      <div class="content">
         <h3>Trip Report</h3>
         ${tableHTML}
-      </body>
+      </div>
+
+    </body>
     </html>
-  `)
+  `);
 
-    WinPrint.document.close()
-    WinPrint.focus()
-    WinPrint.print()
-    WinPrint.close()
+  WinPrint.document.close();
+  WinPrint.focus();
+  WinPrint.print();
+  WinPrint.close();
 
-    // Restore action columns
-    actionColumns.forEach((col) => (col.style.display = ""))
-  }
+  actionColumns.forEach((col) => (col.style.display = ""));
+};
+
+
 
   // delete by id
   const handleDelete = async (id) => {
@@ -2103,7 +2271,7 @@ const exportTripsToExcel = async () => {
                   <div><strong>Vehicle No:</strong> {selectedTrip.vehicle_no || "N/A"}</div>
                   <div><strong>Vendor Name:</strong> {selectedTrip.vendor_name || "N/A"}</div>
                   <div><strong>Driver Name:</strong> {selectedTrip.driver_name || "N/A"}</div>
-                   <div><strong>Driver Mobile:</strong> {selectedTrip.driver_mobile || "N/A"}</div>
+                  <div><strong>Driver Mobile:</strong> {selectedTrip.driver_mobile || "N/A"}</div>
                   <div><strong>Product Details:</strong> {selectedTrip.product_details || "N/A"}</div>
                   <div><strong>Invoice No:</strong> {selectedTrip.invoice_no || 0}</div>
                   <div><strong>Buyar Name:</strong> {selectedTrip.buyar_name || "N/A"}</div>
@@ -2129,8 +2297,8 @@ const exportTripsToExcel = async () => {
                   <div><strong>Food Cost:</strong> {selectedTrip.food_cost || 0}</div>
                   <div><strong>Additional Cost:</strong> {selectedTrip.additional_cost || 0}</div>
                   <div><strong>Total Expense:</strong> {selectedTrip.total_exp || 0}</div>
-                  <div>{selectedTrip.transport_type === "vendor_transport" &&(<><strong>Vendor Rent:</strong>{selectedTrip.total_exp || 0}</>)}</div>
-                  
+                  <div>{selectedTrip.transport_type === "vendor_transport" && (<><strong>Vendor Rent:</strong>{selectedTrip.total_exp || 0}</>)}</div>
+
                 </div>
 
                 <h3 className="text-lg font-bold mt-4 border-b pb-1">

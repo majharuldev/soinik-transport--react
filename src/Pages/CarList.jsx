@@ -115,11 +115,11 @@ const exportExcel = (vehicles) => {
 };
 
 
-  const printTable = () => {
+const printTable = () => {
   const tableHeader = `
     <thead>
       <tr>
-        <th>#</th>
+        <th>SL</th>
         <th>Driver Name</th>
         <th>Vehicle Name</th>
         <th>Vehicle Category</th>
@@ -143,19 +143,71 @@ const exportExcel = (vehicles) => {
   `).join("");
 
   const printContent = `
-    <table border="1" cellspacing="0" cellpadding="6">
+    <table border="1" cellspacing="0" cellpadding="6" style="width:100%;border-collapse:collapse;">
       ${tableHeader}
       <tbody>${tableRows}</tbody>
     </table>
   `;
 
-  const WinPrint = window.open("", "", "width=1200,height=800");
+  const WinPrint = window.open("", "", "width=900,height=650");
   WinPrint.document.write(`
     <html>
-    <head><title>Print</title></head>
+    <head>
+      <title>Vehicle Report</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+
+        .print-header {
+          display: table-header-group;
+        }
+
+        .header {
+          width: 100%;
+          border-bottom: 2px solid #000;
+          padding-bottom: 10px;
+          margin-bottom: 5px;
+          text-align: center;
+        }
+
+        .header-title h1 {
+          margin: 0;
+          font-size: 22px;
+          font-weight: bold;
+        }
+
+        .addr { font-size: 12px; color: #444; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000; padding: 5px; }
+
+        thead th {
+          background: #11375B !important;
+          color: white !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        .content { display: table-row-group; }
+
+      </style>
+    </head>
+
     <body>
-      <h2 style="text-align:center;">Vehicle Full Details</h2>
-      ${printContent}
+
+      <div class="print-header">
+        <div class="header">
+          <h1>M/S AJ Enterprise</h1>
+          <div class="addr">
+            Razzak Plaza, 11th Floor, Room J-12<br/>
+            2 Sahid Tajuddin Sarani, Moghbazar, Dhaka-1217
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        ${printContent}
+      </div>
+
     </body>
     </html>
   `);

@@ -104,78 +104,110 @@ const VendorList = () => {
   };
 
   // Print Table
-  const printTable = () => {
-    const printableContent = `
-    <html>
-      <head>
-        <title>Vendor List</title>
-        <style>
-          table {
-            width: 100%;
-            border-collapse: collapse;
-          }
-          th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            font-size: 12px;
-            text-align: left;
-          }
-          th {
-            background-color: #11375B;
-            color: white;
-          }
-             thead th {
-          color: #000000 !important;
-          background-color: #ffffff !important;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-        }
-        </style>
-      </head>
-      <body>
-        <h2 style="text-align:center;">Vendor List</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Date</th>
-              <th>Name</th>
-              <th>Mobile</th>
-              <th>RentCategory</th>
-              <th>WorkArea</th>
-              <th>Openning Balance</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${filteredvendor
-              .map(
-                (dt, i) => `
-              <tr>
-                <td>${i + 1}</td>
-                <td>${dt.date}</td>
-                <td>${dt.vendor_name}</td>
-                <td>${dt.mobile}</td>
-                <td>${dt.rent_category}</td>
-                <td>${dt.work_area}</td>
-                <td>${dt.opening_balance}</td>
-                <td>${dt.status}</td>
-              </tr>`
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </body>
-    </html>
+const printTable = () => {
+  const tableRows = filteredvendor
+    .map(
+      (dt, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${tableFormatDate(dt.date)}</td>
+        <td>${dt.vendor_name}</td>
+        <td>${dt.mobile}</td>
+        <td>${dt.rent_category}</td>
+        <td>${dt.work_area}</td>
+        <td>${dt.opening_balance}</td>
+        <td>${dt.status}</td>
+      </tr>
+    `
+    )
+    .join("");
+
+  const tableHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Name</th>
+          <th>Mobile</th>
+          <th>RentCategory</th>
+          <th>WorkArea</th>
+          <th>Opening Balance</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>${tableRows}</tbody>
+    </table>
   `;
 
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(printableContent);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-  };
+  const WinPrint = window.open("", "", "width=900,height=650");
+  WinPrint.document.write(`
+    <html>
+    <head>
+      <title>-</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+
+        .print-container {
+          display: table;
+          width: 100%;
+        }
+
+        .print-header {
+          display: table-header-group;
+        }
+
+        .header {
+          width: 100%;
+          border-bottom: 2px solid #000;
+          padding-bottom: 10px;
+          margin-bottom: 5px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000; padding: 5px; }
+        thead th {
+         
+          color: black !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      </style>
+    </head>
+
+    <body>
+      <div class="print-container">
+
+        <div class="print-header">
+          <div class="header">
+          <div></div>
+            <div>
+              <h2>M/S A J ENTERPRISE</h2>
+              <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
+            </div>
+            <div></div>
+          </div>
+        </div>
+
+        <div class="content">
+          <h3 style="text-align:center;">Vendor List</h3>
+          ${tableHTML}
+        </div>
+
+      </div>
+    </body>
+    </html>
+  `);
+
+  WinPrint.document.close();
+  WinPrint.focus();
+  WinPrint.print();
+  // WinPrint.close(); // optional
+};
+
 
   // delete by id
   const handleDelete = async (id) => {

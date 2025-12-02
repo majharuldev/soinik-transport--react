@@ -445,56 +445,83 @@ const AttendanceList = () => {
   };
 
   // Print
-  const printTable = () => {
-    const printWindow = window.open("", "", "width=900,height=600");
-    const tableHTML = `
-      <html>
-        <head>
-          <title>Attendance Report</title>
-          <style>
-            table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            th, td { border: 1px solid #333; padding: 6px; text-align: left; }
-            th { background-color: #f2f2f2; }
-            h2 { text-align: center; margin-bottom: 10px; }
-          </style>
-        </head>
-        <body>
-          <h2>Attendance Report</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>SL</th>
-                <th>Date</th>
-                <th>Employee Name</th>
-                <th>Working Day</th>
-                <th>Month</th>
-                <th>Created By</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${filteredAttendance
-                .map(
-                  (att, i) => `
-                <tr>
-                  <td>${i + 1}</td>
-                  <td>${tableFormatDate(att.created_at)}</td>
-                  <td>${getEmployeeName(att.employee_id)}</td>
-                  <td>${att.working_day}</td>
-                  <td>${att.month}</td>
-                  <td>${att.created_by}</td>
-                </tr>`
-                )
-                .join("")}
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
-    printWindow.document.write(tableHTML);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-  };
+  // Print
+const printTable = () => {
+
+  const win = window.open("", "", "width=900,height=650");
+
+  const tableRows = filteredAttendance
+    .map(
+      (att, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${tableFormatDate(att.created_at)}</td>
+          <td>${getEmployeeName(att.employee_id)}</td>
+          <td>${att.working_day}</td>
+          <td>${att.month}</td>
+          <td>${att.created_by}</td>
+        </tr>
+      `
+    )
+    .join("");
+
+  win.document.write(`
+    <html>
+      <head>
+        <title>Attendance Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; }
+
+          .header {
+            width: 100%;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 5px;
+            text-align: center;
+          }
+
+          table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+          th, td { border: 1px solid #333; padding: 6px; text-align: left; }
+          th {
+            background-color: #f2f2f2;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+        </style>
+      </head>
+
+      <body>
+
+        <div class="header">
+          <h2>M/S A J ENTERPRISE</h2>
+          <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
+        </div>
+
+        <h3 style="text-align:center;">Attendance Report</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>SL</th>
+              <th>Date</th>
+              <th>Employee Name</th>
+              <th>Working Day</th>
+              <th>Month</th>
+              <th>Created By</th>
+            </tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+
+      </body>
+    </html>
+  `);
+
+  win.document.close();
+  win.focus();
+  win.print();
+};
+
 
   return (
     <div className="p-2">

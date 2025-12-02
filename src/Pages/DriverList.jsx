@@ -152,61 +152,78 @@ const CarList = () => {
     doc.save("drivers_data.pdf");
   };
  
-  const printDriversTable = () => {
-  const printWindow = window.open('', '', 'height=600,width=800');
-  
-  let printContent = `
-    <html>
-      <head>
-        <title>Driver Report</title>
-        <style>
-          table {
-            width: 100%;
-            border-collapse: collapse;
-          }
-          th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-          }
-          th {
-            background: #f2f2f2;
-          }
-        </style>
-      </head>
-      <body>
-        <h2>Driver Report</h2>
-        <table>
-          <thead>
-            <tr>
-                <th>Name</th>
-              <th>Mobile</th>
-              <th>Address</th>
-              <th>Emergency Contact</th>
-              <th>License</th>
-              <th>License Expire Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${filteredDriver.map(d => `
-              <tr>
-               <td>${d.driver_name || ""}</td>
-                  <td>${d.driver_mobile || ""}</td>
-                  <td>${d.address || ""}</td>
-                  <td>${d.emergency_contact || ""}</td>
-                  <td>${d.lincense || ""}</td>
-                  <td>${d.expire_date || ""}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </body>
-    </html>
+ const printDriversTable = () => {
+  const WinPrint = window.open("", "", "width=900,height=650");
+
+  const printContent = `
+    <h2>Driver Info</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Mobile</th>
+          <th>Address</th>
+          <th>Emergency Contact</th>
+          <th>License</th>
+          <th>License Expire Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filteredDriver.map(d => `
+          <tr>
+            <td>${d.driver_name || ""}</td>
+            <td>${d.driver_mobile || ""}</td>
+            <td>${d.address || ""}</td>
+            <td>${d.emergency_contact || ""}</td>
+            <td>${d.lincense || ""}</td>
+            <td>${d.expire_date || ""}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
   `;
 
-  printWindow.document.write(printContent);
-  printWindow.document.close();
-  printWindow.print();
+  WinPrint.document.write(`
+    <html>
+    <head>
+      <title>-</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+
+        .print-header {
+          width: 100%;
+          border-bottom: 2px solid #000;
+          padding-bottom: 10px;
+          margin-bottom: 5px;
+          text-align: center;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+        thead th {
+          background: #f2f2f2;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      </style>
+    </head>
+
+    <body>
+      <div class="print-header">
+        <h2>M/S A J ENTERPRISE</h2>
+        <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
+      </div>
+
+      <h3 style="text-align:center;">Driver List</h3>
+
+      ${printContent}
+    </body>
+    </html>
+  `);
+
+  WinPrint.document.close();
+  WinPrint.focus();
+  WinPrint.print();
 };
 
 

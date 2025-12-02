@@ -334,7 +334,7 @@ const handlePrintTable = () => {
 
   return (
     <div className='p-2'>
-      <div className="w-[24rem] md:w-full max-w-7xl overflow-hidden overflow-x-auto mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div className=" w-full overflow-x-auto mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
@@ -453,7 +453,7 @@ const handlePrintTable = () => {
                 <th className="border border-gray-400 px-2 py-1 " colSpan={3}>
                   D E D U C T I O N
                 </th>
-                <th className="border border-gray-400 px-2 py-1">By CEO</th>
+                {/* <th className="border border-gray-400 px-2 py-1">By CEO</th> */}
                 <th className="border border-gray-400 px-2 py-1">Net Pay Half</th>
                 <th className="border border-gray-400 px-2 py-1">Action</th>
               </tr>
@@ -471,7 +471,7 @@ const handlePrintTable = () => {
                 <th className="border border-gray-400 px-2 py-1">Total</th>
                 <th className="border border-gray-400 px-2 py-1"></th>
                 <th className="border border-gray-400 px-2 py-1 "></th>
-                <th className="border border-gray-400 px-2 py-1 "></th>
+                {/* <th className="border border-gray-400 px-2 py-1 "></th> */}
               </tr>
             </thead>
             <tbody>
@@ -500,7 +500,7 @@ const handlePrintTable = () => {
                     <td className="border border-gray-400 px-2 py-1">{row?.advance?.toLocaleString()}</td>
                     <td className="border border-gray-400 px-2 py-1">{row?.monthly_deduction?.toLocaleString()}</td>
                     <td className="border border-gray-400 px-2 py-1">{row?.deductionTotal?.toLocaleString()}</td>
-                    <td className="border border-gray-400 px-2 py-1">C</td>
+                    {/* <td className="border border-gray-400 px-2 py-1">C</td> */}
                     <td className="border border-gray-400 px-2 py-1  font-bold">
                       {row?.netPay?.toLocaleString()}
                     </td>
@@ -514,6 +514,13 @@ const handlePrintTable = () => {
                       >
                         <BiPrinter className="mr-1 h-4 w-4" />
                         PaySlip
+                      </button>
+                      <button
+                       
+                        className="flex items-center w-full px-3 py-1 text-sm text-gray-700 bg-white shadow rounded"
+                      >
+                
+                        Unpaid
                       </button>
                     </td>
                   </tr>

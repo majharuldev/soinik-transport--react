@@ -201,27 +201,161 @@ const Bonus = () => {
   };
 
   // Print table
+  // const printTable = () => {
+  //   const printContent = document.getElementById("bonus-table").innerHTML;
+  //   const newWindow = window.open("", "", "width=900,height=600");
+  //   newWindow.document.write(`
+  //     <html>
+  //       <head>
+  //         <title>Bonus Report</title>
+  //         <style>
+  //           table, th, td { border: 1px solid black; border-collapse: collapse; }
+  //           th, td { padding: 6px; text-align: left; }
+  //         </style>
+  //       </head>
+  //       <body>
+  //         ${printContent}
+  //       </body>
+  //     </html>
+  //   `);
+  //    const win= window.open("", "", "width=900,height=650");
+  // win.document.write(`
+  //   <html>
+  //   <head>
+  //     <title>-</title>
+  //     <style>
+  //       body { font-family: Arial, sans-serif; }
+
+  //       .print-container {
+  //         display: table;
+  //         width: 100%;
+  //       }
+
+  //       .print-header {
+  //         display: table-header-group;
+  //       }
+
+  //       .header {
+  //         width: 100%;
+  //         border-bottom: 2px solid #000;
+  //         padding-bottom: 10px;
+  //         margin-bottom: 5px;
+  //         display: flex;
+  //         justify-content: space-between;
+  //         align-items: center;
+  //       }
+
+  //       table { width: 100%; border-collapse: collapse; }
+  //       th, td { border: 1px solid #000; padding: 5px; }
+  //       thead th {
+         
+  //         color: black !important;
+  //         -webkit-print-color-adjust: exact;
+  //         print-color-adjust: exact;
+  //       }
+  //     </style>
+  //   </head>
+
+  //   <body>
+  //     <div class="print-container">
+
+  //       <div class="print-header">
+  //         <div class="header">
+  //         <div></div>
+  //           <div>
+  //             <h2>M/S A J ENTERPRISE</h2>
+  //             <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
+  //           </div>
+  //           <div></div>
+  //         </div>
+  //       </div>
+
+  //       <div class="content">
+  //         <h3 style="text-align:center;">Office Expense List</h3>
+  //         ${printContent}
+  //       </div>
+
+  //     </div>
+  //   </body>
+  //   </html>
+  // `);
+  //   newWindow.document.close();
+  //   newWindow.focus();
+  //   newWindow.print();
+  // };
   const printTable = () => {
-    const printContent = document.getElementById("bonus-table").innerHTML;
-    const newWindow = window.open("", "", "width=900,height=600");
-    newWindow.document.write(`
-      <html>
-        <head>
-          <title>Bonus Report</title>
-          <style>
-            table, th, td { border: 1px solid black; border-collapse: collapse; }
-            th, td { padding: 6px; text-align: left; }
-          </style>
-        </head>
-        <body>
-          ${printContent}
-        </body>
-      </html>
-    `);
-    newWindow.document.close();
-    newWindow.focus();
-    newWindow.print();
-  };
+  // 1) Create full table HTML manually (all pages)
+  const fullTableHTML = `
+    <table style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background:#ddd;">
+          <th style="border:1px solid #000; padding:6px;">#</th>
+          <th style="border:1px solid #000; padding:6px;">Date</th>
+          <th style="border:1px solid #000; padding:6px;">Employee Name</th>
+          <th style="border:1px solid #000; padding:6px;">Amount</th>
+          <th style="border:1px solid #000; padding:6px;">Salary Month</th>
+          <th style="border:1px solid #000; padding:6px;">Status</th>
+          <th style="border:1px solid #000; padding:6px;">Created By</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filteredItems
+          .map(
+            (item, index) => `
+          <tr>
+            <td style="border:1px solid #000; padding:6px;">${index + 1}</td>
+            <td style="border:1px solid #000; padding:6px;">${tableFormatDate(
+              item.created_at
+            )}</td>
+            <td style="border:1px solid #000; padding:6px;">${getEmployeeName(
+              item.employee_id
+            )}</td>
+            <td style="border:1px solid #000; padding:6px;">${item.amount} ৳</td>
+            <td style="border:1px solid #000; padding:6px;">${item.month_of}</td>
+            <td style="border:1px solid #000; padding:6px;">${item.status}</td>
+            <td style="border:1px solid #000; padding:6px;">${item.created_by}</td>
+          </tr>`
+          )
+          .join("")}
+      </tbody>
+    </table>
+  `;
+
+  const win = window.open("", "", "width=900,height=650");
+  win.document.write(`
+    <html>
+    <head>
+      <title>Bonus Report</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+        .header {
+          width: 100%;
+          text-align: center;
+          border-bottom: 2px solid #000;
+          margin-bottom: 10px;
+          padding-bottom: 10px;
+        }
+      </style>
+    </head>
+
+    <body>
+      <div class="header">
+        <h2>M/S A J ENTERPRISE</h2>
+        <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
+      </div>
+
+      <h3 style="text-align:center;">Bonus List</h3>
+
+      ${fullTableHTML}
+    </body>
+    </html>
+  `);
+
+  win.document.close();
+  win.focus();
+  win.print();
+};
+
   return (
     <div className="p-2">
       <Toaster />

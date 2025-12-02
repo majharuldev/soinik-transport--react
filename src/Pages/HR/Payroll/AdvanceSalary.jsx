@@ -116,59 +116,82 @@ const AdvanceSalary = () => {
 
   // Print
   const printTable = () => {
-    const printWindow = window.open("", "", "width=900,height=600");
-    const tableHTML = `
-      <html>
-        <head>
-          <title></title>
-          <style>
-            table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            th, td { border: 1px solid #333; padding: 6px; text-align: left; }
-            th { background-color: #f2f2f2; }
-            h2 { text-align: center; margin-bottom: 10px; }
-          </style>
-        </head>
-        <body>
-          <h2>Advance Salary Report</h2>
-          <table>
-            <thead>
+  const printWindow = window.open("", "", "width=900,height=650");
+
+  const tableHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Employee Name</th>
+            <th>Amount</th>
+            <th>Salary Month</th>
+            <th>After Adjustment</th>
+            <th>Status</th>
+            <th>Created By</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filteredData
+            .map(
+              (item, index) => `
               <tr>
-              <th>#</th>
-              <th>Date</th>
-              <th>Employee Name</th>
-              <th>Amount</th>
-              <th>Salary Month</th>
-              <th>After Adjustment</th>
-              <th>Status</th>
-              <th>Created By</th>
-            </tr>
-            </thead>
-            <tbody>
-              ${filteredData
-        .map(
-          (item, index) => `
-                <tr>
-        <td>${index + 1}</td>
-        <td>${tableFormatDate(item.created_at)}</td>
-        <td>${getEmployeeName(item.employee_id)}</td>
-        <td>${item.amount} ৳</td>
-        <td>${item.salary_month}</td>
-        <td>${item.adjustment} ৳</td>
-        <td>${item.status}</td>
-        <td>${item.created_by}</td>
-      </tr>`
-        )
-        .join("")}
-            </tbody>
-          </table>
-        </body>
-      </html>
+                <td>${index + 1}</td>
+                <td>${tableFormatDate(item.created_at)}</td>
+                <td>${getEmployeeName(item.employee_id)}</td>
+                <td>${item.amount} ৳</td>
+                <td>${item.salary_month}</td>
+                <td>${item.adjustment} ৳</td>
+                <td>${item.status}</td>
+                <td>${item.created_by}</td>
+              </tr>`
+            )
+            .join("")}
+        </tbody>
+      </table>
     `;
-    printWindow.document.write(tableHTML);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-  };
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Advance Salary Report</title>
+        <style>
+          body { 
+            font-family: Arial, sans-serif;
+            margin: 20px;
+          }
+          .header {
+            width: 100%;
+            text-align: center;
+            border-bottom: 2px solid #000;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+          }
+          h2, h3 { margin: 5px 0; }
+          table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+          th, td { border: 1px solid #333; padding: 6px; text-align: left; }
+          th { background-color: #f2f2f2; }
+        </style>
+      </head>
+
+      <body>
+        <div class="header">
+          <h2>M/S A J ENTERPRISE</h2>
+          <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
+        </div>
+
+        <h3 style="text-align:center;">Advance Salary </h3>
+
+        ${tableHTML}
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+};
 
   return (
     <div className="p-2">

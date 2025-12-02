@@ -8,6 +8,9 @@ import { Link } from "react-router-dom";
 import Pagination from "../../../components/Shared/Pagination";
 import api from "../../../../utils/axiosConfig";
 import { tableFormatDate } from "../../../hooks/formatDate";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import toNumber from "../../../hooks/toNumber";
 
 const EmployeeList = () => {
   const [employee, setEmployee] = useState([]);
@@ -45,32 +48,32 @@ const EmployeeList = () => {
       });
   }, []);
   // delete by id
-   const handleDelete = async (id) => {
-  try {
-    const response = await api.delete(`/employee/${id}`);
+  const handleDelete = async (id) => {
+    try {
+      const response = await api.delete(`/employee/${id}`);
 
-    // Axios er jonno check
-    if (response.status === 200) {
-      // UI update
-      setEmployee((prev) => prev.filter((item) => item.id !== id));
-      toast.success("Employee deleted successfully", {
+      // Axios er jonno check
+      if (response.status === 200) {
+        // UI update
+        setEmployee((prev) => prev.filter((item) => item.id !== id));
+        toast.success("Employee deleted successfully", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+
+        setIsOpen(false);
+        setSelectedEmployeeId(null);
+      } else {
+        throw new Error("Delete request failed");
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("There was a problem deleting!", {
         position: "top-right",
         autoClose: 3000,
       });
-
-      setIsOpen(false);
-      setSelectedEmployeeId(null);
-    } else {
-      throw new Error("Delete request failed");
     }
-  } catch (error) {
-    console.error("Delete error:", error);
-    toast.error("There was a problem deleting!", {
-      position: "top-right",
-      autoClose: 3000,
-    });
-  }
-};
+  };
   // search
   const filteredEmployeeList = employee.filter((dt) => {
     const term = searchTerm.toLowerCase();
@@ -90,6 +93,151 @@ const EmployeeList = () => {
   );
   const totalPages = Math.ceil(filteredEmployeeList.length / itemsPerPage);
 
+  // excel
+  const exportExcel = () => {
+  if (!filteredEmployeeList || filteredEmployeeList.length === 0) {
+    toast.error("No data to export!");
+    return;
+  }
+
+  const data = filteredEmployeeList.map((dt, index) => ({
+    SL: index + 1,
+    FullName: dt.employee_name,
+    Email: dt.email,
+    JoinDate: tableFormatDate(dt.join_date),
+    Designation: dt.designation,
+    Mobile: dt.mobile,
+    NID: dt.nid,
+    Gender: dt.gender,
+    "Blood Group" : dt.blood_group,
+    "Basic Salary": toNumber(dt.basic),
+    "House Rent": toNumber(dt.house_rent),
+    "Alowance": dt.allowan,
+    Conveance: toNumber(dt.conv),
+    Medical: toNumber(dt.medical),
+    Status: dt.status
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Employees");
+
+  const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  const file = new Blob([excelBuffer], { type: "application/octet-stream" });
+  saveAs(file, `EmployeeList_${new Date().toISOString().slice(0,10)}.xlsx`);
+};
+  // print
+  const printTable = () => {
+  const filteredData = filteredEmployeeList; // all filtered employees
+
+  if (!filteredData || filteredData.length === 0) {
+    toast.error("No data to print!");
+    return;
+  }
+
+  const tableHeader = `
+    <thead>
+      <tr>
+        <th>SL.</th>
+        <th>FullName</th>
+        <th>Email</th>
+        <th>JoinDate</th>
+        <th>Designation</th>
+        <th>Mobile</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+  `;
+
+  const tableRows = filteredData
+    .map(
+      (dt, index) => `
+    <tr>
+      <td>${index + 1}</td>
+      <td>${dt.employee_name}</td>
+      <td>${dt.email}</td>
+      <td>${tableFormatDate(dt.join_date)}</td>
+      <td>${dt.designation}</td>
+      <td>${dt.mobile}</td>
+      <td>${dt.status}</td>
+    </tr>`
+    )
+    .join("");
+
+  const printContent = `
+    <table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse: collapse;">
+      ${tableHeader}
+      <tbody>${tableRows}</tbody>
+    </table>
+  `;
+
+  const WinPrint = window.open("", "", "width=900,height=650");
+  WinPrint.document.write(`
+    <html>
+    <head>
+      <title>-</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+
+        .print-container {
+          display: table;
+          width: 100%;
+        }
+
+        .print-header {
+          display: table-header-group;
+        }
+
+        .header {
+          width: 100%;
+          border-bottom: 2px solid #000;
+          padding-bottom: 10px;
+          margin-bottom: 5px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000; padding: 5px; }
+        thead th {
+         
+          color: black !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      </style>
+    </head>
+
+    <body>
+      <div class="print-container">
+
+        <div class="print-header">
+          <div class="header">
+          <div></div>
+            <div>
+              <h2>M/S A J ENTERPRISE</h2>
+              <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
+            </div>
+            <div></div>
+          </div>
+        </div>
+
+        <div class="content">
+          <h3 style="text-align:center;">Employee List</h3>
+          ${printContent}
+        </div>
+
+      </div>
+    </body>
+    </html>
+  `);
+  WinPrint.document.close();
+  WinPrint.focus();
+  WinPrint.print();
+};
+
+
   return (
     <div className=" p-2">
       <Toaster />
@@ -108,7 +256,26 @@ const EmployeeList = () => {
           </div>
         </div>
         <div className="md:flex justify-between items-center">
-          <div></div>
+          <div className="flex gap-1 md:gap-3 text-gray-700 font-semibold rounded-md">
+            <button
+              onClick={exportExcel}
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
+            >
+              Excel
+            </button>
+            {/* <button
+              onClick={exportPDF}
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
+            >
+              PDF
+            </button> */}
+            <button
+              onClick={printTable}
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
+            >
+              Print
+            </button>
+          </div>
           {/* search */}
           <div className="mt-3 md:mt-0">
             {/* <span className="text-primary font-semibold pr-3">Search: </span> */}
@@ -294,7 +461,7 @@ const EmployeeList = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-               {/* <p><span className="font-semibold">Branch:</span> {selectedEmployee.branch_name}</p> */}
+              {/* <p><span className="font-semibold">Branch:</span> {selectedEmployee.branch_name}</p> */}
               <p><span className="font-semibold">Gender:</span> {selectedEmployee.gender}</p>
               <p><span className="font-semibold">Blood Group:</span> {selectedEmployee.blood_group}</p>
               <p><span className="font-semibold">NID:</span> {selectedEmployee.nid}</p>

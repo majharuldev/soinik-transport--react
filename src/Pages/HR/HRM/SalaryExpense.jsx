@@ -357,33 +357,67 @@ const SalaryExpense = () => {
     </table>
   `;
 
-    const win = window.open("", "", "width=900,height=650");
-    win.document.write(`
+     const win= window.open("", "", "width=900,height=650");
+  win.document.write(`
     <html>
-      <head>
-        <title>Salary Expense</title>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          h3 { text-align: center; margin-bottom: 20px; }
-          table { width: 100%; border-collapse: collapse; }
-          th, td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 12px; }
-          thead { background-color: #11375B; color: white; }
-          tbody tr:nth-child(odd) { background-color: #f9f9f9; }
-           thead th {
-          color: #000000 !important;
-          background-color: #ffffff !important;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
+    <head>
+      <title>-</title>
+      <style>
+        body { font-family: Arial, sans-serif; }
+
+        .print-container {
+          display: table;
+          width: 100%;
         }
-        </style>
-      </head>
-      <body>
-        <h3>Salary Expense List</h3>
-        ${printContent}
-      </body>
+
+        .print-header {
+          display: table-header-group;
+        }
+
+        .header {
+          width: 100%;
+          border-bottom: 2px solid #000;
+          padding-bottom: 10px;
+          margin-bottom: 5px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000; padding: 5px; }
+        thead th {
+         
+          color: black !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      </style>
+    </head>
+
+    <body>
+      <div class="print-container">
+
+        <div class="print-header">
+          <div class="header">
+          <div></div>
+            <div>
+              <h2>M/S A J ENTERPRISE</h2>
+              <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
+            </div>
+            <div></div>
+          </div>
+        </div>
+
+        <div class="content">
+          <h3 style="text-align:center;">Salary Expense List</h3>
+          ${printContent}
+        </div>
+
+      </div>
+    </body>
     </html>
   `);
-
     win.document.close();
     win.focus();
     win.print();
