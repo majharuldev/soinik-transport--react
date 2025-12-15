@@ -683,12 +683,12 @@ const handleFileChange = (e) => {
             <div className="md:flex justify-between gap-3">
   <div className="w-[50%]">
     <label className="text-gray-700 text-sm font-semibold">
-      Bill Image {!isEditMode && "(Required)"}
+      Bill Image
     </label>
     <Controller
       name="bill_image"
       control={control}
-      rules={isEditMode ? {} : { required: "This field is required" }}
+      // rules={isEditMode ? {} : { required: "This field is required" }}
       render={({ field: { onChange, ref }, fieldState: { error } }) => (
         <div>
           <input
