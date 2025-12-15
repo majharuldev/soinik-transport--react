@@ -1,12 +1,8 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { FaPlus } from "react-icons/fa6"
 import { FaFileExcel, FaFilePdf, FaFilter, FaPen, FaPrint, FaTrashAlt, FaTruck } from "react-icons/fa"
-import { useReactToPrint } from 'react-to-print';
 import Pagination from '../../../components/Shared/Pagination';
-import { BiEdit, BiPrinter } from "react-icons/bi"
 import toast from 'react-hot-toast';
 import api from '../../../../utils/axiosConfig';
-import PaySlipPrint from '../HRM/PaySlipPrint';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -308,6 +304,7 @@ const handleUpdateGenerateSalary = async () => {
     const updatedSalaryData = generateSalaryForMonth(updateMonth);
 
     await api.put(`/salarySheet/${selectedSheet.id}`, {
+      generate_by: user.name,
       generate_date: selectedSheet.generate_date,
       generate_month: updateMonth,
       items: updatedSalaryData,
@@ -330,25 +327,26 @@ const handleUpdateGenerateSalary = async () => {
 
   // Send merged salary sheet to API
   const handleGenerate = async () => {
-    if (!selectedMonth) {
+    if (!generateSalaryMonth) {
       toast.error("Please select a month");
       return;
     }
 
-    const dataToSend = generateSalaryForMonth(selectedMonth);
+    const dataToSend = generateSalaryForMonth(generateSalaryMonth);
       const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
     try {
       await api.post("/salarySheet", {
         generate_date: today,
-        generate_month: selectedMonth,
+        generate_by: user.name,
+        generate_month: generateSalaryMonth,
         items: dataToSend,
       });
 
       toast.success("Salary generated successfully");
-      setSalarySheetApiData((prev) =>
-  prev.filter((item) => item.id !== deleteId)
-);
+     // fetch fresh list from server
+    const res = await api.get("/salarySheet");
+    setSalarySheetApiData(res.data.data);
        setCurrentPage(1);
     } catch (err) {
       toast.error("Failed to generate salary");
@@ -503,7 +501,7 @@ const handleUpdateGenerateSalary = async () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             {/* <FaTruck className="text-gray-800 text-2xl" /> */}
-            Salary Sheet
+            Generate Salary List
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <div className="">
@@ -570,7 +568,7 @@ const handleUpdateGenerateSalary = async () => {
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr>
                 <th className="p-2">#</th>
-                <th className="p-2">Date</th>
+                <th className="p-2">Generate Date</th>
                 <th className="p-2">Month</th>
                 <th className="p-2">Generate By</th>
                 {/* <th className="p-2">Status</th> */}

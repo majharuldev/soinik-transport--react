@@ -683,7 +683,7 @@ const handleFileChange = (e) => {
             <div className="md:flex justify-between gap-3">
   <div className="w-[50%]">
     <label className="text-gray-700 text-sm font-semibold">
-      Bill Image
+      Bill Documents
     </label>
     <Controller
       name="bill_image"

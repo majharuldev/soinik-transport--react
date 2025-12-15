@@ -129,36 +129,49 @@ const DailyIncome = () => {
     XLSX.writeFile(workbook, "filtered_trips.xlsx")
   }
 
-  // Export PDF function
-  const exportPDF = () => {
-    const doc = new jsPDF()
-    const tableColumn = headers.map((h) => h.label)
-    const tableRows = csvData.map((row) => headers.map((h) => row[h.key]))
-
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      styles: { font: "helvetica", fontSize: 8 },
-    })
-
-    doc.save("filtered_trips.pdf")
-  }
-
   // Print function
   const printTable = () => {
-    const doc = new jsPDF()
-    const tableColumn = headers.map((h) => h.label)
-    const tableRows = csvData.map((row) => headers.map((h) => row[h.key]))
+  const doc = new jsPDF("landscape"); // landscape হলে বড় table সুন্দর দেখায়
 
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      styles: { font: "helvetica", fontSize: 8 },
-    })
+  const tableColumn = headers.map((h) => h.label);
+  const tableRows = csvData.map((row) =>
+    headers.map((h) => row[h.key])
+  );
 
-    doc.autoPrint()
-    window.open(doc.output("bloburl"), "_blank")
-  }
+  autoTable(doc, {
+    head: [tableColumn],
+    body: tableRows,
+
+    theme: "grid", // 🔥 এটা দিলেই full border আসে
+
+    styles: {
+      font: "helvetica",
+      fontSize: 8,
+      textColor: [0, 0, 0],
+      lineWidth: 0.3,          // 🔥 border thickness
+      lineColor: [0, 0, 0],    // 🔥 border color
+    },
+
+    headStyles: {
+      fillColor: [230, 230, 230],
+      textColor: [0, 0, 0],
+      lineWidth: 0.4,
+      lineColor: [0, 0, 0],
+      fontStyle: "bold",
+    },
+
+    bodyStyles: {
+      lineWidth: 0.3,
+      lineColor: [0, 0, 0],
+    },
+
+    margin: { top: 15 },
+  });
+
+  doc.autoPrint();
+  window.open(doc.output("bloburl"), "_blank");
+};
+
 
   // মোট যোগফল বের করা
   const totalRent = filteredIncome.reduce(
