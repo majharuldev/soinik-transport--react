@@ -203,7 +203,7 @@ const isAllEmployeePaid = (sheet) => {
     const attendance = attendances.find(
       (a) =>
         String(a.employee_id) === empId &&
-        a.month === selectedMonth
+        a.month === generateSalaryMonth
     );
 
     const workingDay = attendance
