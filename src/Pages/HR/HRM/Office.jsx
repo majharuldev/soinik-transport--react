@@ -105,46 +105,6 @@ const exportOfficeToExcel = () => {
   saveAs(data, "Office_data.xlsx");
 };
 
-// Export to PDF
-const exportOfficeToPDF = () => {
-  const doc = new jsPDF("landscape");
-
-  const tableColumn = [
-    "SL.",
-    "Date",
-    "Branch",
-    "Address",
-    "Opening Balance",
-    "Factory/Company",
-  ];
-
-  const tableRows = filteredOfficeList.map((office, index) => [
-    index + 1,
-    office.date,
-    office.branch_name,
-    office.address,
-    office.opening_balance,
-    office.factory_name,
-  ]);
-
-  autoTable(doc, {
-    head: [tableColumn],
-    body: tableRows,
-    startY: 20,
-    styles: { fontSize: 10, cellPadding: 3 },
-    headStyles: {
-      fillColor: [17, 55, 91],
-      textColor: [255, 255, 255],
-      halign: "left",
-    },
-    bodyStyles: { textColor: [17, 55, 91] },
-    alternateRowStyles: { fillColor: [240, 240, 240] },
-    theme: "grid",
-  });
-
-  doc.save("Office_data.pdf");
-};
-
 // Print
 const printOfficeTable = () => {
   const tableHeader = `

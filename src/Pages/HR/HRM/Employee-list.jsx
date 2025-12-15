@@ -116,7 +116,8 @@ const EmployeeList = () => {
       "Alowance": dt.allowan,
       Conveance: toNumber(dt.conv),
       Medical: toNumber(dt.medical),
-      Status: dt.status
+      Status: dt.status,
+      CreateedBy: dt.created_by
     }));
 
     const ws = XLSX.utils.json_to_sheet(data);
@@ -212,21 +213,6 @@ const EmployeeList = () => {
 
     <body>
       <div class="print-container">
-
-        <div class="print-header">
-          <div class="header">
-          <div class="header-logo">
-          <img src="${logo}" />
-          <div style="font-size:12px; font-weight:bold;">M/S A J ENTERPRISE</div>
-          </div>
-            <div>
-              <h2>M/S A J ENTERPRISE</h2>
-              <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
-            </div>
-            <div></div>
-          </div>
-        </div>
-
         <div class="content">
           <h3 style="text-align:center;">Employee List</h3>
           ${printContent}
