@@ -439,7 +439,7 @@ const PaymentList = () => {
           </div>
         </div>
         {showFilter && (
-          <div className="md:flex gap-6 justify-between border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
+          <div className="lg:flex gap-6 justify-between border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5 space-y-2 lg:space-y-0">
             <DatePicker
               selected={startDate}
               onChange={(date) => setStartDate(date)}

@@ -29,7 +29,7 @@ const AdminRoute = ({ children }) => {
   const { user, isAuthenticated } = useContext(AuthContext);
   if (!isAuthenticated) return <Navigate to="/tramessy/Login" />;
 
-  if (user?.role === "admin") {
+  if (user?.role === "Admin") {
     return children;
   }
 

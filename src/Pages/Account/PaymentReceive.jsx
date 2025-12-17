@@ -305,7 +305,7 @@ const exportToExcel = () => {
             </Link>
           </div>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="md:flex justify-between items-center">
           <div className="flex items-center gap-5">
             <button
               onClick={exportToExcel}

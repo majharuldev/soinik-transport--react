@@ -216,7 +216,7 @@ const exportToExcel = () => {
   if (loading) return <p className="text-center mt-16">Loading payment...</p>;
   return (
     <div className="p-2 ">
-      <div className="[22rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
+      <div className="w-[22rem] md:w-full max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2 ">
             <MdOutlineAirplaneTicket className="text-gray-800 text-2xl" />
@@ -230,7 +230,7 @@ const exportToExcel = () => {
             </Link>
           </div>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="lg:flex justify-between items-center">
           <div className="flex items-center gap-5">
             <button
               onClick={exportToExcel}
