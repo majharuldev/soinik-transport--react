@@ -14,8 +14,10 @@ import { IoIosRemoveCircle, IoMdClose } from "react-icons/io";
 import { FaTruck } from "react-icons/fa6";
 import Pagination from "../components/Shared/Pagination";
 import api from "../../utils/axiosConfig";
+import { useTranslation } from "react-i18next";
 
 const RentList = () => {
+  const {t} = useTranslation();
   const [fuel, setFuel] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -46,7 +48,7 @@ const RentList = () => {
       });
   }, []);
 
-  if (loading) return <p className="text-center mt-16">Loading data...</p>;
+  if (loading) return <p className="text-center mt-16">{t("Loading")}...</p>;
 
   // export
   const exportExcel = () => {
@@ -108,13 +110,13 @@ const RentList = () => {
     const tableHeader = `
     <thead>
       <tr>
-        <th>SL</th>
-        <th>Vendor/Driver</th>
-        <th>Vehicle</th>
-        <th>Category</th>
-        <th>Size/Capacity</th>
-        <th>Regi.No</th>
-        <th>Status</th>
+        <th>${t("SL")}</th>
+        <th>${t("Vendor")}/${t("Driver")}</th>
+        <th>${t("Vehicle")}</th>
+        <th>${t("Category")}</th>
+        <th>${t("Size")}</th>
+        <th>${t("Registration Number")}</th>
+        <th>${t("Status")}</th>
       </tr>
     </thead>
   `;
@@ -178,18 +180,6 @@ const RentList = () => {
 
     <body>
       <div class="print-container">
-
-        <div class="print-header">
-          <div class="header">
-          <div></div>
-            <div>
-              <h2>M/S A J ENTERPRISE</h2>
-              <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
-            </div>
-            <div></div>
-          </div>
-        </div>
-
         <div class="content">
           <h3 style="text-align:center;">Vendor Vehicle List</h3>
           ${printContent}
@@ -215,7 +205,7 @@ const RentList = () => {
       if (response.status === 200) {
         // UI update
         setFuel((prev) => prev.filter((item) => item.id !== id));
-        toast.success("Rent Vehicle deleted successfully", {
+        toast.success(t("Rent Vehicle deleted successfully"), {
           position: "top-right",
           autoClose: 3000,
         });
@@ -223,11 +213,11 @@ const RentList = () => {
         setIsOpen(false);
         setselectedFuelId(null);
       } else {
-        throw new Error("Delete request failed");
+        throw new Error(t("Delete request failed"));
       }
     } catch (error) {
       console.error("Delete error:", error);
-      toast.error("There was a problem deleting!", {
+      toast.error(t("There was a problem deleting!"), {
         position: "top-right",
         autoClose: 3000,
       });
@@ -265,7 +255,7 @@ const RentList = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaTruck className="text-gray-800 text-2xl" />
-            All Rent Vehicle
+            {t("All Rent Vehicle")}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             {/* <button
@@ -276,19 +266,19 @@ const RentList = () => {
             </button> */}
             <Link to="/tramessy/AddRentVehicleForm">
               <button className="bg-gradient-to-r from-primary to-[#115e15] text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus /> Add
+                <FaPlus /> {(t("Add"))}
               </button>
             </Link>
           </div>
         </div>
         {/* export */}
         <div className="md:flex justify-between items-center">
-          <div className="flex gap-1 md:gap-3 text-gray-700 font-semibold rounded-md">
+          <div className="flex gap-1 md:gap-3 text-gray-700 font-medium rounded-md">
             <button
               onClick={exportExcel}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
-              Excel
+              {(t("Excel"))}
             </button>
             {/* <button
               onClick={exportPDF}
@@ -300,7 +290,7 @@ const RentList = () => {
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
-              Print
+              {t("Print")}
             </button>
           </div>
           {/*  */}
@@ -313,7 +303,7 @@ const RentList = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search vehicle..."
+              placeholder={`${t("Vehicle")} ${t("search")}...`}
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}
@@ -360,7 +350,7 @@ const RentList = () => {
                 }}
                 className="bg-gradient-to-r from-primary to-[#115e15] text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <IoIosRemoveCircle /> Clear
+                <IoIosRemoveCircle /> {t("Clear")}
               </button>
             </div>
           </div>
@@ -370,14 +360,14 @@ const RentList = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr>
-                <th className="px-2 py-4">#</th>
-                <th className="px-2 py-4">Vendor/Driver Name</th>
-                <th className="px-2 py-4">Vehicle Name/Model</th>
-                <th className="px-2 py-4">Vehicle Category</th>
-                <th className="px-2 py-4">Vehicle Size/Capacity</th>
-                <th className="px-2 py-4">Regi.No</th>
-                <th className="px-2 py-4">Status</th>
-                <th className="p-2 action_column">Action</th>
+                <th className="px-2 py-4">{t("SL")}</th>
+                <th className="px-2 py-4">{t("Vendor")}/{t("Driver")}{t("Name")}</th>
+                <th className="px-2 py-4">{t("Vehicle")} {t("Name")}</th>
+                <th className="px-2 py-4">{t("Vehicle")} {t("Category")}</th>
+                <th className="px-2 py-4">{t("Vehicle")} {t("Size")}</th>
+                <th className="px-2 py-4">{t("Registration Number")}</th>
+                <th className="px-2 py-4">{t("Status")}</th>
+                <th className="p-2 action_column">{t("Action")}</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
@@ -385,7 +375,7 @@ const RentList = () => {
                 currentFuel.length === 0 ? (
                   <tr>
                     <td colSpan="8" className="text-center p-4 text-gray-500">
-                      No Rent Vehicle found
+                      "{t("No Rent Vehicle found")}"
                     </td>
                   </tr>)
                   : (currentFuel?.map((dt, index) => (
@@ -452,20 +442,20 @@ const RentList = () => {
                 <FaTrashAlt />
               </div>
               <p className="text-center text-gray-700 font-medium mb-6">
-                Are you sure you want to delete this data?
+                {t("Are you sure you want to delete this data?")}
               </p>
               <div className="flex justify-center space-x-4">
                 <button
                   onClick={toggleModal}
                   className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
                 >
-                  No
+                  {t("No")}
                 </button>
                 <button
                   onClick={() => handleDelete(selectedFuelId)}
                   className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
                 >
-                  Yes
+                 {t("Yes")}
                 </button>
               </div>
             </div>

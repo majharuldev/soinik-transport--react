@@ -7,8 +7,10 @@ import { InputField, SelectField } from "../components/Form/FormFields";
 import useRefId from "../hooks/useRef";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../utils/axiosConfig";
+import { useTranslation } from "react-i18next";
 
 const AddCarForm = () => {
+  const {t} = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const methods = useForm();
@@ -64,12 +66,12 @@ const helperOptions = helpers.map((helper) => ({
 }));
    const selectedCategory = watch("vehicle_category");
 const vehicleSizes = {
-  pickup: ["1 Ton", "2 Ton", "3 Ton", "7 Feet", "9 Feet"],
-  covered_van: ["12 Feet", "14 Feet", "16 Feet", "18 Feet", "20 Feet", "23 Feet"],
-  open_truck: ["3 Ton", "5 Ton", "10 Ton", "15 Ton", "30 Ton"],
-  trailer: ["20 Feet", "23 Feet", "40 Feet", "30 Ton"],
-  freezer_van: ["1 Ton", "3 Ton", "5 Ton", "10 Ton"],
-  "Oil Tanker": ["5,000 Litre", "10,000 Litre", "15,000 Litre", "20,000 Litre"],
+  pickup: [t("1 Ton"), t("2 Ton"), (t("3 Ton")), t("7 Feet"), t("9 Feet")],
+  covered_van: [t("12 Feet"), t("14 Feet"), t("16 Feet"), t("18 Feet"), t("20 Feet"), t("23 Feet")],
+  open_truck: [t("3 Ton"), t("5 Ton"), t("10 Ton"), t("15 Ton"), t("30 Ton")],
+  trailer: [t("20 Feet"), t("23 Feet"), t("40 Feet"), t("30 Ton")],
+  freezer_van: [t("1 Ton"), t("3 Ton"), t("5 Ton"), t("10 Ton")],
+  "Oil Tanker": [t("5,000 Litre"), t("10,000 Litre"), t("15,000 Litre"), t("20,000 Litre")],
 };
 // সিলেক্ট করা ক্যাটাগরির জন্য সাইজ লিস্ট বানানো
   const sizeOptions =
@@ -126,10 +128,10 @@ const vehicleSizes = {
         formData.append("ref_id", generateRefId());
 
         response = await api.post(`/vehicle`, formData);
-        toast.success("Vehicle added successfully!");
+        toast.success(t("Vehicle added successfully!"));
       } else if (id) {
         response = await api.put(`/vehicle/${id}`, data);
-        toast.success("Vehicle updated successfully!");
+        toast.success(t("Vehicle updated successfully!"));
       }
 
       reset();
@@ -137,8 +139,8 @@ const vehicleSizes = {
     } catch (error) {
       console.error(error);
       const errorMessage =
-        error.response?.data?.message || error.message || "Unknown error";
-      toast.error("Server error: " + errorMessage);
+        error.response?.data?.message || error.message || t("Unknown error");
+      toast.error(t("Server error:") + errorMessage);
     }
   };
 
@@ -148,14 +150,14 @@ const vehicleSizes = {
         <Toaster position="top-center" reverseOrder={false} />  
         <div className="mx-auto p-6  rounded-md shadow-md border-t-2 border-primary">
            <h3 className="pt-1 pb-4 text-primary font-semibold rounded-t-md">
-          {id ? "Update Vehicle Information " : "Add Vehicle Information"}
+          {id ? t("Update Vehicle Information ") : t("Add Vehicle Information")}
         </h3>
           {/* Vehicle & Driver Name */}
           <div className="md:flex justify-between gap-3">
             <div className="w-full">
                 <InputField
                   name="date"
-                  label="Date"
+                  label={t("Date")}
                   type="date"
                   required={id? false:true}
                   inputRef={(e) => {
@@ -166,12 +168,12 @@ const vehicleSizes = {
                 />
               </div>
             <div className="w-full">
-              <InputField name="vehicle_name" label="Vehicle Name" required={id? false:true} />
+              <InputField name="vehicle_name" label={`${t("Vehicle")} ${t("Name")}`} required={id? false:true} />
             </div>
             <div className="relative mt-2 md:mt-0 w-full">
               <SelectField
                 name="driver_name"
-                label="Driver Name"
+                label={`${t("Driver")} ${t("Name")}`}
                 required={id? false:true}
                 options={driverOptions}
                 control={control}
@@ -180,7 +182,7 @@ const vehicleSizes = {
             <div className="relative mt-2 md:mt-0 w-full">
               <SelectField
                 name="helper_name"
-                label="Helper Name"
+                label={`${t("Helper")} ${t("Name")}`}
                 required={id? false:true}
                 options={helperOptions}
                 control={control}
@@ -193,16 +195,16 @@ const vehicleSizes = {
             <div className="w-full relative">
               <SelectField
                 name="vehicle_category"
-                label="Vehicle Category"
+                label={`${t("Vehicle")} ${t("Category")}`}
                 required={id? false:true}
                 options={[
                   // { value: "", label: "Select Vehicle category..." },
-                  { value: "pickup", label: "Pickup" },
-                  { value: "covered_van", label: "Covered Van" },
-                  { value: "open_truck", label: "Open Truck" },
-                  { value: "trailer", label: "Trailer" },
-                  { value: "freezer_van", label: "Freezer Van" },
-                  { value: "Oil Tanker", label: "Oil Tanker" },
+                  { value: "pickup", label: t("Pickup") },
+                  { value: "covered_van", label: t("Covered Van") },
+                  { value: "open_truck", label: t("Open Truck") },
+                  { value: "trailer", label: t("Trailer") },
+                  { value: "freezer_van", label: t("Freezer Van") },
+                  { value: "Oil Tanker", label: t("Oil Tanker") },
                 ]}
            
               />
@@ -210,16 +212,16 @@ const vehicleSizes = {
             <div className="relative w-full">
         <SelectField
           name="vehicle_size"
-          label="Vehicle Size/Capacity"
+          label={t("Vehicle Size")}
           required={id? false:true}
           options={[
-            { value: "", label: "Select Vehicle size..." },
+            { value: "", label: `${t("Vehicle Size")} ${t("Select")}...` },
             ...sizeOptions,
           ]}
         />
       </div>
             <div className="w-full">
-              <InputField name="fuel_capcity" label="Fuel Capacity" required={false} />
+              <InputField name="fuel_capcity" label={t("Fuel Capacity")} required={false} />
             </div>
           </div>
 
@@ -228,117 +230,117 @@ const vehicleSizes = {
             <div className="w-full">
               <InputField
                 name="reg_no"
-                label="Registration Number"
+                label={t("Registration Number")}
                 required={id? false:true}
               />
             </div>
             <div className="mt-2 md:mt-0 w-full">
               <SelectField
                 name="reg_serial"
-                label="Registration Serial"
+                label={t("Registration Serial")}
                 required={id? false:true}
                 options={[
-                  { value: "KA", label: "KA" },
-                  { value: "KHA", label: "KHA" },
-                  { value: "GA", label: "GA" },
-                  { value: "GHA", label: "GHA" },
-                  { value: "CHA", label: "CHA" },
-                  { value: "JA", label: "JA" },
-                  { value: "JHA", label: "JHA" },
-                  { value: "TA", label: "TA" },
-                  { value: "THA", label: "THA" },
-                  { value: "DA", label: "DA" },
-                  { value: "DHA", label: "DHA" },
-                  { value: "NA", label: "NA" },
-                  { value: "PA", label: "PA" },
-                  { value: "FA", label: "FA" },
-                  { value: "BA", label: "BA" },
-                  { value: "MA", label: "MA" },
-                  { value: "SHA", label: "SHA" },
-                  { value: "LA", label: "LA" },
-                  { value: "RA", label: "RA" },
-                  { value: "HA", label: "HA" },
+                  { value: "KA", label: (t("KA")) },
+                  { value: "KHA", label: t("KHA") },
+                  { value: "GA", label: t("GA") },
+                  { value: "GHA", label: t("GHA") },
+                  { value: "CHA", label: t("CHA") },
+                  { value: "JA", label: t("JA") },
+                  { value: "JHA", label: t("JHA") },
+                  { value: "TA", label: t("TA") },
+                  { value: "THA", label: t("THA") },
+                  { value: "DA", label: t("DA") },
+                  { value: "DHA", label: t("DHA") },
+                  { value: "NA", label: t("NA") },
+                  { value: "PA", label: t("PA") },
+                  { value: "FA", label: t("FA") },
+                  { value: "BA", label: t("BA") },
+                  { value: "MA", label: t("MA") },
+                  { value: "SHA", label: t("SHA") },
+                  { value: "LA", label: t("LA") },
+                  { value: "RA", label: t("RA") },
+                  { value: "HA", label: t("HA") },
                 ]}
               />
             </div>
             <div className="relative w-full">
               <SelectField
                 name="reg_zone"
-                label="Registration Zone"
+                label={t("Registration Zone")}
                 required={id? false:true}
                 options={[
-                  { value: "", label: "Select zone..." },
-                  { value: "Dhaka Metro", label: "Dhaka Metro" },
-                  { value: "Chatto Metro", label: "Chatto Metro" },
-                  { value: "Sylhet Metro", label: "Sylhet Metro" },
-                  { value: "Rajshahi Metro", label: "Rajshahi Metro" },
-                  { value: "Khulna Metro", label: "Khulna Metro" },
-                  { value: "Rangpur Metro", label: "Rangpur Metro" },
-                  { value: "Barisal Metro", label: "Barisal Metro" },
-                  { value: "Dhaka", label: "Dhaka" },
-                  { value: "Narayanganj", label: "Narayanganj" },
-                  { value: "Gazipur", label: "Gazipur" },
-                  { value: "Tangail", label: "Tangail" },
-                  { value: "Manikgonj", label: "Manikgonj" },
-                  { value: "Munshigonj", label: "Munshigonj" },
-                  { value: "Faridpur", label: "Faridpur" },
-                  { value: "Rajbari", label: "Rajbari" },
-                  { value: "Narsingdi", label: "Narsingdi" },
-                  { value: "Kishorgonj", label: "Kishorgonj" },
-                  { value: "Shariatpur", label: "Shariatpur" },
-                  { value: "Gopalgonj", label: "Gopalgonj" },
-                  { value: "Madaripur", label: "Madaripur" },
-                  { value: "Chattogram", label: "Chattogram" },
-                  { value: "Cumilla", label: "Cumilla" },
-                  { value: "Feni", label: "Feni" },
-                  { value: "Brahmanbaria", label: "Brahmanbaria" },
-                  { value: "Noakhali", label: "Noakhali" },
-                  { value: "Chandpur", label: "Chandpur" },
-                  { value: "Lokkhipur", label: "Lokkhipur" },
-                  { value: "Bandarban", label: "Bandarban" },
-                  { value: "Rangamati", label: "Rangamati" },
-                  { value: "CoxsBazar", label: "CoxsBazar" },
-                  { value: "Khagrasori", label: "Khagrasori" },
-                  { value: "Barisal", label: "Barisal" },
-                  { value: "Barguna", label: "Barguna" },
-                  { value: "Bhola", label: "Bhola" },
-                  { value: "Patuakhali", label: "Patuakhali" },
-                  { value: "Pirojpur", label: "Pirojpur" },
-                  { value: "Jhalokati", label: "Jhalokati" },
-                  { value: "Khulna", label: "Khulna" },
-                  { value: "Kustia", label: "Kustia" },
-                  { value: "Jashore", label: "Jashore" },
-                  { value: "Chuadanga", label: "Chuadanga" },
-                  { value: "Satkhira", label: "Satkhira" },
-                  { value: "Bagerhat", label: "Bagerhat" },
-                  { value: "Meherpur", label: "Meherpur" },
-                  { value: "Jhenaidah", label: "Jhenaidah" },
-                  { value: "Norail", label: "Norail" },
-                  { value: "Magura", label: "Magura" },
-                  { value: "Rangpur", label: "Rangpur" },
-                  { value: "Ponchogor", label: "Ponchogor" },
-                  { value: "Thakurgaon", label: "Thakurgaon" },
-                  { value: "Kurigram", label: "Kurigram" },
-                  { value: "Dinajpur", label: "Dinajpur" },
-                  { value: "Nilfamari", label: "Nilfamari" },
-                  { value: "Lalmonirhat", label: "Lalmonirhat" },
-                  { value: "Gaibandha", label: "Gaibandha" },
-                  { value: "Rajshahi", label: "Rajshahi" },
-                  { value: "Pabna", label: "Pabna" },
-                  { value: "Bagura", label: "Bagura" },
-                  { value: "Joypurhat", label: "Joypurhat" },
-                  { value: "Nouga", label: "Nouga" },
-                  { value: "Natore", label: "Natore" },
-                  { value: "Sirajgonj", label: "Sirajgonj" },
-                  { value: "Chapainawabganj", label: "Chapainawabganj" },
-                  { value: "Sylhet", label: "Sylhet" },
-                  { value: "Habiganj", label: "Habiganj" },
-                  { value: "Moulvibazar", label: "Moulvibazar" },
-                  { value: "Sunamgonj", label: "Sunamgonj" },
-                  { value: "Mymensingh", label: "Mymensingh" },
-                  { value: "Netrokona", label: "Netrokona" },
-                  { value: "Jamalpur", label: "Jamalpur" },
-                  { value: "Sherpur", label: "Sherpur" },
+                  { value: "", label: `${t("Registration Zone")} ${t("Select")}...` },
+                  { value: "Dhaka Metro", label: t("Dhaka Metro") },
+                  { value: "Chatto Metro", label: t("Chatto Metro") },
+                  { value: "Sylhet Metro", label: t("Sylhet Metro") },
+                  { value: "Rajshahi Metro", label: t("Rajshahi Metro") },
+                  { value: "Khulna Metro", label: t("Khulna Metro") },
+                  { value: "Rangpur Metro", label: t("Rangpur Metro") },
+                  { value: "Barisal Metro", label: t("Barisal Metro") },
+                  { value: "Dhaka", label: t("Dhaka") },
+                  { value: "Narayanganj", label: t("Narayanganj") },
+                  { value: "Gazipur", label: t("Gazipur") },
+                  { value: "Tangail", label: t("Tangail") },
+                  { value: "Manikgonj", label: t("Manikgonj") },
+                  { value: "Munshigonj", label: t("Munshigonj") },
+                  { value: "Faridpur", label: t("Faridpur") },
+                  { value: "Rajbari", label: t("Rajbari") },
+                  { value: "Narsingdi", label: t("Narsingdi") },
+                  { value: "Kishoreganj", label: t("Kishoreganj") },
+                  { value: "Shariatpur", label: t("Shariatpur") },
+                  { value: "Gopalganj", label: t("Gopalganj") },
+                  { value: "Madaripur", label: t("Madaripur") },
+                  { value: "Chittagong", label: t("Chittagong") },
+                  { value: "Comilla", label: t("Comilla") },
+                  { value: "Feni", label: t("Feni") },
+                  { value: "Brahmanbaria", label: t("Brahmanbaria") },
+                  { value: "Noakhali", label: t("Noakhali") },
+                  { value: "Chandpur", label: t("Chandpur") },
+                  { value: "Laxmipur", label: t("Laxmipur") },
+                  { value: "Bandarban", label: t("Bandarban") },
+                  { value: "Rangamati", label: t("Rangamati") },
+                  { value: "CoxsBazar", label: t("CoxsBazar") },
+                  { value: "Khagrachari", label: t("Khagrachari") },
+                  { value: "Barisal", label: t("Barisal") },
+                  { value: "Barguna", label: t("Barguna") },
+                  { value: "Bhola", label: t("Bhola") },
+                  { value: "Patuakhali", label: t("Patuakhali") },
+                  { value: "Pirojpur", label: t("Pirojpur") },
+                  { value: "Jhalokati", label: t("Jhalokati") },
+                  { value: "Khulna", label: t("Khulna") },
+                  { value: "Kushtia", label: t("Kushtia") },
+                  { value: "Jashore", label: t("Jashore") },
+                  { value: "Chuadanga", label: t("Chuadanga") },
+                  { value: "Satkhira", label: t("Satkhira") },
+                  { value: "Bagerhat", label: t("Bagerhat") },
+                  { value: "Meherpur", label: t("Meherpur") },
+                  { value: "Jhenaidah", label: t("Jhenaidah") },
+                  { value: "Norail", label: t("Norail") },
+                  { value: "Magura", label: t("Magura") },
+                  { value: "Rangpur", label: t("Rangpur") },
+                  { value: "Panchagarh", label: t("Panchagarh") },
+                  { value: "Thakurgaon", label: t("Thakurgaon") },
+                  { value: "Kurigram", label: t("Kurigram") },
+                  { value: "Dinajpur", label: t("Dinajpur") },
+                  { value: "Nilphamari", label: t("Nilphamari") },
+                  { value: "Lalmonirhat", label: t("Lalmonirhat") },
+                  { value: "Gaibandha", label: t("Gaibandha") },
+                  { value: "Rajshahi", label: t("Rajshahi") },
+                  { value: "Pabna", label: t("Pabna") },
+                  { value: "Bagura", label: t("Bagura") },
+                  { value: "Joypurhat", label: t("Joypurhat") },
+                  { value: "Nouga", label: t("Nouga") },
+                  { value: "Natore", label: t("Natore") },
+                  { value: "Sirajganj", label: t("Sirajganj") },
+                  { value: "Chapainawabganj", label: t("Chapainawabganj") },
+                  { value: "Sylhet", label: t("Sylhet") },
+                  { value: "Habiganj", label: t("Habiganj") },
+                  { value: "Moulvibazar", label: t("Moulvibazar") },
+                  { value: "Sunamganj", label: t("Sunamganj") },
+                  { value: "Mymensingh", label: t("Mymensingh") },
+                  { value: "Netrokona", label: t("Netrokona") },
+                  { value: "Jamalpur", label: t("Jamalpur") },
+                  { value: "Sherpur", label: t("Sherpur") },
                 ]}
               />
             </div>
@@ -350,7 +352,7 @@ const vehicleSizes = {
             <div className="relative w-full">
               <InputField
                 name="reg_date"
-                label="Registration Date Exp."
+                label={t("Registration Expired Date")}
                 type="date"
                 required={false}
                 inputRef={(e) => {
@@ -372,7 +374,7 @@ const vehicleSizes = {
             <div className="mt-2 md:mt-0 w-full">
               <InputField
                 name="tax_date"
-                label="Tax Expiry Date"
+                label={t("Tax Expired Date")}
                 type="date"
                 required={false}
                 inputRef={(e) => {
@@ -392,7 +394,7 @@ const vehicleSizes = {
             <div className="w-full">
               <InputField
                 name="route_per_date"
-                label="Road Permit Date Exp."
+                label={t("Road Permit Expired Date")}
                 type="date"
                 required={ false}
                 inputRef={(e) => {
@@ -417,7 +419,7 @@ const vehicleSizes = {
             <div className="mt-2 md:mt-0 w-full">
               <InputField
                 name="fitness_date"
-                label="Fitness Expiry Date"
+                label={t("Fitness Expired Date")}
                 type="date"
                 required={false}
                 inputRef={(e) => {
@@ -437,7 +439,7 @@ const vehicleSizes = {
             <div className="mt-2 md:mt-0 w-full">
               <InputField
                 name="insurance_date"
-                label="Insurance Expiry Date"
+                label={t("Insurance Expired Date")}
                 type="date"
                 required={false}
                 inputRef={(e) => {
@@ -458,18 +460,18 @@ const vehicleSizes = {
             <div className="w-full relative">
               <SelectField
                 name="status"
-                label="Status"
+                label={t("Status")}
                 required={id? false:true}
                 options={[
-                  { value: "Active", label: "Active" },
-                  { value: "Inactive", label: "Inactive" },
+                  { value: "Active", label: t("Active") },
+                  { value: "Inactive", label: t("Inactive") },
                 ]}
               />
             </div>
           </div>
 
           <div className="text-left">
-            <BtnSubmit>Submit</BtnSubmit>
+            <BtnSubmit>{t("Submit")}</BtnSubmit>
           </div>
         </div>
       </form>

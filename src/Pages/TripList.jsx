@@ -225,7 +225,6 @@ const TripList = () => {
 
 
   // excel
-
   const exportTripsToExcel = async () => {
     try {
       let filteredData = filteredTripList;
@@ -350,7 +349,7 @@ const TripList = () => {
         <tr style="background:#11375B; color:white;">
           <th>${t("SL")}</th>
           <th>${t("Date")}</th>
-          <th>${t("customer")}</th>
+          <th>${t("Customer")}</th>
           <th>${t("Driver")}</th>
           <th>${t("Vehicle No")}</th>
           <th>${t("Load Point")}</th>

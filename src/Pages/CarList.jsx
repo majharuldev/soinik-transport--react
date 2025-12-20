@@ -13,7 +13,9 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
 import api from "../../utils/axiosConfig";
 import { tableFormatDate } from "../hooks/formatDate";
+import { useTranslation } from "react-i18next";
 const CarList = () => {
+  const { t } = useTranslation();
   const [vehicles, setVehicle] = useState([]);
   const [loading, setLoading] = useState(true);
   // get single car info by id
@@ -70,7 +72,7 @@ const CarList = () => {
 };
 
 // loading page
-  if (loading) return <p className="text-center mt-16">Loading vehicle...</p>;
+  if (loading) return <p className="text-center mt-16">{t("Vehicle")} {t("Loading")}...</p>;
 
 const exportExcel = (vehicles) => {
   if (!vehicles || vehicles.length === 0) {
@@ -119,13 +121,13 @@ const printTable = () => {
   const tableHeader = `
     <thead>
       <tr>
-        <th>SL</th>
-        <th>Driver Name</th>
-        <th>Vehicle Name</th>
-        <th>Vehicle Category</th>
-        <th>Vehicle Size</th>
-        <th>Vehicle No</th>
-        <th>Status</th>
+        <th>${t("SL.")}</th>
+        <th>${t("Driver")} ${t("Name")}</th>
+        <th>${t("Vehicle")} ${t("Name")}</th>
+        <th>${t("Vehicle")} ${t("Category")}</th>
+        <th>${t("Vehicle Size")}</th>
+        <th>${t("Vehicle No")}</th>
+        <th>${t("Status")}</th>
       </tr>
     </thead>
   `;
@@ -194,16 +196,6 @@ const printTable = () => {
 
     <body>
 
-      <div class="print-header">
-        <div class="header">
-          <h1>M/S AJ Enterprise</h1>
-          <div class="addr">
-            Razzak Plaza, 11th Floor, Room J-12<br/>
-            2 Sahid Tajuddin Sarani, Moghbazar, Dhaka-1217
-          </div>
-        </div>
-      </div>
-
       <div class="content">
         ${printContent}
       </div>
@@ -266,24 +258,24 @@ const printTable = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaTruck className="text-gray-800 text-2xl" />
-            Vehicle List
+            {t("vehicles")} {t("Information")}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <Link to="/tramessy/AddCarForm">
               <button className="bg-gradient-to-r from-primary to-[#115e15] text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus /> Vehicle
+                <FaPlus /> {t("Vehicle")}
               </button>
             </Link>
           </div>
         </div>
         {/* export */}
         <div className="md:flex justify-between items-center">
-          <div className="flex gap-1 md:gap-3 text-gary-700 font-semibold rounded-md">
+          <div className="flex gap-1 md:gap-3 text-gary-700 font-medium rounded-md">
             <button
               onClick={exportExcel}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow-sm transition-all duration-300 cursor-pointer"
             >
-              Excel
+              {t("Excel")}
             </button>
             {/* <button
               onClick={exportPDF}
@@ -295,7 +287,7 @@ const printTable = () => {
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow-sm transition-all duration-300 cursor-pointer"
             >
-              Print
+              {t("Print")}
             </button>
           </div>
           {/* search */}
@@ -308,7 +300,7 @@ const printTable = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search Vehicle..."
+              placeholder={`${t("Vehicle")} ${t("search")}...`}
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5 lg:w-60"
             />
             {/*  Clear button */}
@@ -331,16 +323,16 @@ const printTable = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr className="">
-                <th className="px-2 py-4">#</th>
-                <th className="p-2">Driver Name</th>
-                <th className="p-2">Vehicle Name</th>
-                <th className="p-2">Vehicle Category</th>
-                <th className="p-2">Vehicle size</th>
-                <th className="p-2">Vehicle No</th>
+                <th className="p-2">{t("SL")}</th>
+                <th className="p-2">{t("Driver")} {t("Name")}</th>
+                <th className="p-2">{t("Vehicle")} {t("Name")}</th>
+                <th className="p-2">{t("Vehicle")} {t("Category")}</th>
+                <th className="p-2">{t("Vehicle")} {t("Size")}</th>
+                <th className="p-2">{t("Vehicle No")}</th>
                 {/* <th className="px-2 py-3">Trip</th> */}
                 {/* <th className="px-2 py-3">Registration No</th> */}
-                <th className="p-2">Status</th>
-                <th className="p-2 action_column">Action</th>
+                <th className="p-2">{t("Status")}</th>
+                <th className="p-2 action_column">{t("Action")}</th>
               </tr>
             </thead>
             <tbody className="text-gray-700 ">
@@ -348,7 +340,7 @@ const printTable = () => {
                 currentVehicles.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="text-center p-4 text-gray-500">
-                    No vehicles found
+                   {t("No vehicles found")}
                   </td>
                   </tr>
                 )
@@ -430,20 +422,20 @@ const printTable = () => {
                 <FaTrashAlt />
               </div>
               <p className="text-center text-gray-700 font-medium mb-6">
-                Do you want to delete the car?
+                {t("Do you want to delete the car?")}
               </p>
               <div className="flex justify-center space-x-4">
                 <button
                   onClick={toggleModal}
                   className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
                 >
-                  No
+                  {t("No")}
                 </button>
                 <button
                   onClick={() => handleDelete(selectedDriverId)}
                   className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
                 >
-                  Yes
+                  {t("Yes")}
                 </button>
               </div>
             </div>
@@ -454,71 +446,71 @@ const printTable = () => {
       {viewModalOpen && selectedCar && (
         <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-[#000000ad] z-50">
           <div className="w-4xl p-5 bg-gray-100 rounded-xl mt-10">
-            <h3 className="text-primary font-semibold">Vehicle Information</h3>
+            <h3 className="text-primary font-semibold">{t("Vehicle")} {t("Information")}</h3>
             <div className="mt-5">
               <ul className="flex border border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Driver Name</p>{" "}
+                  <p className="w-48">{t("Driver")} {t("Name")}</p>{" "}
                   <p>{selectedCar.driver_name}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
-                  <p className="w-48">Vehicle Name</p>{" "}
+                  <p className="w-48">{t("Vehicle")} {t("Name")}</p>{" "}
                   <p>{selectedCar.vehicle_name}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Vehicle Category</p>{" "}
+                  <p className="w-48">{t("Vehicle")} {t("Category")}</p>{" "}
                   <p>{selectedCar.vehicle_category}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
-                  <p className="w-48">Vehicle Size</p>{" "}
+                  <p className="w-48">{t("Vehicle")} {t("Size")}</p>{" "}
                   <p>{selectedCar.vehicle_size}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Registration Number</p>{" "}
+                  <p className="w-48">{t("Registration Number")}</p>{" "}
                   <p>{selectedCar.reg_no}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
-                  <p className="w-48">Registration Serial</p>{" "}
+                  <p className="w-48">{t("Registration Serial")}</p>{" "}
                   <p>{selectedCar.reg_serial}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Registration Area</p>{" "}
+                  <p className="w-48">{t("Registration Zone")}</p>{" "}
                   <p>{selectedCar.reg_zone}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
-                  <p className="w-48">Registration Date</p>{" "}
+                  <p className="w-48">{t("Registration Expired Date")}</p>{" "}
                   <p>{tableFormatDate(selectedCar.reg_date)}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Tax Expiry Date</p>{" "}
+                  <p className="w-48">{t("Tax Expired Date")}</p>{" "}
                   <p>{tableFormatDate(selectedCar.tax_date )|| "N/A"}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
-                  <p className="w-48">Road Permit Date</p>{" "}
+                  <p className="w-48">{t("Road Permit Expired Date")}</p>{" "}
                   <p>{tableFormatDate(selectedCar.route_per_date)}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Fitness Expiry Date</p>{" "}
+                  <p className="w-48">{t("Fitness Expired Date")}</p>{" "}
                   <p>{tableFormatDate(selectedCar.fitness_date)}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Insurance Expiry Date</p>{" "}
+                  <p className="w-48">{t("Insurance Expired Date")}</p>{" "}
                   <p>{tableFormatDate(selectedCar.insurance_date)}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Fuel Capacity</p>{" "}
+                  <p className="w-48">{t("Fuel Capacity")}</p>{" "}
                   <p>{selectedCar.fuel_capcity}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
@@ -531,7 +523,7 @@ const printTable = () => {
                   onClick={() => setViewModalOpen(false)}
                   className="text-white bg-primary py-1 px-2 rounded-md cursor-pointer hover:bg-primary/80"
                 >
-                  Close
+                  {t("Close")}
                 </button>
               </div>
             </div>

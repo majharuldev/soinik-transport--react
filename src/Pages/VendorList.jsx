@@ -12,8 +12,10 @@ import { IoIosRemoveCircle, IoMdClose } from "react-icons/io";
 import Pagination from "../components/Shared/Pagination";
 import { formatDate, tableFormatDate } from "../hooks/formatDate";
 import api from "../../utils/axiosConfig";
+import { useTranslation } from "react-i18next";
 
 const VendorList = () => {
+  const {t} = useTranslation()
   const [vendor, setVendor] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -42,7 +44,7 @@ const VendorList = () => {
       });
   }, []);
 
-  if (loading) return <p className="text-center mt-16">Loading vendor...</p>;
+  if (loading) return <p className="text-center mt-16">{t("Vendor")} {t("Loading")}...</p>;
   // Export Excel
   const exportExcel = () => {
     const exportData = filteredvendor.map(
@@ -126,14 +128,14 @@ const printTable = () => {
     <table>
       <thead>
         <tr>
-          <th>#</th>
-          <th>Date</th>
-          <th>Name</th>
-          <th>Mobile</th>
-          <th>RentCategory</th>
-          <th>WorkArea</th>
-          <th>Opening Balance</th>
-          <th>Status</th>
+          <th>${t("SL.")}</th>
+          <th>${t("Date")}</th>
+          <th>${t("Name")}</th>
+          <th>${t("Mobile")}</th>
+          <th>${t("Rent Category")}</th>
+          <th>${t("Work Area")}</th>
+          <th>${t("Opening Balance")}</th>
+          <th>${t("Status")}</th>
         </tr>
       </thead>
       <tbody>${tableRows}</tbody>
@@ -180,17 +182,6 @@ const printTable = () => {
 
     <body>
       <div class="print-container">
-
-        <div class="print-header">
-          <div class="header">
-          <div></div>
-            <div>
-              <h2>M/S A J ENTERPRISE</h2>
-              <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
-            </div>
-            <div></div>
-          </div>
-        </div>
 
         <div class="content">
           <h3 style="text-align:center;">Vendor List</h3>
@@ -272,30 +263,30 @@ const printTable = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaUsers className="text-gray-800 text-2xl" />
-            All vender information
+           {t("All")} {t("Vendor")} {t("Information")}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             {/* <button
               onClick={() => setShowFilter((prev) => !prev)}
               className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <FaFilter /> Filter
+              <FaFilter /> {t("Filter")}
             </button> */}
             <Link to="/tramessy/AddVendorForm">
               <button className="bg-gradient-to-r from-primary to-[#115e15]  text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus /> Add Vendor
+                <FaPlus /> {t("Add Vendor")}
               </button>
             </Link>
           </div>
         </div>
         {/* export */}
         <div className="md:flex justify-between items-center">
-          <div className="flex gap-1 md:gap-3 text-gray-700 font-semibold rounded-md">
+          <div className="flex gap-1 md:gap-3 text-gray-700 font-medium rounded-md">
             <button
               onClick={exportExcel}
               className="py-1 px-5 hover:bg-primary bg-white shadow hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
-              Excel
+              {t("Excel")}
             </button>
             {/* <button
               onClick={exportPDF}
@@ -307,7 +298,7 @@ const printTable = () => {
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white shadow hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
-              Print
+              {t("PDF")}
             </button>
           </div>
           {/*  */}
@@ -320,7 +311,7 @@ const printTable = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search Vendor..."
+              placeholder={`${t("search")}...`}
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
              {/*  Clear button */}
@@ -367,7 +358,7 @@ const printTable = () => {
                 }}
                 className="bg-primary w-full text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <IoIosRemoveCircle /> Clear 
+                <IoIosRemoveCircle /> {t("Clear")}
               </button>
             </div>
           </div>
@@ -377,22 +368,22 @@ const printTable = () => {
           <table className="min-w-full table-fixed text-sm text-left">
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr>
-                <th className="px-2 py-4 lg:w-[20px]">#</th>
-                <th className="px-2 py-4 lg:w-[120px]">Date</th>
-                <th className="px-2 py-4 lg:w-[120px]">Name</th>
-                <th className="px-2 py-4 lg:w-[100px]">Mobile</th>
-                <th className="px-2 py-4 lg:w-[20px]">RentCate</th>
-                <th className="px-2 py-4 lg:w-[80px]">Work Area</th>
-                <th className="px-2 py-4 lg:w-[120px]">Opening Balance</th>
-                <th className="px-2 py-4 lg:w-[80px]">Status</th>
-                <th className="px-2 py-4 action_column lg:w-[80px]">Action</th>
+                <th className="px-2 py-4 lg:w-[20px]">{t("SL.")}</th>
+                <th className="px-2 py-4 lg:w-[120px]">{t("Date")}</th>
+                <th className="px-2 py-4 lg:w-[120px]">{t("Name")}</th>
+                <th className="px-2 py-4 lg:w-[100px]">{t("Mobile")}</th>
+                <th className="px-2 py-4 lg:w-[20px]">{t("Rent Category")}</th>
+                <th className="px-2 py-4 lg:w-[80px]">{t("Work Area")}</th>
+                <th className="px-2 py-4 lg:w-[120px]">{t("Opening Balance")}</th>
+                <th className="px-2 py-4 lg:w-[80px]">{t("Status")}</th>
+                <th className="px-2 py-4 action_column lg:w-[80px]">{t("Action")}</th>
               </tr>
             </thead>
             <tbody className="text-gray-700 ">
               {
                 currentVendor.length === 0 ? (<tr>
                   <td colSpan="8" className="text-center p-4 text-gray-500">
-                    No Vendor found
+                    {t("No Vendor found")}
                   </td>
                   </tr>)
               :(currentVendor?.map((dt, index) => (
@@ -460,20 +451,20 @@ const printTable = () => {
                 <FaTrashAlt />
               </div>
               <p className="text-center text-gray-700 font-medium mb-6">
-                Are you sure you want to delete this Vendor?
+                {t("Do you want to delete the vendor?")}
               </p>
               <div className="flex justify-center space-x-4">
                 <button
                   onClick={toggleModal}
                   className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
                 >
-                  No
+                  {t("No")}
                 </button>
                 <button
                   onClick={() => handleDelete(selectedvendorId)}
                   className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
                 >
-                  Yes
+                  {t("Yes")}
                 </button>
               </div>
             </div>
