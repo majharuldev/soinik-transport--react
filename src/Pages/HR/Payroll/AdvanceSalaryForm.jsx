@@ -9,8 +9,10 @@ import { AuthContext } from "../../../providers/AuthProvider";
 import { useNavigate, useParams } from "react-router-dom";
 import { set } from "date-fns";
 import FormSkeleton from "../../../components/Form/FormSkeleton";
+import { useTranslation } from "react-i18next";
 
 const AdvanceSalaryForm = () => {
+  const {t} = useTranslation()
   const methods = useForm();
   const { handleSubmit, reset, control, setValue } = methods;
   const [employees, setEmployees] = useState([]);
@@ -43,21 +45,21 @@ const AdvanceSalaryForm = () => {
   // month yeayr options
   const currentYear = new Date().getFullYear();
   const months = [
-    { num: "01", name: "January" },
-    { num: "02", name: "February" },
-    { num: "03", name: "March" },
-    { num: "04", name: "April" },
-    { num: "05", name: "May" },
-    { num: "06", name: "Jun" },
-    { num: "07", name: "July" },
-    { num: "08", name: "August" },
-    { num: "09", name: "September" },
-    { num: "10", name: "October" },
-    { num: "11", name: "November" },
-    { num: "12", name: "December" },
+    { num: "01", name: t("January") },
+    { num: "02", name: t("February") },
+    { num: "03", name: t("March") },
+    { num: "04", name: t("April") },
+    { num: "05", name: t("May") },
+    { num: "06", name: t("June") },
+    { num: "07", name: t("July") },
+    { num: "08", name: t("August") },
+    { num: "09", name: t("September") },
+    { num: "10", name: t("October") },
+    { num: "11", name: t("November") },
+    { num: "12", name: t("December") },
   ];
-  const monthYearOptions = [];
 
+  const monthYearOptions = [];
   for (let y = currentYear; y <= currentYear + 10; y++) {
     months.forEach((m) => {
       monthYearOptions.push({
@@ -102,7 +104,7 @@ const AdvanceSalaryForm = () => {
         }
       } catch (err) {
         console.error("Error fetching salary data:", err);
-        toast.error("Failed to load advance salary info!");
+        toast.error(t("Failed to load advance salary info!"));
       } finally {
         // সবশেষে loading বন্ধ
         setLoading(false);
@@ -143,8 +145,8 @@ const AdvanceSalaryForm = () => {
       if (res?.data?.status === "Success") {
         toast.success(
           id
-            ? "Advance Salary Updated Successfully!"
-            : "Advance Salary Added Successfully!"
+            ? t("Advance Salary Updated Successfully!")
+            : t("Advance Salary Added Successfully!")
         );
         reset();
         navigate("/tramessy/HR/Payroll/Advance-Salary");
@@ -152,11 +154,11 @@ const AdvanceSalaryForm = () => {
       }
 
       // API returned something other than success
-      toast.error(res?.data?.message || "Something went wrong!");
+      toast.error(res?.data?.message || t("Something went wrong!"));
     } catch (err) {
       // Prevent duplicate toast if response exists
       if (!err.response) {
-        toast.error("Failed to submit advance salary!");
+        toast.error(t("Failed to submit advance salary!"));
       }
       console.error("Error submitting form:", err);
     }
@@ -175,21 +177,21 @@ const AdvanceSalaryForm = () => {
         >
           <h3 className="pb-4 text-primary font-semibold text-lg">
             {id
-              ? "Edit Advance Salary Information"
-              : "Add Advance Salary Information"}
+              ? t("Edit Advance Salary Information")
+              : t("Add Advance Salary Information")}
           </h3>
 
           {/* Employee + Amount */}
           <div className="md:flex justify-between gap-3">
             <div className="w-full">
               <label className="block text-sm font-medium mb-1">
-                Select Employee <span className="text-red-500">*</span>
+                {t("Employee")} <span className="text-red-500">*</span>
               </label>
               <select
                 {...methods.register("employee_id", { required: "Employee is required" })}
                 className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-primary focus:border-primary"
               >
-                <option value="">Select Employee</option>
+                <option value="">{t("Employee")} {t("select")}</option>
                 {employees.map((emp) => (
                   <option key={emp.id} value={emp.id}>
                     {emp.employee_name || emp.email}
@@ -205,7 +207,7 @@ const AdvanceSalaryForm = () => {
             <div className="w-full">
               <InputField
                 name="amount"
-                label="Advance Amount"
+                label={`${t("Advance")} ${t("Amount")}`}
                 type="number"
                 required
               />
@@ -222,13 +224,13 @@ const AdvanceSalaryForm = () => {
                 required
               /> */}
               <div className="">
-                <label className="block text-sm !font-medium mb-1">Salary Month</label>
+                <label className="block text-sm !font-medium mb-1">{t("Salary")} {t("Month")}</label>
 
                 <select
                   {...methods.register("salary_month", { required: "Month is required" })}
                   className="w-full border px-3 py-2 rounded"
                 >
-                  <option value="">Select Month</option>
+                  <option value="">{t("Month")} {t("Select")}</option>
 
                   {monthYearOptions.map((opt, index) => (
                     <option key={index} value={opt.value}>
@@ -241,7 +243,7 @@ const AdvanceSalaryForm = () => {
             <div className="w-full">
               <InputField
                 name="adjustment"
-                label="After Adjustment Amount"
+                label={`${t("After")} ${t("Adjustment")} ${t("Amount")}`}
                 type="number"
                 required
               />
@@ -249,11 +251,11 @@ const AdvanceSalaryForm = () => {
             <div className="w-full">
               <SelectField
                 name="status"
-                label="Status"
+                label={t("Status")}
                 required
                 options={[
-                  { label: "Paid", value: "Paid" },
-                  { label: "Pending", value: "Pending" },
+                  { label: t("Paid"), value: "Paid" },
+                  { label: t("Pending"), value: "Pending" },
                 ]}
               />
             </div>
@@ -264,7 +266,7 @@ const AdvanceSalaryForm = () => {
             <div className="w-full hidden">
               <InputField
                 name="created_by"
-                label="Created By"
+                label={t("Created By")}
                 value={userName}
                 readOnly
               />
@@ -272,7 +274,7 @@ const AdvanceSalaryForm = () => {
           </div>
 
           {/* Submit */}
-          <BtnSubmit> {id ? "Update" : "Submit"}</BtnSubmit>
+          <BtnSubmit> {id ? (t("Update")) : t("Submit")}</BtnSubmit>
         </form>)}
       </FormProvider>
     </div>

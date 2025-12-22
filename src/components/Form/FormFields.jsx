@@ -186,7 +186,7 @@ const {t} = useTranslation()
 
   // If not date → Default Input Logic
   const { ref, ...rest } = register(name, {
-    required: required ? `${label || name} is required` : false,
+    required: required ? `${label || name} ${t("is required")}` : false,
   });
   return (
     <div className="mb-4">

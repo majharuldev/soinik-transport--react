@@ -7,8 +7,10 @@ import toast from "react-hot-toast";
 import api from "../../../../utils/axiosConfig";
 import { AuthContext } from "../../../providers/AuthProvider";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const RequisitionForm = () => {
+  const {t} = useTranslation();
   const [employees, setEmployees] = useState([]);
   const { user } = useContext(AuthContext);
   const { id } = useParams();
@@ -52,7 +54,7 @@ const { handleSubmit, reset, setValue } = methods;
           }
         } catch (err) {
           console.error("Error fetching requisition:", err);
-          toast.error("Failed to load requisition info!");
+          // toast.error("Failed to load requisition info!");
         }
       };
       fetchRequisition();
@@ -79,8 +81,8 @@ const { handleSubmit, reset, setValue } = methods;
       if (res.data?.success) {
         toast.success(
           id
-            ? "Requisition Updated Successfully!"
-            : "Requisition Added Successfully!"
+            ? (t("Requisition Updated Successfully!"))
+            : t("Requisition Added Successfully!")
         );
         reset();
         navigate("/tramessy/HR/advance-requisition");
@@ -89,7 +91,7 @@ const { handleSubmit, reset, setValue } = methods;
       }
     } catch (error) {
       console.error("Error submitting requisition:", error);
-      toast.error("Failed to submit requisition!");
+      toast.error(t("Failed to submit requisition!"));
     }
   };
 
@@ -101,22 +103,22 @@ const { handleSubmit, reset, setValue } = methods;
           className="mx-auto p-6 border-t-2 border-primary rounded-md shadow space-y-4 max-w-3xl bg-white"
         >
           <h3 className="pb-4 text-primary font-semibold text-lg">
-            {id ? "Edit Requisition" : "Add Requisition"}
+            {id ? t("Update Requisition") : t("Add Requisition")}
           </h3>
 
           {/* Employee + Date */}
           <div className="md:flex justify-between gap-3">
             <div className="w-full">
               <label className="block text-sm font-medium mb-1">
-                Select Employee <span className="text-red-500">*</span>
+                {t("Employee")} <span className="text-red-500">*</span>
               </label>
               <select
                 {...methods.register("employee_id", {
-                  required: "Employee is required",
+                  required: `${t("Employee")} ${t("is required")}`,
                 })}
                 className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-primary focus:border-primary"
               >
-                <option value="">Select Employee</option>
+                <option value="">{t("Employee")} {t("Select")}</option>
                 {employees.map((emp) => (
                   <option key={emp.id} value={emp.id}>
                     {emp.employee_name || emp.email}
@@ -130,7 +132,7 @@ const { handleSubmit, reset, setValue } = methods;
               )}
             </div>
             <div className="w-full">
-              <InputField name="date" label="Date" type="date" required />
+              <InputField name="date" label={t("Date")} type="date" required />
             </div>
           </div>
 
@@ -139,18 +141,18 @@ const { handleSubmit, reset, setValue } = methods;
             <div className="w-full relative">
               <SelectField
                 name="status"
-                label="Status"
+                label={t("Status")}
                 required={!id}
                 options={[
-                  { value: "Pending", label: "Pending" },
-                  { value: "Approved", label: "Approved" },
+                  { value: "Pending", label: t("Pending") },
+                  { value: "Approved", label: t("Approved") },
                 ]}
               />
             </div>
             <div className="w-full">
               <InputField
                 name="amount"
-                label="Amount"
+                label={t("Amount")}
                 type="number"
                 required
               />
@@ -158,18 +160,18 @@ const { handleSubmit, reset, setValue } = methods;
           </div>
           <div className="md:flex justify-between gap-3">
             <div className="w-full">
-              <InputField name="purpose" label="Purpose" required />
+              <InputField name="purpose" label={t("Purpose")} required />
             </div>
             <div className="w-full">
               {/* Remarks */}
-              <TextAreaField name="remarks" label="Remarks" rows={3} />
+              <TextAreaField name="remarks" label={t("Remarks")} rows={3} />
             </div>
           </div>
 
 
 
           {/* Submit */}
-          <BtnSubmit>{id ? "Update" : "Submit"}</BtnSubmit>
+          <BtnSubmit>{id ? t("Update") : t("Submit")}</BtnSubmit>
         </form>
       </FormProvider>
     </div>

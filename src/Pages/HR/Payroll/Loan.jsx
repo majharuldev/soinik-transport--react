@@ -13,8 +13,10 @@ import { IoMdClose } from "react-icons/io";
 import * as XLSX from "xlsx";
 import toNumber from "../../../hooks/toNumber";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 const Loan = () => {
+  const { t } = useTranslation();
   const [loanData, setLoanData] = useState([]);
   const [employee, setEmployee] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -145,14 +147,14 @@ const exportExcel = () => {
     <table style="width:100%; border-collapse: collapse; font-size: 12px;">
       <thead>
         <tr style="background:#f2f2f2;">
-          <th style="border:1px solid #333; padding:6px;">SL</th>
-          <th style="border:1px solid #333; padding:6px;">Date</th>
-          <th style="border:1px solid #333; padding:6px;">Employee Name</th>
-          <th style="border:1px solid #333; padding:6px;">Amount</th>
-          <th style="border:1px solid #333; padding:6px;">Monthly Deduction</th>
-          <th style="border:1px solid #333; padding:6px;">After Adjustment</th>
-          <th style="border:1px solid #333; padding:6px;">Status</th>
-          <th style="border:1px solid #333; padding:6px;">Created By</th>
+          <th style="border:1px solid #333; padding:6px;">${t("SL.")}</th>
+          <th style="border:1px solid #333; padding:6px;">${t("Date")}</th>
+          <th style="border:1px solid #333; padding:6px;">${t("Employee")} ${t("Name")}</th>
+          <th style="border:1px solid #333; padding:6px;">${t("Amount")}</th>
+          <th style="border:1px solid #333; padding:6px;">${t("Monthly")} ${t("Deduction")}</th>
+          <th style="border:1px solid #333; padding:6px;">${t("After")} ${t("Adjustment")}</th>
+          <th style="border:1px solid #333; padding:6px;">${t("Status")}</th>
+          <th style="border:1px solid #333; padding:6px;">${t("Created By")}</th>
         </tr>
       </thead>
       <tbody>
@@ -180,7 +182,7 @@ const exportExcel = () => {
   win.document.write(`
     <html>
     <head>
-      <title>Loan Info</title>
+      <title>-</title>
       <style>
         body { font-family: Arial, sans-serif; }
 
@@ -199,12 +201,7 @@ const exportExcel = () => {
 
     <body>
 
-      <div class="header">
-        <h2>M/S A J ENTERPRISE</h2>
-        <p>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</p>
-      </div>
-
-      <h3 style="text-align:center;">Loan Report</h3>
+      <h3 style="text-align:center;">${t("Loan")} ${t("Report")}</h3>
 
       ${fullTable}
 
@@ -281,17 +278,17 @@ const onSubmit = async (data) => {
 
     if (res?.data?.status === "Success") {
       toast.success(
-        selectedLoan ? "Loan Updated Successfully!" : "Loan Added Successfully!"
+        selectedLoan ? t("Loan updated successfully") : t("Loan added successfully")
       );
       await fetchLoans(); // fetch updated list
       reset();             // reset form
       setIsModalOpen(false);
     } else {
-      toast.error("Something went wrong!");
+      toast.error(t("Something went wrong!"));
     }
   } catch (err) {
     console.error("Error submitting loan:", err);
-    toast.error("Failed to save loan!");
+    toast.error(t("Failed to save loan!"));
   }
 };
 
@@ -302,31 +299,31 @@ const onSubmit = async (data) => {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaUserSecret className="text-gray-800 text-xl" />
-            Loan
+            {t("Loan")}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <button
               onClick={() => handleEdit(null)}
               className="bg-gradient-to-r from-primary to-[#075e13] text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <FaPlus /> Loan
+              <FaPlus /> {t("Loan")}
             </button>
           </div>
         </div>
         {/* export */}
         <div className="md:flex justify-between items-center">
-          <div className="flex gap-1 md:gap-3 text-gray-700 font-semibold rounded-md">
+          <div className="flex gap-1 md:gap-3 text-gray-700 font-medium rounded-md">
             <button
               onClick={exportExcel}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
-              Excel
+              {t("Excel")}
             </button>
             <button
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
-              Print
+              {t("Print")}
             </button>
           </div>
           {/* search */}
@@ -339,7 +336,7 @@ const onSubmit = async (data) => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search by Product ..."
+              placeholder={`${t("search")}...`}
               className="lg:w-60 border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}
@@ -362,15 +359,15 @@ const onSubmit = async (data) => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr>
-                <th className="p-2">#</th>
-                <th className="p-2">Date</th>
-                <th className="p-2">Employee Name</th>
-                <th className="p-2">Amount</th>
-                <th className="p-2">Monthly Deduction</th>
-                <th className="p-2">After Adjustment</th>
-                <th className="p-2">Status</th>
-                <th className="p-2">Created By</th>
-                <th className="p-2">Action</th>
+                <th className="p-2">{t("SL.")}</th>
+                <th className="p-2">{t("Date")}</th>
+                <th className="p-2">{t("Employee Name")}</th>
+                <th className="p-2">{t("Amount")}</th>
+                <th className="p-2">{t("Monthly Deduction")}</th>
+                <th className="p-2">{t("After Adjustment")}</th>
+                <th className="p-2">{t("Status")}</th>
+                <th className="p-2">{t("Created By")}</th>
+                <th className="p-2">{t("Action")}</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
@@ -410,7 +407,7 @@ const onSubmit = async (data) => {
               ) : (
                 <tr>
                   <td colSpan="8" className="text-center p-4 text-gray-500">
-                    No data found
+                    {t("No data found")}
                   </td>
                 </tr>
               )}
@@ -436,7 +433,7 @@ const onSubmit = async (data) => {
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 overflow-auto scroll-hidden">
           <div className="bg-white w-full max-w-2xl rounded-md shadow-lg p-6 relative">
             <h3 className="text-lg font-semibold text-primary mb-4">
-              {selectedLoan ? "Edit Loan" : "Add Loan"}
+              {selectedLoan ? t("Edit Loan") : t("Add Loan")}
             </h3>
 
             <FormProvider {...methods}>
@@ -445,7 +442,7 @@ const onSubmit = async (data) => {
                   <div className="w-full">
                     <InputField
                       name="date"
-                      label="Loan Date"
+                      label={`${t("Loan")} ${t("Date")}`}
                       type="date"
                       required={!selectedLoan}
                       inputRef={(e) => {
@@ -457,13 +454,13 @@ const onSubmit = async (data) => {
                   </div>
                   <div className="w-full">
                     <label className="block text-sm font-medium mb-1">
-                      Select Employee <span className="text-red-500">*</span>
+                      {t("Employee")} <span className="text-red-500">*</span>
                     </label>
                     <select
-                      {...methods.register("employee_id", { required: "Employee is required" })}
+                      {...methods.register("employee_id", { required: `${t("Employee")} ${t("is required")}` })}
                       className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-primary focus:border-primary"
                     >
-                      <option value="">Select Employee</option>
+                      <option value="">{t("Employee")} {t("Select")}</option>
                       {employee.map((emp) => (
                         <option key={emp.id} value={emp.id}>
                           {emp.employee_name || emp.name || emp.email}
@@ -478,28 +475,28 @@ const onSubmit = async (data) => {
                   </div>
                   <InputField
                     name="amount"
-                    label="Loan Amount"
+                    label={`${t("Loan")} ${t("Amount")}`}
                     type="number"
                     required={!selectedLoan}
                   />
                   <InputField
                     name="monthly_deduction"
-                    label="Month Deduction"
-                    placeholder="Monthly Amount"
+                    label={`${t("Monthly")} ${t("Deduction")}`}
+                    placeholder={`${t("Monthly")} ${t("Amount")}`}
                     required={!selectedLoan}
                   />
                   {selectedLoan && (
                     <>
                       <InputField
                         name="paid_amount"
-                        label="Pay Deduction"
-                        placeholder="Monthly paid deduction"
+                        label={`${t("Pay")} ${t("Deduction")}`}
+                        placeholder={`${t("Monthly")} ${t("Pay")} ${t("Deduction")}`}
                         required={!selectedLoan}
                       />
                       <InputField
                         name="adjustment"
-                        label="After Adjustment Amount"
-                        placeholder="Monthly Amount"
+                        label={`${t("After")} ${t("Adjustment")} ${t("Amount")}`}
+                        placeholder={`${t("Monthly")} ${t("Amount")}`}
                         required={!selectedLoan}
                         readOnly
                       />
@@ -507,15 +504,15 @@ const onSubmit = async (data) => {
                   )}
                   <div className="w-full">
                     <label className="block text-sm font-medium mb-1">
-                      Status <span className="text-red-500">*</span>
+                      {t("Status")} <span className="text-red-500">*</span>
                     </label>
                     <select
-                      {...methods.register("status", { required: "Status is required" })}
+                      {...methods.register("status", { required: `${t("Status")} ${t("is required")}` })}
                       className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-primary focus:border-primary"
                     >
-                      <option value="">Select Status</option>
-                      <option value="Due">Due</option>
-                      <option value="Completed">Completed</option>
+                      <option value="">{t("Status")} {t("Select")}</option>
+                      <option value="Due">{t("Due")}</option>
+                      <option value="Completed">{t("Completed")}</option>
                     </select>
                     {methods.formState.errors.status && (
                       <p className="text-xs text-red-500 mt-1">
@@ -531,9 +528,9 @@ const onSubmit = async (data) => {
                     onClick={() => setIsModalOpen(false)}
                     className="mt-4 px-4 py-2 border rounded-md hover:bg-gray-100"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </button>
-                  <BtnSubmit>{selectedLoan ? "Update" : "Submit"}</BtnSubmit>
+                  <BtnSubmit>{selectedLoan ? t("Update") : t("Submit")}</BtnSubmit>
                 </div>
               </form>
             </FormProvider>
@@ -555,20 +552,20 @@ const onSubmit = async (data) => {
                 <FaTrashAlt />
               </div>
               <p className="text-center text-gray-700 font-medium mb-6">
-                Are you sure you want to delete this Customer?
+                {t("Are you sure you want to delete?")}
               </p>
               <div className="flex justify-center space-x-4">
                 <button
                   onClick={toggleModal}
                   className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
                 >
-                  No
+                  {t("No")}
                 </button>
                 <button
                   onClick={() => handleDelete(selectedLoanId)}
                   className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
                 >
-                  Yes
+                  {t("Yes")}
                 </button>
               </div>
             </div>

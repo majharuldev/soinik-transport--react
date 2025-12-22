@@ -7,8 +7,10 @@ import toast from "react-hot-toast";
 import api from "../../../../utils/axiosConfig";
 import { AuthContext } from "../../../providers/AuthProvider";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
-const AdvanceSalaryForm = () => {
+const AttendanceForm = () => {
+  const {t} = useTranslation();
   const methods = useForm();
   const { handleSubmit, reset, control, setValue } = methods;
   const [employees, setEmployees] = useState([]);
@@ -45,18 +47,18 @@ const AdvanceSalaryForm = () => {
      // month yeayr options
     const currentYear = new Date().getFullYear();
 const months = [
-  { num: "01", name: "January" },
-  { num: "02", name: "February" },
-  { num: "03", name: "March" },
-  { num: "04", name: "April" },
-  { num: "05", name: "May" },
-  { num: "06", name: "Jun" },
-  { num: "07", name: "July" },
-  { num: "08", name: "August" },
-  { num: "09", name: "September" },
-  { num: "10", name: "October" },
-  { num: "11", name: "November" },
-  { num: "12", name: "December" },
+  { num: "01", name: t("January") },
+  { num: "02", name: t("February") },
+  { num: "03", name: t("March") },
+  { num: "04", name: t("April") },
+  { num: "05", name: t("May") },
+  { num: "06", name: t("June") },
+  { num: "07", name: t("July") },
+  { num: "08", name: t("August") },
+  { num: "09", name: t("September") },
+  { num: "10", name: t("October") },
+  { num: "11", name: t("November") },
+  { num: "12", name: t("December") },
 ];
     const monthYearOptions = [];
 
@@ -79,7 +81,7 @@ const months = [
           setValue("month", data.month);
           setValue("created_by", data.created_by);
         }
-      }).catch(() => toast.error("Failed to load attendance info!"));
+      }).catch(() => toast.error(t("Failed to load attendance info!")));
     }
   }, [id, employees, setValue]);
 
@@ -101,8 +103,8 @@ const months = [
       if (res?.data?.status === "Success") {
         toast.success(
           id
-            ? "Attendence Updated Successfully!"
-            : "Attendence Added Successfully!"
+            ? (t("Attendance updated Successfully!"))
+            : t("Attendance added Successfully!")
         );
         reset();
         navigate("/tramessy/HR/Payroll/Attendance");
@@ -110,11 +112,11 @@ const months = [
       }
 
       // API returned something other than success
-      toast.error(res?.data?.message || "Something went wrong!");
+      toast.error(res?.data?.message || t("Something went wrong!"));
     } catch (err) {
       // Prevent duplicate toast if response exists
       if (!err.response) {
-        toast.error("Failed to submit attendence!");
+        toast.error(t("Failed to submit attendence!"));
       }
       console.error("Error submitting form:", err);
     }
@@ -129,8 +131,8 @@ const months = [
         >
           <h3 className="pb-4 text-primary font-semibold text-lg">
             {id
-              ? "Update Atttendence Information"
-              : "Add Attendence Information"}
+              ? (t("Update Atttendence form"))
+              : t("Add Attendence form")}
           </h3>
 
           {/* Employee + Amount */}
@@ -149,13 +151,13 @@ const months = [
             </div> */}
             <div className="w-full">
               <label className="block text-sm font-medium mb-1">
-                Select Employee <span className="text-red-500">*</span>
+                {t("Employee")} <span className="text-red-500">*</span>
               </label>
               <select
-                {...methods.register("employee_id", { required: "Employee is required" })}
+                {...methods.register("employee_id", { required: `${t("Employee")} ${t("is required")}` })}
                 className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-primary focus:border-primary"
               >
-                <option value="">Select Employee</option>
+                <option value="">{t("Employee")} {t("Select")}</option>
                 {employees.map((emp) => (
                   <option key={emp.id} value={emp.id}>
                     {emp.employee_name || emp.email}
@@ -171,7 +173,7 @@ const months = [
             <div className="w-full">
               <InputField
                 name="working_day"
-                label="Working day"
+                label={t("Working Day")}
                 type="number"
                 required
               />
@@ -183,8 +185,8 @@ const months = [
             <div className="w-[50%]">
               <SelectField
                name="month"
-                label="Month(YYYY-MM)"
-                placeholder="2025-January"
+                label={`${t("Month")}(YYYY-MM)`}
+                placeholder={`2025-${t("January")}`}
                 required
                 options={monthYearOptions}
               />
@@ -196,7 +198,7 @@ const months = [
             <div className="w-full hidden">
               <InputField
                 name="created_by"
-                label="Created By"
+                label={t("Created By")}
                 value={userName}
                 readOnly
               />
@@ -204,11 +206,11 @@ const months = [
           </div>
 
           {/* Submit */}
-          <BtnSubmit> {id ? "Update" : "Submit"}</BtnSubmit>
+          <BtnSubmit> {id ? (t("Update")) : t("Submit")}</BtnSubmit>
         </form>
       </FormProvider>
     </div>
   );
 };
 
-export default AdvanceSalaryForm;
+export default AttendanceForm;

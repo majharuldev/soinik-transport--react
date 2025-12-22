@@ -10,8 +10,10 @@ import { tableFormatDate } from "../../../hooks/formatDate";
 import logo from "../../../assets/AJ_Logo.png"
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { useTranslation } from "react-i18next";
 
 const Requisition = () => {
+  const { t } = useTranslation();
   const [requisition, setRequisition] = useState([]);
   const [employee, setEmployee] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,10 +48,10 @@ const Requisition = () => {
     try {
       await api.delete(`/requestion/${id}`);
       setRequisition((prev) => prev.filter((item) => item.id !== id));
-      toast.success("Requisition deleted successfully!");
+      toast.success((t("Requisition deleted successfully!")));
       setIsOpen(false);
     } catch (error) {
-      toast.error("Failed to delete requisition!");
+      toast.error(t("Failed to delete requisition!"));
     }
   };
 
@@ -119,7 +121,7 @@ const Requisition = () => {
     const printContent = `
   <html>
     <head>
-      <title>Requisition List</title>
+      <title>-</title>
       <style>
         @media print {
           @page {
@@ -199,18 +201,18 @@ const Requisition = () => {
       <!-- Push Content Below Header -->
       <div class="header-space"></div>
 
-      <h2 style="text-align:center; margin-top:0;">Requisition List</h2>
+      <h2 style="text-align:center; margin-top:0;">${t("Requisition")} ${t("list")}</h2>
 
       <table>
         <thead>
           <tr>
-            <th>#</th>
-            <th>Date</th>
-            <th>Employee</th>
-            <th>Purpose</th>
-            <th>Amount</th>
-            <th>Remarks</th>
-            <th>Status</th>
+            <th>${t("SL.")}</th>
+            <th>${t("Date")}</th>
+            <th>${t("Employee")}</th>
+            <th>${t("Purpose")}</th>
+            <th>${t("Amount")}</th>
+            <th>${t("Remarks")}</th>
+            <th>${t("Status")}</th>
           </tr>
         </thead>
         <tbody>
@@ -249,21 +251,21 @@ const Requisition = () => {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaUserSecret className="text-gray-800 text-xl" />
-            Requisition List
+            {t("Requisition")} {t("list")}
           </h1>
           <Link to="/tramessy/HR/advance-requisition-form">
             <button className="bg-gradient-to-r from-primary to-green-700 text-white px-4 py-2 rounded-md flex items-center gap-2 shadow hover:scale-105 transition-all">
-              <FaPlus /> Add Requisition
+              <FaPlus /> {t("Add Requisition")}
             </button>
           </Link>
         </div>
         <div className="md:flex justify-between items-center mb-5">
-          <div className="flex gap-1 md:gap-3 text-gray-700 font-semibold rounded-md">
+          <div className="flex gap-1 md:gap-3 text-gray-700 font-medium rounded-md">
             <button
               onClick={exportExcel}
               className="py-1 px-5 hover:bg-primary bg-white shadow hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
-              Excel
+              {t("Excel")}
             </button>
             {/* <button
               onClick={exportPDF}
@@ -275,7 +277,7 @@ const Requisition = () => {
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white shadow hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
-              Print
+             {t("Print")}
             </button>
           </div>
           {/*  */}
@@ -288,7 +290,7 @@ const Requisition = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search Requisition..."
+              placeholder={`${t("Requisition")} ${t("search")}...`}
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}
@@ -309,14 +311,14 @@ const Requisition = () => {
         <table className="min-w-full text-sm text-left border">
           <thead className="bg-gray-200 text-primary capitalize text-xs">
             <tr>
-              <th className="p-2">#</th>
-              <th className="p-2">Date</th>
-              <th className="p-2">Employee</th>
-              <th className="p-2">Purpose</th>
-              <th className="p-2">Amount</th>
-              <th className="p-2">Remarks</th>
-              <th className="p-2">Status</th>
-              <th className="p-2">Action</th>
+              <th className="p-2">{t("SL.")}</th>
+              <th className="p-2">{t("Date")}</th>
+              <th className="p-2">{t("Employee")}</th>
+              <th className="p-2">{t("Purpose")}</th>
+              <th className="p-2">{t("Amount")}</th>
+              <th className="p-2">{t("Remarks")}</th>
+              <th className="p-2">{t("Status")}</th>
+              <th className="p-2">{t("Action")}</th>
             </tr>
           </thead>
           <tbody>
@@ -353,7 +355,7 @@ const Requisition = () => {
             ) : (
               <tr>
                 <td colSpan="7" className="text-center p-4 text-gray-500">
-                  No requisition data found
+                  {t("No requisition data found")}
                 </td>
               </tr>
             )}
@@ -383,19 +385,19 @@ const Requisition = () => {
             </button>
             <div className="flex flex-col items-center text-center">
               <FaTrashAlt className="text-3xl text-red-500 mb-3" />
-              <p className="mb-4">Are you sure you want to delete?</p>
+              <p className="mb-4">{t("Are you sure you want to delete?")}</p>
               <div className="flex gap-3">
                 <button
                   onClick={toggleModal}
                   className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
                 >
-                  Cancel
+                  {t("No")}
                 </button>
                 <button
                   onClick={() => handleDelete(selectedId)}
                   className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
                 >
-                  Delete
+                  {t("Yes")}
                 </button>
               </div>
             </div>

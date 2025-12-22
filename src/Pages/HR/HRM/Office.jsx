@@ -112,12 +112,11 @@ const printOfficeTable = () => {
   const tableHeader = `
     <thead>
       <tr>
-        <th>SL.</th>
-        <th>Date</th>
-        <th>Branch</th>
-        <th>Address</th>
-        <th>Opening Balance</th>
-        <th>Factory/Company</th>
+        <th>"${t("SL.")}</th>
+        <th>${t("Date")}</th>
+        <th>${t("Branch")}</th>
+        <th>${t("Address")}</th>
+        <th>${t("Opening Balance")}</th>
       </tr>
     </thead>
   `;
@@ -131,7 +130,6 @@ const printOfficeTable = () => {
         <td>${office.branch_name || ""}</td>
         <td>${office.address || ""}</td>
         <td>${office.opening_balance || ""}</td>
-        <td>${office.factory_name || ""}</td>
       </tr>
     `
     )

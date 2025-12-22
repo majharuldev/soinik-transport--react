@@ -12,7 +12,9 @@ import { tableFormatDate } from '../../../hooks/formatDate';
 import { GrView } from 'react-icons/gr';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../../providers/AuthProvider';
+import { useTranslation } from 'react-i18next';
 const GenerateSalary = () => {
+  const {t} = useTranslation();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 const [deleteId, setDeleteId] = useState(null);
   const {user} = useContext(AuthContext)
@@ -159,10 +161,10 @@ const handleConfirmDelete = async () => {
       prev.filter((item) => item.id !== deleteId)
     );
 
-    toast.success("Salary sheet deleted successfully");
+    toast.success(t("Salary sheet deleted successfully"));
   } catch (error) {
     console.error(error);
-    toast.error("Failed to delete salary sheet");
+    toast.error(t("Failed to delete salary sheet"));
   } finally {
     setIsDeleteModalOpen(false);
     setDeleteId(null);
@@ -296,7 +298,7 @@ const paidMonths = getPaidMonthsByEmployee(empId);
 
 const handleUpdateGenerateSalary = async () => {
   if (!updateMonth) {
-    toast.error("Please select month");
+    toast.error(t("Please select month"));
     return;
   }
 
@@ -310,7 +312,7 @@ const handleUpdateGenerateSalary = async () => {
       items: updatedSalaryData,
     });
 
-    toast.success("Salary updated successfully");
+    toast.success(t("Salary updated successfully"));
 
     setIsUpdateModalOpen(false);
     setSelectedSheet(null);
@@ -319,7 +321,7 @@ const handleUpdateGenerateSalary = async () => {
     const res = await api.get("/salarySheet");
     setSalarySheetApiData(res.data.data);
   } catch (error) {
-    toast.error("Failed to update salary");
+    toast.error(t("Failed to update salary"));
     console.log(error);
   }
 };
@@ -328,7 +330,7 @@ const handleUpdateGenerateSalary = async () => {
   // Send merged salary sheet to API
   const handleGenerate = async () => {
     if (!generateSalaryMonth) {
-      toast.error("Please select a month");
+      toast.error(t("Please select a month"));
       return;
     }
 
@@ -343,13 +345,13 @@ const handleUpdateGenerateSalary = async () => {
         items: dataToSend,
       });
 
-      toast.success("Salary generated successfully");
+      toast.success(t("Salary generated successfully"));
      // fetch fresh list from server
     const res = await api.get("/salarySheet");
     setSalarySheetApiData(res.data.data);
        setCurrentPage(1);
     } catch (err) {
-      toast.error("Failed to generate salary");
+      toast.error(t("Failed to generate salary"));
     }
   };
 
@@ -376,18 +378,18 @@ const handleUpdateGenerateSalary = async () => {
   // month yeayr options
   const currentYear = new Date().getFullYear();
   const monthsName = [
-    { num: "01", name: "January" },
-    { num: "02", name: "February" },
-    { num: "03", name: "March" },
-    { num: "04", name: "April" },
-    { num: "05", name: "May" },
-    { num: "06", name: "Jun" },
-    { num: "07", name: "July" },
-    { num: "08", name: "August" },
-    { num: "09", name: "September" },
-    { num: "10", name: "October" },
-    { num: "11", name: "November" },
-    { num: "12", name: "December" },
+    { num: "01", name: t("January") },
+    { num: "02", name: t("February") },
+    { num: "03", name: t("March") },
+    { num: "04", name: t("April") },
+    { num: "05", name: t("May") },
+    { num: "06", name: t("June") },
+    { num: "07", name: t("July") },
+    { num: "08", name: t("August") },
+    { num: "09", name: t("September") },
+    { num: "10", name: t("October") },
+    { num: "11", name: t("November") },
+    { num: "12", name: t("December") },
   ];
   const monthYearOptions = [];
 
@@ -501,7 +503,7 @@ const handleUpdateGenerateSalary = async () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             {/* <FaTruck className="text-gray-800 text-2xl" /> */}
-            Generate Salary List
+            {t("Generate Salary")} {t("list")}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <div className="">
@@ -510,7 +512,7 @@ const handleUpdateGenerateSalary = async () => {
                 onChange={(e) => setGenerateSalaryMonth(e.target.value)}
                 className="border px-3 py-2 rounded"
               >
-                <option value="">Select Month</option>
+                <option value="">{t("Month")} {t("Select")}</option>
                 {monthYearOptions.map((m, index) => (
                   <option key={index} value={m.value}>
                     {m.label}
@@ -522,7 +524,7 @@ const handleUpdateGenerateSalary = async () => {
               onClick={handleGenerate}
               className="bg-primary text-white px-4 py-2 rounded"
             >
-              Generate Salary Sheet
+              {t("Generate Salary")} {t("Sheet")}
             </button>
             <button
               onClick={() => setShowFilter((prev) => !prev)} // Toggle filter

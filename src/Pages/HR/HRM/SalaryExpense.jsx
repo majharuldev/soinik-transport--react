@@ -21,9 +21,11 @@ import DatePicker from "react-datepicker"
 import { IoMdClose } from "react-icons/io"
 import toNumber from "../../../hooks/toNumber"
 import { tableFormatDate } from "../../../hooks/formatDate"
+import { useTranslation } from "react-i18next"
 
 
 const SalaryExpense = () => {
+  const {t} = useTranslation();
   const [expenses, setExpenses] = useState([])
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true)
@@ -174,13 +176,13 @@ const SalaryExpense = () => {
   // form validation
   const validateForm = () => {
     const newErrors = {}
-    if (!formData.date) newErrors.date = "Date is required"
-    // if (!formData.paid_to) newErrors.paid_to = "Recipient is required"
-    if (!formData.amount) newErrors.amount = "Amount is required"
-    if (!formData.branch_name) newErrors.branch_name = "Branch Name is required"
-    if (!formData.payment_category) newErrors.payment_category = "Category is required"
-    if (!formData.particulars) newErrors.particulars = "Particulars is required"
-    if (!formData.status) newErrors.status = "Status is required";
+    if (!formData.date) newErrors.date = `${t("Date")} ${t("is required")}`
+    // if (!formData.paid_to) newErrors.paid_to = `${t("Recipient")} ${t("is required")}`
+    if (!formData.amount) newErrors.amount = `${t("Amount")} ${t("is required")}`
+    if (!formData.branch_name) newErrors.branch_name = `${t("Branch")} ${t("Name")} ${t("is required")}`
+    if (!formData.payment_category) newErrors.payment_category = `${t("Category")} ${t("is required")}`
+    if (!formData.particulars) newErrors.particulars = `${t("Particulars")} ${t("is required")}`
+    if (!formData.status) newErrors.status = `${t("Status")} ${t("is required")}`;
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -200,17 +202,17 @@ const SalaryExpense = () => {
 
       if (editingId) {
         await api.put(`/expense/${editingId}`, payload)
-        toast.success("Expense Data Update successful")
+        toast.success(t("Expense Data Update successful"))
       } else {
         await api.post(`/expense`, payload)
-        toast.success("Epense Added successful")
+        toast.success(t("Expense Added successful"))
       }
 
       handleCancel()
       fetchExpenses()
     } catch (err) {
       console.error(err)
-      toast.error("Operation failed", "error")
+      toast.error(t("Operation failed"), t("error"))
     } finally {
       setIsSubmitting(false);
     }
@@ -247,7 +249,7 @@ const SalaryExpense = () => {
 
       // Remove driver from local list
       setExpenses((prev) => prev.filter((expense) => expense.id !== id));
-      toast.success("Salary Expense deleted successfully", {
+      toast.success(t("Salary Expense deleted successfully"), {
         position: "top-right",
         autoClose: 3000,
       });
@@ -255,33 +257,14 @@ const SalaryExpense = () => {
       setIsOpen(false);
       setSelectedExpenseId(null);
     } catch (error) {
-      console.error("Delete error:", error.response || error);
-      toast.error("There was a problem deleting!", {
+      console.error(t("Delete error:"), error.response || error);
+      toast.error(t("There was a problem deleting!"), {
         position: "top-right",
         autoClose: 3000,
       });
     }
   };
-  // csv
-  const exportCSV = () => {
-    const csvContent = [
-      ["Serial", "Date", "Paid To", "Amount", "Category", "Remarks", "Status"],
-      ...filteredData.map((item, i) => [
-        i + 1,
-        item.date,
-        item.paid_to,
-        item.amount,
-        item.payment_category,
-        item.remarks,
-        item.status
-      ]),
-    ]
-      .map((row) => row.join(","))
-      .join("\n")
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-    saveAs(blob, "general_expense.csv")
-  }
+  
   // excel
   const exportExcel = () => {
     const data = filteredData.map((item, i) => ({
@@ -323,13 +306,13 @@ const SalaryExpense = () => {
     const tableHeader = `
     <thead>
       <tr>
-        <th>SL</th>
-        <th>Date</th>
-        <th>Branch</th>
-        <th>Paid To</th>
-        <th>Amount</th>
-        <th>Category</th>
-        <th>Remarks</th>
+        <th>${t("SL.")}</th>
+        <th>${t("Date")}</th>
+        <th>${t("Branch")}</th>
+        <th>${t("Paid To")}</th>
+        <th>${t("Amount")}</th>
+        <th>${t("Category")}</th>
+        <th>${t("Remarks")}</th>
       </tr>
     </thead>
   `;
@@ -398,19 +381,8 @@ const SalaryExpense = () => {
     <body>
       <div class="print-container">
 
-        <div class="print-header">
-          <div class="header">
-          <div></div>
-            <div>
-              <h2>M/S A J ENTERPRISE</h2>
-              <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
-            </div>
-            <div></div>
-          </div>
-        </div>
-
         <div class="content">
-          <h3 style="text-align:center;">Salary Expense List</h3>
+          <h3 style="text-align:center;">${t("Salary Expense")} ${t("list")}</h3>
           ${printContent}
         </div>
 
@@ -441,19 +413,19 @@ const SalaryExpense = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaTruck className="text-gray-800 text-2xl" />
-            Salary Dispatch
+            {t("Salary Expense")}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             {/* <Link to="/tramessy/AddSallaryExpenseForm"> */}
             <button onClick={() => showModal()} className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-              <FaPlus /> Add
+              <FaPlus /> {t("Add")}
             </button>
             {/* </Link> */}
             <button
               onClick={() => setShowFilter((prev) => !prev)} // Toggle filter
               className=" text-primary border border-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <FaFilter /> Filter
+              <FaFilter /> {t("Filter")}
             </button>
           </div>
         </div>
@@ -474,7 +446,7 @@ const SalaryExpense = () => {
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-white shadow  hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FaFileExcel className="" />
-              Excel
+              {t("Excel")}
             </button>
 
             {/* <button
@@ -490,7 +462,7 @@ const SalaryExpense = () => {
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-white shadow hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FaPrint className="" />
-              Print
+              {t("Print")}
             </button>
           </div>
 
@@ -499,7 +471,7 @@ const SalaryExpense = () => {
             <input
               type="text"
               className="lg:w-60 px-3 py-2 border border-gray-300 rounded-md text-sm  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Search..."
+              placeholder={`${t("search")}...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -546,7 +518,7 @@ const SalaryExpense = () => {
               className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
               isClearable
             />
-            <div className="mt-3 md:mt-0 flex gap-2">
+            <div className="w-sm mt-3 md:mt-0 flex gap-2">
               <button
                 onClick={() => {
                   setCurrentPage(1)
@@ -554,9 +526,9 @@ const SalaryExpense = () => {
                   setEndDate("")
                   setShowFilter(false)
                 }}
-                className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                className=" bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <FaFilter /> Clear
+                <FaFilter /> {t("Clear")}
               </button>
             </div>
           </div>
@@ -567,22 +539,22 @@ const SalaryExpense = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr className="">
-                <th className="px-3 py-3 text-left text-sm font-semibold w-16">SL</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">Date</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">Branch</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">Paid To</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">Amount</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">Category</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">Remarks</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">Status</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold w-24 action_column">Action</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold w-16">{t("SL")}</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">{t("Date")}</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">{t("Branch")}</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">{t("Paid To")}</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">{t("Amount")}</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">{t("Category")}</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">{t("Remarks")}</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">{t("Status")}</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold w-24 action_column">{t("Action")}</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
               {loading ? (
                 <tr>
                   <td colSpan="7" className="px-3 py-10 text-center text-gray-500">
-                    Loading...
+                    {t("Loading")}...
                   </td>
                 </tr>
               ) : filteredExpense.length === 0 ? (
@@ -602,7 +574,7 @@ const SalaryExpense = () => {
                           d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      No Expense data found.
+                      {t("No Expense data found")}
                     </div>
                   </td>
                 </tr>
@@ -664,7 +636,7 @@ const SalaryExpense = () => {
           <div className="relative bg-white rounded-lg shadow-lg p-6  max-w-2xl border border-gray-300">
             {/* Modal Header */}
             <div className="flex justify-between items-center p-2 ">
-              <h2 className="text-lg font-semibold text-gray-900">{editingId ? "Update Salary Expense" : "Add New Salary Expense"}</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{editingId ? t("Update Salary Expense") : t("Add New Salary Expense")}</h2>
               <button onClick={handleCancel} className="p-1 hover:bg-gray-100 rounded transition-colors">
                 <FiX size={20} />
               </button>
@@ -675,7 +647,7 @@ const SalaryExpense = () => {
               <div className="p-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Date <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t("Date")} <span className="text-red-500">*</span></label>
                     <input
                       type="date"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -685,12 +657,12 @@ const SalaryExpense = () => {
                     {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Paid To <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t("Paid To")} <span className="text-red-500">*</span></label>
                     <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       value={formData.paid_to}
                       onChange={(e) => setFormData({ ...formData, paid_to: e.target.value })}
                       disabled={employeesLoading} >
-                      <option value=""> {employeesLoading ? "Loading..." : "Select Employee"}
+                      <option value=""> {employeesLoading ? `${t("Loading")}...` : `${t("Employee")} ${t("Select")}`}
                       </option>
                       {!employeesLoading && employees.map((employee) => (<option key={employee.id} value={employee.employee_name}>
                         {employee.employee_name} </option>))} </select>
@@ -701,13 +673,13 @@ const SalaryExpense = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Category <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t("Category")} <span className="text-red-500">*</span></label>
                     <select
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       value={formData.payment_category}
                       onChange={(e) => setFormData({ ...formData, payment_category: e.target.value })}
                     >
-                      <option value="">Select category</option>
+                      <option value="">{t("Category")} {t("Select")}</option>
                       {salaryCategories.map((category) => (
                         <option key={category} value={category}>
                           {category}
@@ -717,13 +689,13 @@ const SalaryExpense = () => {
                     {errors.payment_category && <p className="text-red-500 text-xs mt-1">{errors.payment_category}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Branch Name  <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t("Branch")} {t("Name")}  <span className="text-red-500">*</span></label>
                     <select
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       value={formData.branch_name}
                       onChange={(e) => setFormData({ ...formData, branch_name: e.target.value })}
                     >
-                      <option value="">Select branch</option>
+                      <option value="">{t("Branch")} {t("Select")}</option>
                       {branches.map((branch) => (
                         <option key={branch.id} value={branch.branch_name}>
                           {branch.branch_name}
@@ -737,22 +709,22 @@ const SalaryExpense = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Amount <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t("Amount")} <span className="text-red-500">*</span></label>
                     <input
                       type="number"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Amount"
+                      placeholder={t("Amount")}
                       value={formData.amount}
                       onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                     />
                     {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
                   </div>
                   <div className="m">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Remarks<span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t("Remarks")}<span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Remarks"
+                      placeholder={t("Remarks")}
                       value={formData.particulars}
                       onChange={(e) => setFormData({ ...formData, particulars: e.target.value })}
                     />
@@ -761,7 +733,7 @@ const SalaryExpense = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Status <span className="text-red-500">*</span>
+                      {t("Status")} <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={formData.status}
@@ -770,7 +742,7 @@ const SalaryExpense = () => {
                       }
                       className="w-full border px-3 py-2 rounded-md"
                     >
-                      <option value="">Select status</option>
+                      <option value="">{t("Status")} {t("Select")}</option>
                       {statusOptions.map((s) => (
                         <option key={s} value={s}>
                           {s}
@@ -791,12 +763,12 @@ const SalaryExpense = () => {
                   onClick={handleCancel}
                   className="mt-5 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
                 >
-                  Cancel
+                  {t("Cancel")}
                 </button>
                 <BtnSubmit
                   loading={isSubmitting}
                 >
-                  Submit
+                  {t("Submit")}
                 </BtnSubmit>
               </div>
             </form>
@@ -819,20 +791,20 @@ const SalaryExpense = () => {
                 <FaTrashAlt />
               </div>
               <p className="text-center text-gray-700 font-medium mb-6">
-                Are you sure you want to delete this Customer?
+                {t("Are you sure you want to delete this Expense?")}
               </p>
               <div className="flex justify-center space-x-4">
                 <button
                   onClick={toggleModal}
                   className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
                 >
-                  No
+                  {t("No")}
                 </button>
                 <button
                   onClick={() => handleDelete(selectedExpenseId)}
                   className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
                 >
-                  Yes
+                  {t("Yes")}
                 </button>
               </div>
             </div>

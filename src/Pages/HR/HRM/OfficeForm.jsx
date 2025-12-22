@@ -105,12 +105,12 @@ const OfficeForm = () => {
                   <InputField
                     type="number"
                     name="opening_balance"
-                    label="Opening Balance"
+                    label={`${t("Opening Balance")}`}
                     required
                   />
                 </div>
                 <div className="w-full">
-                  <InputField name="address" label="Address" required />
+                  <InputField name="address" label={`${t("Address")}`} required />
                 </div>
               </div>
               <div className="text-left p-5">

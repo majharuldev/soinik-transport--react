@@ -8,8 +8,10 @@ import { IoMdClose } from "react-icons/io";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
 import toNumber from "../../../hooks/toNumber";
+import { useTranslation } from "react-i18next";
 
 const AdvanceSalary = () => {
+  const { t } = useTranslation();
   const [advanceSalary, setAdvanceSalary] = useState([]);
   const [employee, setEmployee] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,7 +57,7 @@ const AdvanceSalary = () => {
 
       // Remove driver from local list
       setAdvanceSalary((prev) => prev.filter((account) => account.id !== id));
-      toast.success("Advance Salary deleted successfully", {
+      toast.success(t("Advance Salary deleted successfully"), {
         position: "top-right",
         autoClose: 3000,
       });
@@ -63,8 +65,8 @@ const AdvanceSalary = () => {
       setIsOpen(false);
       setSelectedAdvanceSalaryId(null);
     } catch (error) {
-      console.error("Delete error:", error.response || error);
-      toast.error("There was a problem deleting!", {
+      console.error(t("Delete error:"), error.response || error);
+      toast.error(t("There was a problem deleting!"), {
         position: "top-right",
         autoClose: 3000,
       });
@@ -122,14 +124,14 @@ const AdvanceSalary = () => {
       <table>
         <thead>
           <tr>
-            <th>#</th>
-            <th>Date</th>
-            <th>Employee Name</th>
-            <th>Amount</th>
-            <th>Salary Month</th>
-            <th>After Adjustment</th>
-            <th>Status</th>
-            <th>Created By</th>
+            <th>${t("SL.")}</th>
+            <th>${t("Date")}</th>
+            <th>${t("Employee")} ${t("Name")}</th>
+            <th>${t("Amount")}</th>
+            <th>${t("Salary")} ${t("Month")}</th>
+            <th>${t("After")} ${t("Adjustment")}</th>
+            <th>${t("Status")}</th>
+            <th>${t("Created By")}</th>
           </tr>
         </thead>
         <tbody>
@@ -155,7 +157,7 @@ const AdvanceSalary = () => {
   printWindow.document.write(`
     <html>
       <head>
-        <title>Advance Salary Report</title>
+        <title>-</title>
         <style>
           body { 
             font-family: Arial, sans-serif;
@@ -176,12 +178,8 @@ const AdvanceSalary = () => {
       </head>
 
       <body>
-        <div class="header">
-          <h2>M/S A J ENTERPRISE</h2>
-          <div>Razzak Plaza, 11th Floor, Room J-12<br/>Moghbazar, Dhaka-1217</div>
-        </div>
 
-        <h3 style="text-align:center;">Advance Salary </h3>
+        <h3 style="text-align:center;">${t("Advance")} ${t("Salary")}</h3>
 
         ${tableHTML}
       </body>
@@ -200,30 +198,30 @@ const AdvanceSalary = () => {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaUserSecret className="text-gray-800 text-xl" />
-            Advance Salary
+            {t("Advance")} {t("Salary")}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <Link to="/tramessy/HR/Payroll/Advance-Salary-Form">
               <button className="bg-gradient-to-r from-primary to-[#075e13] text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus /> Advance
+                <FaPlus /> {t("Advance")}
               </button>
             </Link>
           </div>
         </div>
         {/* export */}
         <div className="md:flex justify-between items-center">
-          <div className="flex gap-1 md:gap-3 text-gray-700 font-semibold rounded-md">
+          <div className="flex gap-1 md:gap-3 text-gray-700 font-medium rounded-md">
             <button
               onClick={exportExcel}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
-              Excel
+              {t("Excel")}
             </button>
             <button
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
-              Print
+              {t("Print")}
             </button>
           </div>
           {/* search */}
@@ -236,7 +234,7 @@ const AdvanceSalary = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search by Product ..."
+              placeholder={`${t("search")}...`}
               className="lg:w-60 border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}
@@ -259,15 +257,15 @@ const AdvanceSalary = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr>
-                <th className="p-2">#</th>
-                <th className="p-2">Date</th>
-                <th className="p-2">Employee Name</th>
-                <th className="p-2">Amount</th>
-                <th className="p-2">Salary Month</th>
-                <th className="p-2">After Adjustment</th>
-                <th className="p-2">Status</th>
-                <th className="p-2">Created By</th>
-                <th className="p-2">Action</th>
+                <th className="p-2">{t("SL")}</th>
+                <th className="p-2">{t("Date")}</th>
+                <th className="p-2">{t("Employee")} {t("Name")}</th>
+                <th className="p-2">{t("Amount")}</th>
+                <th className="p-2">{t("Salary Month")}</th>
+                <th className="p-2">{t("After Adjustment")}</th>
+                <th className="p-2">{t("Status")}</th>
+                <th className="p-2">{t("Created By")}</th>
+                <th className="p-2">{t("Action")}</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
@@ -312,7 +310,7 @@ const AdvanceSalary = () => {
               ) : (
                 <tr>
                   <td colSpan="6" className="text-center p-4 text-gray-500">
-                    No data found
+                    {t("No data found")}
                   </td>
                 </tr>
               )}
@@ -347,20 +345,20 @@ const AdvanceSalary = () => {
                 <FaTrashAlt />
               </div>
               <p className="text-center text-gray-700 font-medium mb-6">
-                Are you sure you want to delete this Customer?
+                {t("Are you sure you want to delete?")}
               </p>
               <div className="flex justify-center space-x-4">
                 <button
                   onClick={toggleModal}
                   className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
                 >
-                  No
+                  {t("No")}
                 </button>
                 <button
                   onClick={() => handleDelete(selectedAdvanceSalaryId)}
                   className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
                 >
-                  Yes
+                  {t("Yes")}
                 </button>
               </div>
             </div>
