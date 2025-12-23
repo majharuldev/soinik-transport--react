@@ -1,9 +1,7 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FaEye, FaFilter, FaPen, FaTrashAlt } from "react-icons/fa";
 import { FaPlus, FaUserSecret } from "react-icons/fa6";
-import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
@@ -14,8 +12,10 @@ import api from "../../../utils/axiosConfig";
 import DatePicker from "react-datepicker";
 import { IoMdClose } from "react-icons/io";
 import toNumber from "../../hooks/toNumber";
+import { useTranslation } from "react-i18next";
 
 const PurchaseList = () => {
+  const { t } = useTranslation();
   const [purchase, setPurchase] = useState([]);
   const [loading, setLoading] = useState(true);
   // Date filter state
@@ -111,11 +111,11 @@ const PurchaseList = () => {
         setselectedPurchase(response.data.data);
         setViewModalOpen(true);
       } else {
-        toast.error("Purchase Information could not be loaded.");
+        toast.error(t("Purchase Information could not be loaded."));
       }
     } catch (error) {
       console.error("View error:", error);
-      toast.error("Purchase Information could not be loaded.");
+      toast.error(t("Purchase Information could not be loaded."));
     }
   };
 
@@ -126,7 +126,7 @@ const PurchaseList = () => {
 
       // Remove driver from local list
       setPurchase((prev) => prev.filter((account) => account.id !== id));
-      toast.success("Maintenance deleted successfully", {
+      toast.success(t("Maintenance deleted successfully"), {
         position: "top-right",
         autoClose: 3000,
       });
@@ -134,15 +134,15 @@ const PurchaseList = () => {
       setIsOpen(false);
       setSelectedOfficialProductId(null);
     } catch (error) {
-      console.error("Delete error:", error.response || error);
-      toast.error("There was a problem deleting!", {
+      console.error(t("Delete error:"), error.response || error);
+      toast.error(t("There was a problem deleting!"), {
         position: "top-right",
         autoClose: 3000,
       });
     }
   };
 
-  if (loading) return <p className="text-center mt-16">Loading data...</p>;
+  if (loading) return <p className="text-center mt-16">{t("Loading")}...</p>;
   // pagination
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -153,125 +153,8 @@ const PurchaseList = () => {
   );
   const totalPages = Math.ceil(filteredPurchase.length / itemsPerPage);
 
-  // Excel Export Function
-  // const exportExcel = () => {
-  //   const dataToExport = filteredPurchase.map((item, index) => ({
-  //     "SL No": index + 1,
-  //     "Product ID": item.id,
-  //     "Supplier Name": item.supplier_name,
-  //     "Driver Name": item.driver_name !== "null" ? item.driver_name : "N/A",
-  //     "Vehicle No": item.vehicle_no !== "null" ? item.vehicle_no : "N/A",
-  //     "Category": item.category,
-  //     "Item Name": item.item_name,
-  //     "Quantity": toNumber(item.quantity),
-  //     "Unit Price": toNumber(item.unit_price),
-  //     "Total": toNumber(item.purchase_amount),
-  //     "Date": tableFormatDate(item.date),
-  //     "Remarks": item.remarks || "N/A"
-  //   }));
-
-  //   const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-  //   const workbook = XLSX.utils.book_new();
-  //   XLSX.utils.book_append_sheet(workbook, worksheet, "Purchase List");
-
-  //   // Generate Excel file
-  //   XLSX.writeFile(workbook, "Purchase_List.xlsx");
-  //   toast.success("Excel file downloaded successfully!");
-  // };
-
-
-  // // Print Function
-  // const printTable = () => {
-  //   // শুধু filtered data ব্যবহার
-  //   const tableHeader = `
-  //   <thead>
-  //     <tr>
-  //       <th>SL</th>
-  //       <th>Product ID</th>
-  //       <th>Supplier</th>
-  //       <th>Driver</th>
-  //       <th>Vehicle No</th>
-  //       <th>Category</th>
-  //       <th>Item</th>
-  //       <th>Qty</th>
-  //       <th>Unit Price</th>
-  //       <th>Service Charge</th>
-  //       <th>Total</th>
-  //     </tr>
-  //   </thead>
-  // `;
-
-  //   const tableRows = filteredPurchase
-  //     .map(
-  //       (item, index) =>{ 
-  //         // Join items into a string separated by commas or line breaks
-  //   const itemNames = item.items.map(i => i.item_name).join(", ");
-  //   const quantities = item.items.map(i => i.quantity).join(", ");
-  //   const unitPrices = item.items.map(i => i.unit_price).join(", ");
-  //         return `
-  //       <tr>
-  //         <td>${index + 1}</td>
-  //         <td>${item.id}</td>
-  //         <td>${item.supplier_name}</td>
-  //         <td>${item.driver_name !== "null" ? item.driver_name : "N/A"}</td>
-  //         <td>${item.vehicle_no !== "null" ? item.vehicle_no : "N/A"}</td>
-  //         <td>${item.category}</td>
-  //         <td>${item.itemNames}</td>
-  //         <td>${toNumber(item.quantities)}</td>
-  //         <td>${toNumber(item.unitPrices)}</td>
-  //                   <td>${item.service_charge}</td>
-  //         <td>${item.purchase_amount}</td>
-  //       </tr>
-  //     `}
-  //     )
-  //     .join("");
-
-  //   const printContent = `<table>${tableHeader}<tbody>${tableRows}</tbody></table>`;
-
-  //   const printWindow = window.open("", "", "width=1000,height=700");
-  //   printWindow.document.write(`
-  //   <html>
-  //     <head>
-  //       <title>Purchase List</title>
-  //       <style>
-  //         body { font-family: Arial, sans-serif; margin: 20px; }
-  //         h2 { color: #11375B; text-align: center; font-size: 22px; margin-bottom: 10px; }
-  //         table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
-  //         thead tr {
-  //           background: linear-gradient(to right, #11375B, #1e4a7c);
-  //           color: white;
-  //         }
-  //         th, td { padding: 8px; border: 1px solid #ddd; text-align: center; }
-  //         td { color: #11375B; }
-  //         tr:nth-child(even) { background-color: #f9f9f9; }
-  //         tr:hover { background-color: #f1f5f9; }
-  //         .footer { margin-top: 20px; text-align: right; font-size: 12px; color: #555; }
-  //         @media print { body { margin: 0; } }
-  //          thead th {
-  //         color: #000000 !important;
-  //         background-color: #ffffff !important;
-  //         -webkit-print-color-adjust: exact !important;
-  //         print-color-adjust: exact !important;
-  //       }
-  //       </style>
-  //     </head>
-  //     <body>
-  //       <h2>Purchase List</h2>
-  //       ${printContent}
-  //       <div class="footer">
-  //         Printed on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
-  //       </div>
-  //     </body>
-  //   </html>
-  // `);
-  //   printWindow.document.close();
-  //   printWindow.focus();
-  //   printWindow.print();
-  //   printWindow.close();
-  // };
-
-   // Excel Export Function
-  const exportExcel = () => {
+  // excel export function
+   const exportExcel = () => {
     const dataToExport = []
 
     filteredPurchase.forEach((purchase, purchaseIndex) => {
@@ -386,20 +269,20 @@ const PurchaseList = () => {
     const tableHeader = `
     <thead>
       <tr>
-        <th>SL</th>
-        <th>Date</th>
-        <th>Product ID</th>
-        <th>Supplier</th>
-        <th>Driver</th>
-        <th>Vehicle No</th>
-        <th>Vehicle Category</th>
-        <th>Category</th>
-        <th>Item</th>
-        <th>Qty</th>
-        <th>Unit Price</th>
-        <th>Total</th>
-        <th>Service Charge</th>
-        <th>Purchase Amount</th>
+        <th>${t("SL.")}</th>
+        <th>${t("Date")}</th>
+        <th>${t("Product ID")}</th>
+        <th>${t("Supplier")}</th>
+        <th>${t("Driver")}</th>
+        <th>${t("Vehicle No")}</th>
+        <th>${t("Vehicle")} ${t("Category")}</th>
+        <th>${t("Category")}</th>
+        <th>${t("Item")}</th>
+        <th>${t("Quantity")}</th>
+        <th>${t("Unit Price")}</th>
+        <th>${t("Total")}</th>
+        <th>${t("Service Charge")}</th>
+        <th>${t("Purchase Amount")}</th>
       </tr>
     </thead>
   `
@@ -460,7 +343,7 @@ const PurchaseList = () => {
     printWindow.document.write(`
     <html>
       <head>
-        <title>Purchase List</title>
+        <title>-</title>
         <style>
           body { font-family: Arial, sans-serif; margin: 20px; }
           h2 { color: #11375B; text-align: center; font-size: 22px; margin-bottom: 10px; }
@@ -484,7 +367,7 @@ const PurchaseList = () => {
         </style>
       </head>
       <body>
-        <h2>Purchase List</h2>
+        <h2>${t("Purchase")} ${t("list")}</h2>
         ${printContent}
         <div class="footer">
           Printed on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
@@ -503,30 +386,30 @@ const PurchaseList = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaUserSecret className="text-gray-800 text-2xl" />
-            Maintenance Information
+            {t("Maintenance")} {t("Information")}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <button
               onClick={() => setShowFilter((prev) => !prev)}
               className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <FaFilter /> Filter
+              <FaFilter /> {t("Filter")}
             </button>
             <Link to="/tramessy/Purchase/add-maintenance">
               <button className="bg-gradient-to-r from-primary to-[#115e15]  text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus />Maintentance
+                <FaPlus />{t("Maintenance")}
               </button>
             </Link>
           </div>
         </div>
         {/* export */}
         <div className="md:flex justify-between items-center">
-          <div className="flex gap-1 md:gap-3 text-gray-700 font-semibold rounded-md">
+          <div className="flex gap-1 md:gap-3 text-gray-700 font-medium rounded-md">
             <button
               onClick={exportExcel}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
-              Excel
+              {t("Excel")}
             </button>
             {/* <button
               onClick={exportPDF}
@@ -538,7 +421,7 @@ const PurchaseList = () => {
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
-              Print
+              {t("Print")}
             </button>
           </div>
           {/* search */}
@@ -551,7 +434,7 @@ const PurchaseList = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search by Product ..."
+              placeholder={`${t("search")}...`}
               className="lg:w-60 border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}
@@ -604,7 +487,7 @@ const PurchaseList = () => {
               }}
               className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
             >
-              <option value="">All Vehicle No</option>
+              <option value="">{t("Vehicle No")}</option>
               {uniqueVehicles.map((v, index) => (
                 <option key={index} value={v}>
                   {v}
@@ -621,7 +504,7 @@ const PurchaseList = () => {
                 }}
                 className="bg-primary text-white px-2 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <FaFilter /> Clear
+                <FaFilter /> {t("Clear")}
               </button>
             </div>
           </div>
@@ -630,28 +513,28 @@ const PurchaseList = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-primary capitalize text-xs ">
               <tr>
-                <th className="px-2 py-4">SL.</th>
-                <th className="px-2 py-4">Date</th>
-                <th className="px-2 py-4">Prod.ID</th>
-                <th className="px-2 py-4">Supplier</th>
-                {/* <th className="px-2 py-2">Driver </th> */}
-                <th className="px-2 py-2">VehicleCategory</th>
-                <th className="px-2 py-2">VehicleNo</th>
-                <th className="px-2 py-4">Category</th>
-                <th className="px-2 py-4">ItemName</th>
-                <th className="px-2 py-4">Quantity</th>
-                <th className="px-2 py-4">UnitPrice</th>
-                <th className="px-2 py-4">ServiceCharge</th>
-                <th className="px-2 py-4">Total</th>
+                <th className="px-2 py-4">"{t("SL.")}"</th>
+                <th className="px-2 py-4">{t("Date")}</th>
+                <th className="px-2 py-4">{t("Product ID")}</th>
+                <th className="px-2 py-4">{t("Supplier")}</th>
+                {/* <th className="px-2 py-2">{t("Driver")}</th> */}
+                <th className="px-2 py-2">{t("Vehicle")} {t("Category")}</th>
+                <th className="px-2 py-2">{t("Vehicle No")}</th>
+                <th className="px-2 py-4">{t("Category")}</th>
+                <th className="px-2 py-4">{t("Item Name")}</th>
+                <th className="px-2 py-4">{t("Quantity")}</th>
+                <th className="px-2 py-4">{t("Unit Price")}</th>
+                <th className="px-2 py-4">{t("Service Charge")}</th>
+                <th className="px-2 py-4">{t("Total")}</th>
                 {/* <th className="px-2 py-4">Bill Image</th> */}
-                <th className="px-2 py-4">Action</th>
+                <th className="px-2 py-4">{t("Action")}</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
               {currentPurchase.length === 0 ? (
                 <tr>
                   <td colSpan="10" className="text-center p-4 text-gray-500">
-                    No purchase found
+                    {t("No purchase data found")}
                   </td>
                 </tr>)
                 : (currentPurchase?.map((dt, index) => (
@@ -739,7 +622,7 @@ const PurchaseList = () => {
             {/* Header */}
             <div className="sticky top-0 bg-white z-10 flex justify-between items-center p-5">
               <h2 className="text-2xl font-semibold text-gray-800">
-                Purchase Details
+                {t("Maintenance Details")}
               </h2>
               <button
                 onClick={() => setViewModalOpen(false)}
@@ -766,16 +649,16 @@ const PurchaseList = () => {
               {/* Basic Information */}
               <section>
                 <h3 className="text-lg font-semibold text-primary border-b pb-2 mb-4">
-                  Basic Information
+                  {t("Basic")} {t("Information")}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base">
-                  <p><span className="font-medium text-gray-600">Date:</span> {tableFormatDate(selectedPurchase.date)}</p>
-                  <p><span className="font-medium text-gray-600">Supplier Name:</span> {selectedPurchase.supplier_name}</p>
-                  <p><span className="font-medium text-gray-600">Category:</span> {selectedPurchase.category}</p>
-                  <p><span className="font-medium text-gray-600">Purchase Amount:</span> {selectedPurchase.purchase_amount}</p>
-                  <p><span className="font-medium text-gray-600">Service Charge:</span> {selectedPurchase.service_charge || "N/A"}</p>
-                  <p><span className="font-medium text-gray-600">Remarks:</span> {selectedPurchase.remarks}</p>
-                  <p><span className="font-medium text-gray-600">Status:</span>
+                  <p><span className="font-medium text-gray-600">{t("Date")}:</span> {tableFormatDate(selectedPurchase.date)}</p>
+                  <p><span className="font-medium text-gray-600">{t("Supplier")} {("Name")}:</span> {selectedPurchase.supplier_name}</p>
+                  <p><span className="font-medium text-gray-600">{t("Category")}:</span> {selectedPurchase.category}</p>
+                  <p><span className="font-medium text-gray-600">{t("Purchase Amount")}:</span> {selectedPurchase.purchase_amount}</p>
+                  <p><span className="font-medium text-gray-600">{t("Service Charge")}:</span> {selectedPurchase.service_charge || "N/A"}</p>
+                  <p><span className="font-medium text-gray-600">{t("Remarks")}:</span> {selectedPurchase.remarks}</p>
+                  <p><span className="font-medium text-gray-600">{t("Status")}:</span>
                     <span className={`ml-2 px-3 py-1 rounded-full text-sm font-medium ${selectedPurchase.status === "pending"
                         ? "bg-yellow-100 text-yellow-700"
                         : selectedPurchase.status === "completed"
@@ -791,28 +674,28 @@ const PurchaseList = () => {
               {/* Vehicle Information */}
               <section>
                 <h3 className="text-lg font-semibold text-primary border-b pb-2 mb-4">
-                  Vehicle Information
+                  {t("Vehicle")} {t("Information")}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base">
-                  <p><span className="font-medium text-gray-600">Driver Name:</span> {selectedPurchase.driver_name}</p>
-                  <p><span className="font-medium text-gray-600">Branch Name:</span> {selectedPurchase.branch_name}</p>
-                  <p><span className="font-medium text-gray-600">Vehicle No:</span> {selectedPurchase.vehicle_no}</p>
-                  <p><span className="font-medium text-gray-600">Vehicle Category:</span> {selectedPurchase.vehicle_category}</p>
+                  <p><span className="font-medium text-gray-600">{t("Driver")} {t("Name")}:</span> {selectedPurchase.driver_name}</p>
+                  <p><span className="font-medium text-gray-600">{t("Branch")} {t("Name")}:</span> {selectedPurchase.branch_name}</p>
+                  <p><span className="font-medium text-gray-600">{t("Vehicle No")}:</span> {selectedPurchase.vehicle_no}</p>
+                  <p><span className="font-medium text-gray-600">{t("Vehicle")} {t("Category")}:</span> {selectedPurchase.vehicle_category}</p>
                 </div>
               </section>
 
               {/* Service Information */}
               <section>
                 <h3 className="text-lg font-semibold text-primary border-b pb-2 mb-4">
-                  Service Information
+                  {t("Service")} {t("Information")}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base">
-                  <p><span className="font-medium text-gray-600">Service Date:</span> {selectedPurchase.service_date || "N/A"}</p>
-                  <p><span className="font-medium text-gray-600">Next Service Date:</span> {selectedPurchase.next_service_date || "N/A"}</p>
-                  <p><span className="font-medium text-gray-600">Last KM:</span> {selectedPurchase.last_km || "N/A"}</p>
-                  <p><span className="font-medium text-gray-600">Next KM:</span> {selectedPurchase.next_km || "N/A"}</p>
-                  <p><span className="font-medium text-gray-600">Priority:</span> {selectedPurchase.priority}</p>
-                  <p><span className="font-medium text-gray-600">Validity:</span> {selectedPurchase.validity || "N/A"}</p>
+                  <p><span className="font-medium text-gray-600">{t("Service Date")}:</span> {selectedPurchase.service_date || "N/A"}</p>
+                  <p><span className="font-medium text-gray-600">{t("Next")} {t("Service Date")}:</span> {selectedPurchase.next_service_date || "N/A"}</p>
+                  <p><span className="font-medium text-gray-600">{t("Last KM")}:</span> {selectedPurchase.last_km || "N/A"}</p>
+                  <p><span className="font-medium text-gray-600">{t("Next KM")}:</span> {selectedPurchase.next_km || "N/A"}</p>
+                  <p><span className="font-medium text-gray-600">{t("Priority")}:</span> {selectedPurchase.priority}</p>
+                  <p><span className="font-medium text-gray-600">{t("Validity")}:</span> {selectedPurchase.validity || "N/A"}</p>
                 </div>
               </section>
 
@@ -836,15 +719,15 @@ const PurchaseList = () => {
 
               <section>
   <h3 className="text-lg font-semibold text-primary border-b pb-2 mb-4">
-    System Info
+    {t("System")} {t("Info")}
   </h3>
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base">
     <p>
-      <span className="font-medium text-gray-600">Created By:</span>{" "}
+      <span className="font-medium text-gray-600">{t("Created By")}:</span>{" "}
       {selectedPurchase.created_by}
     </p>
     <div className="flex flex-col items-start">
-      <span className="font-medium mb-2">Bill Document:</span>
+      <span className="font-medium mb-2">{t("Bill Document")}:</span>
       {selectedPurchase.image ? (
         <div>
           {/* Check if file is PDF or Image */}
@@ -853,7 +736,7 @@ const PurchaseList = () => {
             // PDF Preview
             <div className="border rounded-lg p-2 bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-red-600 font-bold">PDF</span>
+                <span className="text-red-600 font-bold">{t("PDF")}</span>
                 <span className="text-sm text-gray-600">
                   {selectedPurchase.image}
                 </span>
@@ -864,7 +747,7 @@ const PurchaseList = () => {
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-800 text-sm underline"
               >
-                View PDF
+                {t("View")} {t("PDF")}
               </a>
               {/* Optional: Embed PDF preview */}
               {/* <iframe
@@ -893,11 +776,11 @@ const PurchaseList = () => {
             download
             className="block mt-2 text-blue-600 hover:text-blue-800 text-sm"
           >
-            Download File
+            {("Download")} {("File")}
           </a>
         </div>
       ) : (
-        <span className="text-gray-500 italic">No bill image uploaded</span>
+        <span className="text-gray-500 italic">{t("No bill image uploaded")}</span>
       )}
     </div>
   </div>

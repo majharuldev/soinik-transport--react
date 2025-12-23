@@ -503,14 +503,14 @@ const handleUpdateGenerateSalary = async () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             {/* <FaTruck className="text-gray-800 text-2xl" /> */}
-            {t("Generate Salary")} {t("list")}
+            {t("Generated Salary")} {t("list")}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <div className="">
               <select
                 value={generateSalaryMonth}
                 onChange={(e) => setGenerateSalaryMonth(e.target.value)}
-                className="border px-3 py-2 rounded"
+                className="border px-3 py-2 rounded border-gray-400"
               >
                 <option value="">{t("Month")} {t("Select")}</option>
                 {monthYearOptions.map((m, index) => (
@@ -524,25 +524,25 @@ const handleUpdateGenerateSalary = async () => {
               onClick={handleGenerate}
               className="bg-primary text-white px-4 py-2 rounded"
             >
-              {t("Generate Salary")} {t("Sheet")}
+              {t("Generate Salary Sheet")}
             </button>
             <button
               onClick={() => setShowFilter((prev) => !prev)} // Toggle filter
               className=" text-primary border border-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <FaFilter /> Filter
+              <FaFilter /> {t("Filter")}
             </button>
           </div>
         </div>
         {/* Conditional Filter Section */}
                 {showFilter && (
-                  <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
+                  <div className="md:flex gap-5 border !border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
                     <select
                         value={selectedMonth}
                         onChange={(e) => setSelectedMonth(e.target.value)}
-                        className="border px-3 py-2 rounded"
+                        className="border px-3 py-2 rounded !border-gray-400"
                       >
-                        <option value="">Select Month</option>
+                        <option value="">{t("Month")} {t("Select")}</option>
                         {monthYearOptions.map((m, index) => (
                           <option key={index} value={m.value}>
                             {m.label}
@@ -559,7 +559,7 @@ const handleUpdateGenerateSalary = async () => {
                         }}
                         className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
                       >
-                        <FaFilter /> Clear
+                        <FaFilter /> {t("Clear")}
                       </button>
                     </div>
                   </div>
@@ -569,12 +569,12 @@ const handleUpdateGenerateSalary = async () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr>
-                <th className="p-2">#</th>
-                <th className="p-2">Generate Date</th>
-                <th className="p-2">Month</th>
-                <th className="p-2">Generate By</th>
+                <th className="p-2">{t("SL.")}</th>
+                <th className="p-2">{t("Generate Date")}</th>
+                <th className="p-2">{t("Month")}</th>
+                <th className="p-2">{t("Generate By")}</th>
                 {/* <th className="p-2">Status</th> */}
-                <th className="p-2">Action</th>
+                <th className="p-2">{t("Action")}</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
@@ -614,7 +614,7 @@ const handleUpdateGenerateSalary = async () => {
               ) : (
                 <tr>
                   <td colSpan="8" className="text-center p-4 text-gray-500">
-                    No data found
+                    {t("No data found")}
                   </td>
                 </tr>
               )}
@@ -626,20 +626,20 @@ const handleUpdateGenerateSalary = async () => {
   <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
     <div className="bg-white w-[400px] rounded-lg shadow-lg p-5">
       <h2 className="text-lg font-bold mb-4 text-gray-800">
-        Update Salary Sheet
+        {t("Update")} {t("Salary Sheet")}
       </h2>
 
       {/* Month Select */}
       <div className="mb-4">
         <label className="block text-sm font-medium mb-1">
-          Select Month
+         {t("Month")} 
         </label>
         <select
           value={updateMonth}
           onChange={(e) => setUpdateMonth(e.target.value)}
           className="w-full border px-3 py-2 rounded"
         >
-          <option value="">Select Month</option>
+          <option value="">{t("Month")} {t("Select")}</option>
           {monthYearOptions.map((m, i) => (
             <option key={i} value={m.value}>
               {m.label}
@@ -654,14 +654,14 @@ const handleUpdateGenerateSalary = async () => {
           onClick={() => setIsUpdateModalOpen(false)}
           className="px-4 py-2 border rounded"
         >
-          Cancel
+          {t("Cancel")}
         </button>
 
         <button
           onClick={handleUpdateGenerateSalary}
           className="px-4 py-2 bg-primary text-white rounded"
         >
-          Update & Generate Salary
+          {t("Update")}
         </button>
       </div>
     </div>
@@ -673,14 +673,14 @@ const handleUpdateGenerateSalary = async () => {
   <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
     <div className="bg-white w-[380px] rounded-lg shadow-lg p-6">
       <h2 className="text-lg font-bold text-gray-800 mb-3">
-        Confirm Delete
+        {t("Confirm Delete")}
       </h2>
 
       <p className="text-sm text-gray-600 mb-5">
-        Are you sure you want to delete this salary sheet?
+        {t("Are you sure you want to delete this salary sheet?")}
         <br />
         <span className="text-red-500 font-medium">
-          This action cannot be undone.
+          {t("This action cannot be undone.")}
         </span>
       </p>
 
@@ -692,14 +692,14 @@ const handleUpdateGenerateSalary = async () => {
           }}
           className="px-4 py-2 border rounded hover:bg-gray-100"
         >
-          Cancel
+          {t("Cancel")}
         </button>
 
         <button
           onClick={handleConfirmDelete}
           className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
         >
-          Yes, Delete
+          {t("Yes")}
         </button>
       </div>
     </div>

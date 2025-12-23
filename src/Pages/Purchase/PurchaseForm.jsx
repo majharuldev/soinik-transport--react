@@ -11,8 +11,10 @@ import { AuthContext } from "../../providers/AuthProvider";
 import { IoMdClose } from "react-icons/io";
 import FormSkeleton from "../../components/Form/FormSkeleton";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 const PurchaseForm = () => {
+  const {t} = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = Boolean(id);
@@ -360,7 +362,7 @@ const handleFileChange = (e) => {
       <Toaster />
       <div className="mx-auto p-6 border-t-2 border-primary  rounded-md shadow">
         <h3 className=" pb-4 text-primary font-semibold">
-          {isEditMode ? "Update Maintenance Purchase " : "Add Maintenance Purchase"}
+          {isEditMode ? t("Update Maintenance Purchase") : t("Add Maintenance Purchase")}
         </h3>
         <FormProvider {...methods}>
           {isLoading ? (
@@ -372,10 +374,10 @@ const handleFileChange = (e) => {
             className="mx-auto p-6 space-y-4"
           >
             <h5 className="text-2xl font-bold text-center text-[#EF9C07]">
-              {selectedCategory === "fuel"
-                ? "Fuel Purchase"
+              {selectedCategory === "Fuel"
+                ? t("Fuel Purchase")
                 : selectedCategory === "engine_oil" || selectedCategory === "parts"
-                  ? "Maintenance"
+                  ? t("Maintenance")
                   : ""}
             </h5>
 
@@ -384,7 +386,7 @@ const handleFileChange = (e) => {
               <div className="w-full">
                 <InputField
                   name="date"
-                  label="Purchase Date"
+                  label={t("Purchase Date")}
                   type="date"
                   required={!isEditMode}
                   inputRef={(e) => {
@@ -397,7 +399,7 @@ const handleFileChange = (e) => {
               <div className="w-full">
                 <SelectField
                   name="branch_name"
-                  label="Branch Name"
+                  label={`${t("Branch")} ${t("Name")}`}
                   required={!isEditMode}
                   options={branchOptions}
                   control={control}
@@ -406,7 +408,7 @@ const handleFileChange = (e) => {
               <div className="w-full">
                 <SelectField
                   name="supplier_name"
-                  label="Supplier Name"
+                  label={`${t("Supplier")} ${t("Name")}`}
                   required={!isEditMode}
                   options={supplyOptions}
                   control={control}
@@ -418,7 +420,7 @@ const handleFileChange = (e) => {
               <div className="w-full">
                 <SelectField
                   name="vehicle_no"
-                  label="Vehicle No."
+                  label={t("Vehicle No")}
                   required={!isEditMode}
                   options={vehicleOptions}
                   control={control}
@@ -428,12 +430,12 @@ const handleFileChange = (e) => {
               <div className="w-full">
                 <SelectField
                   name="category"
-                  label="Category"
+                  label={t("Category")}
                   required={!isEditMode}
                   options={[
-                    { value: "engine_oil", label: "Engine Oil" },
-                    { value: "parts", label: "Parts" },
-                    { value: "documents", label: "Documents" },
+                    { value: "engine_oil", label: t("Engine Oil") },
+                    { value: "parts", label: t("Parts") },
+                    { value: "documents", label: t("Documents") },
                   ]}
                 />
               </div>
@@ -445,7 +447,7 @@ const handleFileChange = (e) => {
               <div className="w-full">
                 <InputField
                   name="service_charge"
-                  label="Service Charge"
+                  label={t("Service Charge")}
                   type="number"
                   required={!isEditMode}
                 />
@@ -454,7 +456,7 @@ const handleFileChange = (e) => {
               <div className="w-full hidden">
                 <InputField
                   name="driver_name"
-                  label="Driver Name"
+                  label={`${t("Driver")} ${t("Name")}`}
                   required={!isEditMode}
                   // options={driverOptions}
                   control={control}
@@ -464,7 +466,7 @@ const handleFileChange = (e) => {
               <div className="w-full hidden">
                 <InputField
                   name="vehicle_category"
-                  label="Vehicle Category"
+                  label={`${t("Vehicle")} ${t("Category")}`}
                   value={watch("vehicle_category") || ""}
                   readOnly
                   {...register("vehicle_category")}
@@ -474,7 +476,7 @@ const handleFileChange = (e) => {
             <div>
               {/*  Dynamic Item Fields */}
               {(<div className="space-y-4">
-                <h4 className="text-lg font-semibold text-primary">Items</h4>
+                <h4 className="text-lg font-semibold text-primary">{t("Items")}</h4>
 
                 {fields.map((field, index) => {
                   const quantity = watch(`items.${index}.quantity`) || 0;
@@ -483,10 +485,10 @@ const handleFileChange = (e) => {
 
                   return (
                     <div key={field.id} className="flex flex-col md:flex-row gap-3 border border-gray-300 p-3 rounded-md relative">
-                      <InputField name={`items.${index}.item_name`} label="Item Name" required={!isEditMode} className="!w-full" />
-                      <InputField name={`items.${index}.quantity`} label="Quantity" type="number" required={!isEditMode} className="!w-full" />
-                      <InputField name={`items.${index}.unit_price`} label="Unit Price" type="number" required={!isEditMode} className="!w-full" />
-                      <InputField name={`items.${index}.total`} label="Total" readOnly value={total} className="!salw-full" />
+                      <InputField name={`items.${index}.item_name`} label={`${t("Item")} ${t("Name")}`} required={!isEditMode} className="!w-full" />
+                      <InputField name={`items.${index}.quantity`} label={t("Quantity")} type="number" required={!isEditMode} className="!w-full" />
+                      <InputField name={`items.${index}.unit_price`} label={t("Unit Price")} type="number" required={!isEditMode} className="!w-full" />
+                      <InputField name={`items.${index}.total`} label={t("Total")} readOnly value={total} className="!w-full" />
 
                       <button
                         type="button"
@@ -504,7 +506,7 @@ const handleFileChange = (e) => {
                   onClick={() => append({ item_name: "", quantity: "", unit_price: "", total: 0 })}
                   className="bg-primary text-white px-3 py-1 rounded-md hover:bg-primary/80"
                 >
-                  + Add Item
+                  + {t("Add Item")}
                 </button>
               </div>)}
             </div>
@@ -513,7 +515,7 @@ const handleFileChange = (e) => {
               <div className="w-full">
                 <InputField
                   name="purchase_amount"
-                  label="Total Purchase Amount"
+                  label={`${t("Total")} ${t("Purchase Amount")}`}
                   readOnly
                   value={watch("purchase_amount") || 0}
                   required={!isEditMode}
@@ -523,7 +525,7 @@ const handleFileChange = (e) => {
                 <div className="w-full">
                   <InputField
                     name="service_date"
-                    label="Service Date"
+                    label={t("Service Date")}
                     type="date"
                     required={false}
                     inputRef={(e) => {
@@ -536,7 +538,7 @@ const handleFileChange = (e) => {
                 <div className="w-full">
                   <InputField
                     name="next_service_date"
-                    label="Next Service Date"
+                    label={`${t("Next")} ${t("Service Date")}`}
                     type="date"
                     required={false}
                     inputRef={(e) => {
@@ -583,7 +585,7 @@ const handleFileChange = (e) => {
               {selectedCategory !== "documents" && (<div className="w-full">
                 <InputField
                   name="last_km"
-                  label="Last KM"
+                  label={t("Last KM")}
                   required={false}
                   type="number"
                 />
@@ -591,20 +593,20 @@ const handleFileChange = (e) => {
               {selectedCategory !== "documents" && (<div className="w-full">
                 <InputField
                   name="next_km"
-                  label="Next KM"
+                  label={t("Next KM")}
                   required={false}
                   type="number"
                 />
               </div>)}
               <div className="w-full">
-                <InputField name="remarks" label="Remark" />
+                <InputField name="remarks" label={t("Remarks")} />
               </div>
               <div className="w-full">
-                <InputField name="priority" label="priority" />
+                <InputField name="priority" label={t("Priority")} />
               </div>
             </div>
-            {!isAdmin && <div className="mt-4">
-              <h3 className="text-secondary font-medium mb-2">SMS Sent</h3>
+            {/* {!isAdmin && <div className="mt-4">
+              <h3 className="text-secondary font-medium mb-2">{t("SMS Sent")}</h3>
               <div className="flex gap-6">
                 <label className="flex items-center gap-2">
                   <input
@@ -623,7 +625,7 @@ const handleFileChange = (e) => {
                   No
                 </label>
               </div>
-            </div>}
+            </div>} */}
 
             {/* <div className="md:flex justify-between gap-3">
               <div className="w-full">
@@ -683,7 +685,7 @@ const handleFileChange = (e) => {
             <div className="md:flex justify-between gap-3">
   <div className="w-[50%]">
     <label className="text-gray-700 text-sm font-semibold">
-      Bill Documents
+      {t("Bill Documents")}
     </label>
     <Controller
       name="bill_image"
@@ -707,7 +709,7 @@ const handleFileChange = (e) => {
           )}
           {isEditMode && existingImage && !previewImage && (
             <p className="text-green-600 text-sm mt-1">
-              Current file: {existingImage}
+              {t("Current file")}: {existingImage}
             </p>
           )}
         </div>
@@ -757,7 +759,7 @@ const handleFileChange = (e) => {
         
         if (isEditMode && existingImage) {
           // এডিট মোডে থাকলে এক্সিস্টিং ইমেজ দেখান
-          const imageUrl = `https://ajenterprise.tramessy.com/backend/uploads/purchase/${existingImage}`;
+          const imageUrl = `https://soinik.tramessy.com/backend/uploads/purchase/${existingImage}`;
           setPreviewImage(imageUrl);
         } else {
           setExistingImage(null);
@@ -773,7 +775,7 @@ const handleFileChange = (e) => {
     {/* PDF বা ইমেজ প্রিভিউ */}
     {previewImage.includes("application/pdf") || previewImage.endsWith(".pdf") ? (
       <div className="border rounded p-2 bg-gray-50">
-        <p className="text-sm text-gray-600 mb-2">PDF Preview:</p>
+        <p className="text-sm text-gray-600 mb-2">{t("PDF Preview")}:</p>
         <iframe
           src={previewImage}
           className="w-full h-64 border"
@@ -785,12 +787,12 @@ const handleFileChange = (e) => {
           rel="noopener noreferrer"
           className="text-blue-600 text-sm mt-2 inline-block"
         >
-          Open PDF in new tab
+          {t("Open PDF in new tab")}
         </a>
       </div>
     ) : (
       <div className="border rounded p-2 bg-gray-50">
-        <p className="text-sm text-gray-600 mb-2">Image Preview:</p>
+        <p className="text-sm text-gray-600 mb-2">{t("Image Preview")}:</p>
         <img
           src={previewImage}
           alt="Bill Preview"

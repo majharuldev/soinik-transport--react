@@ -13,7 +13,9 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import toNumber from '../../../hooks/toNumber';
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 const SalarySheet = () => {
+  const {t} = useTranslation();
   const { id } = useParams();
   const [salarySheetApiData, setSalarySheetApiData] = useState([])
   const [showFilter, setShowFilter] = useState(false);
@@ -41,7 +43,7 @@ const SalarySheet = () => {
         setSalarySheetApiData(sheet.data.items);
         setSheetMonth(sheet.data.generate_month);
       } catch (err) {
-        toast.error("Failed to load data");
+        toast.error(t("Failed to load data"));
         console.log(err);
       } finally {
         setLoading(false);
@@ -55,18 +57,18 @@ const SalarySheet = () => {
   // month yeayr options
   const currentYear = new Date().getFullYear();
   const monthsName = [
-    { num: "01", name: "January" },
-    { num: "02", name: "February" },
-    { num: "03", name: "March" },
-    { num: "04", name: "April" },
-    { num: "05", name: "May" },
-    { num: "06", name: "Jun" },
-    { num: "07", name: "July" },
-    { num: "08", name: "August" },
-    { num: "09", name: "September" },
-    { num: "10", name: "October" },
-    { num: "11", name: "November" },
-    { num: "12", name: "December" },
+    { num: "01", name: t("January") },
+    { num: "02", name: t("February") },
+    { num: "03", name: t("March") },
+    { num: "04", name: t("April") },
+    { num: "05", name: t("May") },
+    { num: "06", name: t("June") },
+    { num: "07", name: t("July") },
+    { num: "08", name: t("August") },
+    { num: "09", name: t("September") },
+    { num: "10", name: t("October") },
+    { num: "11", name: t("November") },
+    { num: "12", name: t("December") },
   ];
   const monthYearOptions = [];
 
@@ -155,34 +157,14 @@ const openConfirmModal = (id) => {
   setIsConfirmModalOpen(true);
 };
 
-// const handleConfirmStatus = async () => {
-//   try {
-//     await api.put(`/salarySheet/salary-item/${confirmId}`, { status: "Paid", });
-
-//     setSalarySheetApiData((prev) =>
-//       prev.map((item) =>
-//         item.id === confirmId ? { ...item, status: "Paid" } : item
-//       )
-//     );
-
-//     toast.success("Status updated to Paid");
-//   } catch (err) {
-//     toast.error("Failed to update status");
-//   } finally {
-//     setIsConfirmModalOpen(false);
-//     setConfirmId(null);
-//   }
-// };
-
-
-
+// handle confirm
 const handleConfirmStatus = async () => {
   try {
     // Find the salary item to update
     const itemToUpdate = salarySheetApiData.find(item => item.id === confirmId);
 
     if (!itemToUpdate) {
-      toast.error("Salary item not found");
+      toast.error(t("Salary item not found"));
       return;
     }
 
@@ -202,10 +184,10 @@ const handleConfirmStatus = async () => {
       )
     );
 
-    toast.success("Status updated to Paid");
+    toast.success(t("Status updated to Paid"));
   } catch (err) {
     console.log(err);
-    toast.error("Failed to update status");
+    toast.error(t("Failed to update status"));
   } finally {
     setIsConfirmModalOpen(false);
     setConfirmId(null);
@@ -339,23 +321,6 @@ const handleConfirmStatus = async () => {
 
   <body>
 
-  <!-- HEADER -->
-  <!-- <div class="print-header">
-    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:8px">
-      <div>
-        <img src="${logo}" width="60"/>
-        <div><b>M/S A J ENTERPRISE</b></div>
-      </div>
-      <div style="text-align:center">
-        <h2 style="margin:0">Salary Sheet</h2>
-        <div style="font-size:11px">
-          Razzak Plaza, Dhaka-1217
-        </div>
-      </div>
-      <div style="width:60px"></div>
-    </div>
-  </div> -->
-
   ${tableClone.outerHTML}
 
   </body>
@@ -374,14 +339,14 @@ const handleConfirmStatus = async () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             {/* <FaTruck className="text-gray-800 text-2xl" /> */}
-            Salary Sheet {sheetMonth}
+            {t("Salary Sheet")} {sheetMonth}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <button
               onClick={() => setShowFilter((prev) => !prev)} // Toggle filter
               className=" text-primary border border-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <FaFilter /> Filter
+              <FaFilter /> {t("Filter")}
             </button>
           </div>
         </div>
@@ -394,7 +359,7 @@ const handleConfirmStatus = async () => {
               className="flex items-center gap-2 py-1 px-3 hover:bg-primary bg-white shadow  hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
               <FaFileExcel className="" />
-              Excel
+              {t("Excel")}
             </button>
 
             {/* <button
@@ -410,7 +375,7 @@ const handleConfirmStatus = async () => {
               className="flex items-center gap-2 py-1 px-3 hover:bg-primary bg-white shadow hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
               <FaPrint className="" />
-              Print
+              {t("Print")}
             </button>
           </div>
 
@@ -454,10 +419,10 @@ const handleConfirmStatus = async () => {
 
             <select value={selectedEmployee} onChange={e => { setSelectedEmployee(e.target.value); setCurrentPage(1); }}
               className="border px-3 py-2 rounded-md w-full">
-              <option value="">-- Select Employee --</option>
+              <option value="">--{t("Employee")} {t("Select")}--</option>
               {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.employee_name}</option>)}
             </select>
-            <div className="mt-3 md:mt-0 flex gap-2">
+            <div className="w-sm mt-3 md:mt-0 flex gap-2">
               <button
                 onClick={() => {
                   setCurrentPage(1)
@@ -467,7 +432,7 @@ const handleConfirmStatus = async () => {
                 }}
                 className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <FaFilter /> Clear
+                <FaFilter /> {t("Clear")}
               </button>
             </div>
           </div>
@@ -478,34 +443,34 @@ const handleConfirmStatus = async () => {
 
               {/* Sub header row for SL numbers - merged for names */}
               <tr className=" text-black text-center">
-                <th className="border border-gray-400 px-2 py-1" rowSpan={2}>SL</th>
+                <th className="border border-gray-400 px-2 py-1" rowSpan={2}>{t("SL.")}</th>
                 <th className="border border-gray-400 px-2 py-1" colSpan={1} rowSpan={2}>
-                  Name
+                  {t("Name")}
                 </th>
-                <th className="border border-gray-400 px-2 py-1" rowSpan={3}>Working<br />DAY</th>
-                <th className="border border-gray-400 px-2 py-1" rowSpan={3}>Designation</th>
+                <th className="border border-gray-400 px-2 py-1" rowSpan={3}>{t("Working Day")}</th>
+                <th className="border border-gray-400 px-2 py-1" rowSpan={3}>{t("Designation")}</th>
                 <th className="border border-gray-400 px-2 py-1 " colSpan={7} >
-                  E A R N I N G S
+                  {t("E A R N I N G S")}
                 </th>
                 <th className="border border-gray-400 px-2 py-1 " colSpan={3}>
-                  D E D U C T I O N
+                  {t("D E D U C T I O N")}
                 </th>
                 {/* <th className="border border-gray-400 px-2 py-1">By CEO</th> */}
-                <th className="border border-gray-400 px-2 py-1">Net Pay Half</th>
-                <th className="border border-gray-400 px-2 py-1 action_column">Action</th>
+                <th className="border border-gray-400 px-2 py-1">{t("Net Pay Half")}</th>
+                <th className="border border-gray-400 px-2 py-1 action_column">{t("Action")}</th>
               </tr>
               {/* Main header row */}
               <tr className=" text-black text-center">
-                <th className="border border-gray-400 px-2 py-1">Basic</th>
-                <th className="border border-gray-400 px-2 py-1">H/Rent</th>
-                <th className="border border-gray-400 px-2 py-1">Conv</th>
-                <th className="border border-gray-400 px-2 py-1">Medical</th>
-                <th className="border border-gray-400 px-2 py-1">Allowan Ce/Ot</th>
-                <th className="border border-gray-400 px-2 py-1">Bonus</th>
-                <th className="border border-gray-400 px-2 py-1 ">Total</th>
-                <th className="border border-gray-400 px-2 py-1">Advance</th>
-                <th className="border border-gray-400 px-2 py-1">Loan</th>
-                <th className="border border-gray-400 px-2 py-1">Total</th>
+                <th className="border border-gray-400 px-2 py-1">{t("Basic Salary")}</th>
+                <th className="border border-gray-400 px-2 py-1">{t("H/Rent")}</th>
+                <th className="border border-gray-400 px-2 py-1">{t("Conveyane")}</th>
+                <th className="border border-gray-400 px-2 py-1">{t("Medical")}</th>
+                <th className="border border-gray-400 px-2 py-1">{t("Allowance")}</th>
+                <th className="border border-gray-400 px-2 py-1">{t("Bonus")}</th>
+                <th className="border border-gray-400 px-2 py-1 ">{t("Total")}</th>
+                <th className="border border-gray-400 px-2 py-1">{t("Advance")}</th>
+                <th className="border border-gray-400 px-2 py-1">{t("Loan")}</th>
+                <th className="border border-gray-400 px-2 py-1">{t("Total")}</th>
                 <th className="border border-gray-400 px-2 py-1"></th>
                 <th className="border border-gray-400 px-2 py-1 "></th>
                 {/* <th className="border border-gray-400 px-2 py-1 "></th> */}
@@ -515,7 +480,7 @@ const handleConfirmStatus = async () => {
               {loading ? (
                 <tr>
                   <td colSpan={16} className="text-center py-4">
-                    Loading...
+                    {t("Loading")}...
                   </td>
                 </tr>
               ) :
@@ -550,7 +515,7 @@ const handleConfirmStatus = async () => {
                         className="flex items-center w-full px-3 py-1 text-sm text-gray-700 bg-white shadow rounded"
                       >
                         <BiPrinter className="mr-1 h-4 w-4" />
-                        PaySlip
+                        {t("PaySlip")}
                       </button>
                      
                         <button
@@ -567,7 +532,7 @@ const handleConfirmStatus = async () => {
             <tfoot>
               <tr className=" font-bold text-center">
                 <td className="border border-gray-400 px-2 py-1" colSpan={10}>
-                  Grand Total
+                  {t("Grand Total")}
                 </td>
                 <td className="border border-gray-400 px-2 py-1">
                   {grandTotal.toLocaleString()}
@@ -599,22 +564,22 @@ const handleConfirmStatus = async () => {
       {isConfirmModalOpen && (
   <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
     <div className="bg-white w-[380px] rounded-lg shadow-lg p-6">
-      <h2 className="text-lg font-bold text-gray-800 mb-3">Confirm Payment</h2>
+      <h2 className="text-lg font-bold text-gray-800 mb-3">{t("Confirm Payment")}</h2>
       <p className="text-sm text-gray-600 mb-5">
-        Are you sure you want to mark this salary as Paid?
+        {t("Are you sure you want to mark this salary as Paid?")}
       </p>
       <div className="flex justify-end gap-3">
         <button
           onClick={() => setIsConfirmModalOpen(false)}
           className="px-4 py-2 border rounded hover:bg-gray-100"
         >
-          Cancel
+          {t("Cancel")}
         </button>
         <button
           onClick={handleConfirmStatus}
           className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
         >
-          Confirm
+          {t("Confirm")}
         </button>
       </div>
     </div>
