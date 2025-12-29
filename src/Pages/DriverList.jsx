@@ -13,8 +13,9 @@ import Pagination from "../components/Shared/Pagination";
 import api from "../../utils/axiosConfig";
 import { formatDate, tableFormatDate } from "../hooks/formatDate";
 import { useTranslation } from "react-i18next";
+import { Spin } from "antd";
 const CarList = () => {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   // delete modal
@@ -32,7 +33,7 @@ const CarList = () => {
     api
       .get(`/driver`)
       .then((response) => {
-          setDrivers(response.data);
+        setDrivers(response.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -41,39 +42,39 @@ const CarList = () => {
       });
   }, []);
 
-  if (loading) return <p className="text-center mt-16">{t("Driver")} {t("Loading")}...</p>;
+  // if (loading) return <p className="text-center mt-16">{t("Driver")} {t("Loading")}...</p>;
 
   // delete by id
   const handleDelete = async (id) => {
-  try {
-    const response = await api.delete(`/driver/${id}`);
+    try {
+      const response = await api.delete(`/driver/${id}`);
 
-    // Remove driver from local list
-    setDrivers((prev) => prev.filter((driver) => driver.id !== id));
-    toast.success(t("Driver deleted successfully"), {
-      position: "top-right",
-      autoClose: 3000,
-    });
+      // Remove driver from local list
+      setDrivers((prev) => prev.filter((driver) => driver.id !== id));
+      toast.success(t("Driver deleted successfully"), {
+        position: "top-right",
+        autoClose: 3000,
+      });
 
-    setIsOpen(false);
-    setSelectedDriverId(null);
-  } catch (error) {
-    console.error(t("Delete error:"), error.response || error);
-    toast.error(t("There was a problem deleting!"), {
-      position: "top-right",
-      autoClose: 3000,
-    });
-  }
-};
+      setIsOpen(false);
+      setSelectedDriverId(null);
+    } catch (error) {
+      console.error(t("Delete error:"), error.response || error);
+      toast.error(t("There was a problem deleting!"), {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
   // view driver by id
   const handleView = async (id) => {
     try {
       const response = await api.get(
         `/driver/${id}`
       );
-     
-        setSelectedDriver(response.data);
-        setViewModalOpen(true);
+
+      setSelectedDriver(response.data);
+      setViewModalOpen(true);
     } catch (error) {
       console.error("View error:", error);
       toast.error("There was a problem retrieving driver information.");
@@ -154,12 +155,12 @@ const CarList = () => {
 
     doc.save("drivers_data.pdf");
   };
- 
-  // print functionality
- const printDriversTable = () => {
-  const WinPrint = window.open("", "", "width=900,height=650");
 
-  const printContent = `
+  // print functionality
+  const printDriversTable = () => {
+    const WinPrint = window.open("", "", "width=900,height=650");
+
+    const printContent = `
     <table>
       <thead>
         <tr>
@@ -186,7 +187,7 @@ const CarList = () => {
     </table>
   `;
 
-  WinPrint.document.write(`
+    WinPrint.document.write(`
     <html>
     <head>
       <title>-</title>
@@ -219,10 +220,10 @@ const CarList = () => {
     </html>
   `);
 
-  WinPrint.document.close();
-  WinPrint.focus();
-  WinPrint.print();
-};
+    WinPrint.document.close();
+    WinPrint.focus();
+    WinPrint.print();
+  };
 
 
   const filteredDriver = drivers.filter((driver) => {
@@ -303,17 +304,17 @@ const CarList = () => {
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}
-    {searchTerm && (
-      <button
-        onClick={() => {
-          setSearchTerm("");
-          setCurrentPage(1);
-        }}
-        className="absolute right-7 top-[6rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
-      >
-        ✕
-      </button>
-    )}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-7 top-[6rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
 
@@ -334,70 +335,76 @@ const CarList = () => {
               </tr>
             </thead>
             <tbody className="text-gray-700 ">
-              { currentDrivers.length === 0 ? (
-                <tr>
-                  <td colSpan="8" className="text-center p-4 text-gray-500">
-                    {t("No Driver found")}
-                  </td>
-                  </tr>)
-              :(currentDrivers?.map((driver, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 transition-all border border-gray-200"
-                >
-                  <td className="p-2 font-bold">
-                    {indexOfFirstItem + index + 1}
-                  </td>
-                  <td className="p-2">{driver.driver_name}</td>
-                  <td className="p-2">{driver.driver_mobile}</td>
-                  <td className="p-2 ">{driver.address}</td>
-                  <td className="p-2">{driver.vehicle_category}</td>
-                  <td className="p-2">{driver.lincense}</td>
-                  <td className="p-2">{tableFormatDate(driver.expire_date)}</td>
-                  <td className="p-2">
-                    <span className="text-green-700 bg-green-50 px-3 py-1 rounded-md text-xs font-medium">
-                      {driver.status}
-                    </span>
-                  </td>
-                  <td className="px-2 action_column">
-                    <div className="flex gap-1">
-                      <Link to={`/tramessy/UpdateDriverForm/${driver.id}`}>
-                        <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                          <FaPen className="text-[12px]" />
-                        </button>
-                      </Link>
-                      <button
-                        onClick={() => handleView(driver.id)}
-                        className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+              {
+                loading ? (
+                  <tr>
+                    <td colSpan={12} className="text-center py-20"><Spin /></td>
+                  </tr>
+                )
+                  : currentDrivers.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" className="text-center p-4 text-gray-500">
+                        {t("No Driver found")}
+                      </td>
+                    </tr>)
+                    : (currentDrivers?.map((driver, index) => (
+                      <tr
+                        key={index}
+                        className="hover:bg-gray-50 transition-all border border-gray-200"
                       >
-                        <FaEye className="text-[12px]" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedDriverId(driver.id);
-                          setIsOpen(true);
-                        }}
-                        className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                      >
-                        <FaTrashAlt className="text-[12px]" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )))
+                        <td className="p-2 font-bold">
+                          {indexOfFirstItem + index + 1}
+                        </td>
+                        <td className="p-2">{driver.driver_name}</td>
+                        <td className="p-2">{driver.driver_mobile}</td>
+                        <td className="p-2 ">{driver.address}</td>
+                        <td className="p-2">{driver.vehicle_category}</td>
+                        <td className="p-2">{driver.lincense}</td>
+                        <td className="p-2">{tableFormatDate(driver.expire_date)}</td>
+                        <td className="p-2">
+                          <span className="text-green-700 bg-green-50 px-3 py-1 rounded-md text-xs font-medium">
+                            {driver.status}
+                          </span>
+                        </td>
+                        <td className="px-2 action_column">
+                          <div className="flex gap-1">
+                            <Link to={`/tramessy/UpdateDriverForm/${driver.id}`}>
+                              <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                                <FaPen className="text-[12px]" />
+                              </button>
+                            </Link>
+                            <button
+                              onClick={() => handleView(driver.id)}
+                              className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                            >
+                              <FaEye className="text-[12px]" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedDriverId(driver.id);
+                                setIsOpen(true);
+                              }}
+                              className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                            >
+                              <FaTrashAlt className="text-[12px]" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )))
               }
             </tbody>
           </table>
         </div>
         {/* Pagination */}
-      {currentDrivers.length > 0 && totalPages >= 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          maxVisible={8} 
-        />
-      )}
+        {currentDrivers.length > 0 && totalPages >= 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxVisible={8}
+          />
+        )}
       </div>
 
 
@@ -448,36 +455,36 @@ const CarList = () => {
               <ul className="flex border border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">{t("Name")}:</p>{" "}
-                  <p>{selectedDriver.driver_name||"N/A"}</p>
+                  <p>{selectedDriver.driver_name || "N/A"}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">{t("Mobile")}:</p>{" "}
-                  <p>{selectedDriver.driver_mobile||"N/A"}</p>
+                  <p>{selectedDriver.driver_mobile || "N/A"}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">{t("Emergency Contact")}:</p>{" "}
-                  <p>{selectedDriver.emergency_contact?selectedDriver.emergency_contact:"N/A"}</p>
+                  <p>{selectedDriver.emergency_contact ? selectedDriver.emergency_contact : "N/A"}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">{t("Address")}:</p>{" "}
-                  <p>{selectedDriver.address||"N/A"}</p>
+                  <p>{selectedDriver.address || "N/A"}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">{t("NID")}:</p> <p>{selectedDriver.nid||"N/A"}</p>
+                  <p className="w-48">{t("NID")}:</p> <p>{selectedDriver.nid || "N/A"}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">{t("License")}:</p>{" "}
-                  <p>{selectedDriver.lincense||"N/A"}</p>
+                  <p>{selectedDriver.lincense || "N/A"}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">{t("License Expiry")}:</p>{" "}
-                  <p>{tableFormatDate(selectedDriver.expire_date||"N/A")}</p>
+                  <p>{tableFormatDate(selectedDriver.expire_date || "N/A")}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">{t("Note")}:</p>{" "}
@@ -486,10 +493,10 @@ const CarList = () => {
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">{t("Opening Balance")}:</p> <p>{selectedDriver.opening_balance? selectedDriver.opening_balance: 0}</p>
+                  <p className="w-48">{t("Opening Balance")}:</p> <p>{selectedDriver.opening_balance ? selectedDriver.opening_balance : 0}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">{t("Status")}:</p> <p>{selectedDriver.status||"N/A"}</p>
+                  <p className="w-48">{t("Status")}:</p> <p>{selectedDriver.status || "N/A"}</p>
                 </li>
               </ul>
               <div className="flex justify-end mt-10">

@@ -22,6 +22,7 @@ import { IoMdClose } from "react-icons/io"
 import toNumber from "../../../hooks/toNumber"
 import { tableFormatDate } from "../../../hooks/formatDate"
 import { useTranslation } from "react-i18next"
+import { Spin } from "antd"
 
 
 const SalaryExpense = () => {
@@ -553,8 +554,8 @@ const SalaryExpense = () => {
             <tbody className="text-gray-700">
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="px-3 py-10 text-center text-gray-500">
-                    {t("Loading")}...
+                  <td colSpan="7" className="px-3 py-20 text-center text-gray-500">
+                    <Spin/>
                   </td>
                 </tr>
               ) : filteredExpense.length === 0 ? (

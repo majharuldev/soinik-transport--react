@@ -15,6 +15,7 @@ import { FaTruck } from "react-icons/fa6";
 import Pagination from "../components/Shared/Pagination";
 import api from "../../utils/axiosConfig";
 import { useTranslation } from "react-i18next";
+import { Spin } from "antd";
 
 const RentList = () => {
   const {t} = useTranslation();
@@ -48,7 +49,7 @@ const RentList = () => {
       });
   }, []);
 
-  if (loading) return <p className="text-center mt-16">{t("Loading")}...</p>;
+  // if (loading) return <p className="text-center mt-16">{t("Loading")}...</p>;
 
   // export
   const exportExcel = () => {
@@ -372,7 +373,12 @@ const RentList = () => {
             </thead>
             <tbody className="text-gray-700">
               {
-                currentFuel.length === 0 ? (
+                loading ? (
+                 <tr>
+                  <td colSpan={12} className="text-center py-20"><Spin /></td>
+                </tr>
+              )
+              :currentFuel.length === 0 ? (
                   <tr>
                     <td colSpan="8" className="text-center p-4 text-gray-500">
                       "{t("No Rent Vehicle found")}"

@@ -11,6 +11,7 @@ import logo from "../../../assets/AJ_Logo.png"
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useTranslation } from "react-i18next";
+import { Spin } from "antd";
 
 const Requisition = () => {
   const { t } = useTranslation();
@@ -22,6 +23,7 @@ const Requisition = () => {
   const [selectedId, setSelectedId] = useState(null);
   const toggleModal = () => setIsOpen(!isOpen);
   const [searchTerm, setSearchTerm] = useState("")
+  const [loading, setLoading] = useState();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,6 +46,7 @@ const Requisition = () => {
     fetchData();
   }, []);
 
+  // delete
   const handleDelete = async (id) => {
     try {
       await api.delete(`/requestion/${id}`);
@@ -277,7 +280,7 @@ const Requisition = () => {
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white shadow hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
-             {t("Print")}
+              {t("Print")}
             </button>
           </div>
           {/*  */}
@@ -322,43 +325,49 @@ const Requisition = () => {
             </tr>
           </thead>
           <tbody>
-            {currentItems.length > 0 ? (
-              currentItems.map((item, index) => (
-                <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="p-2">{indexOfFirst + index + 1}</td>
-                  <td className="p-2">{tableFormatDate(item.date)}</td>
-                  <td className="p-2">{getEmployeeName(item.employee_id)}</td>
-                  <td className="p-2">{item.purpose}</td>
-                  <td className="p-2">{item.amount} ৳</td>
-                  <td className="p-2">{item.remarks}</td>
-                  <td className="p-2">{item.status}</td>
-                  <td className="p-2 flex gap-2">
-                    <div className="w-7">
-                      {item.status === "Pending" && <Link to={`/tramessy/HR/update-advance-requisition/${item.id}`}>
-                        <button className=" text-primary px-2 py-1 rounded hover:bg-primary hover:text-white transition bg-white shadow">
-                          <FaPen size={12} />
-                        </button>
-                      </Link>}
-                    </div>
-                    <button
-                      onClick={() => {
-                        setSelectedId(item.id);
-                        setIsOpen(true);
-                      }}
-                      className=" text-red-500 px-2 py-1 rounded hover:bg-red-600 hover:text-white transition bg-white shadow"
-                    >
-                      <FaTrashAlt size={12} />
-                    </button>
-                  </td>
+            {
+              loading ? (
+                <tr>
+                  <td colSpan={12} className="text-center py-20"><Spin /></td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="text-center p-4 text-gray-500">
-                  {t("No requisition data found")}
-                </td>
-              </tr>
-            )}
+              )
+                : currentItems.length > 0 ? (
+                  currentItems.map((item, index) => (
+                    <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
+                      <td className="p-2">{indexOfFirst + index + 1}</td>
+                      <td className="p-2">{tableFormatDate(item.date)}</td>
+                      <td className="p-2">{getEmployeeName(item.employee_id)}</td>
+                      <td className="p-2">{item.purpose}</td>
+                      <td className="p-2">{item.amount} ৳</td>
+                      <td className="p-2">{item.remarks}</td>
+                      <td className="p-2">{item.status}</td>
+                      <td className="p-2 flex gap-2">
+                        <div className="w-7">
+                          {item.status === "Pending" && <Link to={`/tramessy/HR/update-advance-requisition/${item.id}`}>
+                            <button className=" text-primary px-2 py-1 rounded hover:bg-primary hover:text-white transition bg-white shadow">
+                              <FaPen size={12} />
+                            </button>
+                          </Link>}
+                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedId(item.id);
+                            setIsOpen(true);
+                          }}
+                          className=" text-red-500 px-2 py-1 rounded hover:bg-red-600 hover:text-white transition bg-white shadow"
+                        >
+                          <FaTrashAlt size={12} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="text-center p-4 text-gray-500">
+                      {t("No requisition data found")}
+                    </td>
+                  </tr>
+                )}
           </tbody>
         </table>
 

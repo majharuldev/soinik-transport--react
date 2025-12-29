@@ -38,7 +38,7 @@ const DailyTripExpense = () => {
       })
   }, [])
 
-  if (loading) return <p className="text-center mt-16">Loading trip...</p>
+  // if (loading) return <p className="text-center mt-16">Loading trip...</p>
 
 
   // Correct headers matching your table

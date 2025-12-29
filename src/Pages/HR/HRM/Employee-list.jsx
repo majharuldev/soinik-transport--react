@@ -13,6 +13,7 @@ import { saveAs } from "file-saver";
 import toNumber from "../../../hooks/toNumber";
 import logo from "../../../../src/assets/AJ_Logo.png"
 import { useTranslation } from "react-i18next";
+import { Spin } from "antd";
 
 const EmployeeList = () => {
   const [employee, setEmployee] = useState([]);
@@ -85,7 +86,7 @@ const EmployeeList = () => {
     return dt.email?.toLowerCase().includes(term) ||
       dt.mobile?.toLowerCase().includes(term);
   });
-  if (loading) return <p className="text-center mt-16">{t("Employee")} {t("Loading")}...</p>;
+  // if (loading) return <p className="text-center mt-16">{t("Employee")} {t("Loading")}...</p>;
   // pagination
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -312,7 +313,12 @@ const EmployeeList = () => {
             </thead>
             <tbody className="text-gray-700 ">
               {
-                currentEmployee.length === 0 ? (
+                loading ? (
+                 <tr>
+                  <td colSpan={12} className="text-center py-20"><Spin /></td>
+                </tr>
+              )
+              :currentEmployee.length === 0 ? (
                   <tr>
                     <td colSpan="8" className="text-center p-4 text-gray-500">
                       {t("No Employee found")}

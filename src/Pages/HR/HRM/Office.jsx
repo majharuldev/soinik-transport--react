@@ -16,6 +16,7 @@ import { tableFormatDate } from "../../../hooks/formatDate";
 import api from "../../../../utils/axiosConfig";
 import toNumber from "../../../hooks/toNumber";
 import { useTranslation } from "react-i18next";
+import { Spin } from "antd";
 
 const Office = () => {
   const { t } = useTranslation();
@@ -46,28 +47,28 @@ const Office = () => {
       });
   }, []);
   // delete by id
-    const handleDelete = async (id) => {
-  try {
-    const response = await api.delete(`/office/${id}`);
+  const handleDelete = async (id) => {
+    try {
+      const response = await api.delete(`/office/${id}`);
 
-    // Remove driver from local list
-    setOffice((prev) => prev.filter((driver) => driver.id !== id));
-    toast.success(t("Office deleted successfully"), {
-      position: "top-right",
-      autoClose: 3000,
-    });
+      // Remove driver from local list
+      setOffice((prev) => prev.filter((driver) => driver.id !== id));
+      toast.success(t("Office deleted successfully"), {
+        position: "top-right",
+        autoClose: 3000,
+      });
 
-    setIsOpen(false);
-    setSelectedOfficeId(null);
-  } catch (error) {
-    console.error(t("Delete error:"), error.response || error);
-    toast.error(t("There was a problem deleting!"), {
-      position: "top-right",
-      autoClose: 3000,
-    });
-  }
-};
-  if (loading) return <p className="text-center mt-16">{t("Office")} {t("Loading")}...</p>;
+      setIsOpen(false);
+      setSelectedOfficeId(null);
+    } catch (error) {
+      console.error(t("Delete error:"), error.response || error);
+      toast.error(t("There was a problem deleting!"), {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+  // if (loading) return <p className="text-center mt-16">{t("Office")} {t("Loading")}...</p>;
   // search
   const filteredOfficeList = office.filter((dt) => {
     const term = searchTerm.toLowerCase();
@@ -84,32 +85,32 @@ const Office = () => {
   const totalPages = Math.ceil(filteredOfficeList.length / itemsPerPage);
 
   // Export to Excel
-const exportOfficeToExcel = () => {
-  const tableData = filteredOfficeList.map((office, index) => ({
-    "SL.": index + 1,
-    Date: office.date,
-    Branch: office.branch_name,
-    Address: office.address,
-    "Opening Balance": toNumber(office.opening_balance),
-    "Factory/Company": office.factory_name,
-  }));
+  const exportOfficeToExcel = () => {
+    const tableData = filteredOfficeList.map((office, index) => ({
+      "SL.": index + 1,
+      Date: office.date,
+      Branch: office.branch_name,
+      Address: office.address,
+      "Opening Balance": toNumber(office.opening_balance),
+      "Factory/Company": office.factory_name,
+    }));
 
-  const worksheet = XLSX.utils.json_to_sheet(tableData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Offices");
+    const worksheet = XLSX.utils.json_to_sheet(tableData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Offices");
 
-  const excelBuffer = XLSX.write(workbook, {
-    bookType: "xlsx",
-    type: "array",
-  });
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
 
-  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-  saveAs(data, "Office_data.xlsx");
-};
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "Office_data.xlsx");
+  };
 
-// Print
-const printOfficeTable = () => {
-  const tableHeader = `
+  // Print
+  const printOfficeTable = () => {
+    const tableHeader = `
     <thead>
       <tr>
         <th>"${t("SL.")}</th>
@@ -121,9 +122,9 @@ const printOfficeTable = () => {
     </thead>
   `;
 
-  const tableRows = filteredOfficeList
-    .map(
-      (office, index) => `
+    const tableRows = filteredOfficeList
+      .map(
+        (office, index) => `
       <tr>
         <td>${index + 1}</td>
         <td>${office.date || ""}</td>
@@ -132,18 +133,18 @@ const printOfficeTable = () => {
         <td>${office.opening_balance || ""}</td>
       </tr>
     `
-    )
-    .join("");
+      )
+      .join("");
 
-  const printContent = `
+    const printContent = `
     <table>
       ${tableHeader}
       <tbody>${tableRows}</tbody>
     </table>
   `;
 
-  const WinPrint = window.open("", "", "width=900,height=650");
-  WinPrint.document.write(`
+    const WinPrint = window.open("", "", "width=900,height=650");
+    WinPrint.document.write(`
     <html>
       <head>
         <title>-</title>
@@ -169,11 +170,11 @@ const printOfficeTable = () => {
     </html>
   `);
 
-  WinPrint.document.close();
-  WinPrint.focus();
-  WinPrint.print();
-  WinPrint.close();
-};
+    WinPrint.document.close();
+    WinPrint.focus();
+    WinPrint.print();
+    WinPrint.close();
+  };
 
   return (
     <div className=" p-2">
@@ -229,17 +230,17 @@ const printOfficeTable = () => {
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}
-    {searchTerm && (
-      <button
-        onClick={() => {
-          setSearchTerm("");
-          setCurrentPage(1);
-        }}
-        className="absolute right-7 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
-      >
-        ✕
-      </button>
-    )}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-7 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
         <div className="mt-5 overflow-x-auto rounded-md">
@@ -250,64 +251,70 @@ const printOfficeTable = () => {
                 <th className="p-2">{t("Date")}</th>
                 <th className="p-2">{t("Branch")}</th>
                 <th className="p-2">{t("Address")}</th>
-                 <th className="p-2">{t("Opening Balance")}</th>
+                <th className="p-2">{t("Opening Balance")}</th>
                 {/* <th className="p-2">Factory/CompanyName</th> */}
                 <th className="p-2">{t("Action")}</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
-              { currentVehicles.length === 0 ? (
-                <tr>
-                  <td colSpan="8" className="text-center p-4 text-gray-500">
-                    {t("No office found")}
-                  </td>
-                  </tr>)
-              :(currentVehicles?.map((dt, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 transition-all border border-gray-200"
-                >
-                  <td className="p-2 font-bold">
-                    {indexOfFirstItem + index + 1}
-                  </td>
-                  <td className="p-2">{tableFormatDate(dt.created_at)}</td>
-                  <td className="p-2">{dt.branch_name}</td>
-                  <td className="p-2">{dt.address}</td>
-                  <td className="p-2">{dt.opening_balance}</td>
-                  {/* <td className="p-2">{dt.factory_name}</td> */}
-                  <td className="px-2 action_column">
-                    <div className="flex gap-1">
-                      <Link to={`/tramessy/HR/HRM/UpdateOfficeForm/${dt.id}`}>
-                        <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                          <FaPen className="text-[12px]" />
-                        </button>
-                      </Link>
-                      <button
-                        onClick={() => {
-                          setSelectedOfficeId(dt.id);
-                          setIsOpen(true);
-                        }}
-                        className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+              {
+                loading ? (
+                  <tr>
+                    <td colSpan={12} className="text-center py-20"><Spin /></td>
+                  </tr>
+                )
+                  : currentVehicles.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" className="text-center p-4 text-gray-500">
+                        {t("No office found")}
+                      </td>
+                    </tr>)
+                    : (currentVehicles?.map((dt, index) => (
+                      <tr
+                        key={index}
+                        className="hover:bg-gray-50 transition-all border border-gray-200"
                       >
-                        <FaTrashAlt className="text-[12px]" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )))
+                        <td className="p-2 font-bold">
+                          {indexOfFirstItem + index + 1}
+                        </td>
+                        <td className="p-2">{tableFormatDate(dt.created_at)}</td>
+                        <td className="p-2">{dt.branch_name}</td>
+                        <td className="p-2">{dt.address}</td>
+                        <td className="p-2">{dt.opening_balance}</td>
+                        {/* <td className="p-2">{dt.factory_name}</td> */}
+                        <td className="px-2 action_column">
+                          <div className="flex gap-1">
+                            <Link to={`/tramessy/HR/HRM/UpdateOfficeForm/${dt.id}`}>
+                              <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                                <FaPen className="text-[12px]" />
+                              </button>
+                            </Link>
+                            <button
+                              onClick={() => {
+                                setSelectedOfficeId(dt.id);
+                                setIsOpen(true);
+                              }}
+                              className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                            >
+                              <FaTrashAlt className="text-[12px]" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )))
               }
             </tbody>
           </table>
         </div>
         {/* pagination */}
         {currentVehicles.length > 0 && totalPages >= 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          maxVisible={8} 
-        />
-      )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxVisible={8}
+          />
+        )}
       </div>
       {/* Delete Modal */}
       <div className="flex justify-center items-center">

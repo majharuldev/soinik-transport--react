@@ -21,6 +21,7 @@ import { FiFilter } from "react-icons/fi"
 import logo from "../assets/AJ_Logo.png"
 import { useTranslation } from "react-i18next"
 import toNumber from "../hooks/toNumber"
+import { Spin } from "antd"
 const TripList = () => {
   const {t} = useTranslation();
   const [trip, setTrip] = useState([])
@@ -875,7 +876,7 @@ const exportTripsToExcel = async () => {
     return sum + (rent + demurrage - exp);
   }, 0);
 
-  if (loading) return <p className="text-center mt-16">{t("Loading")} {t("Trip")}...</p>
+  // if (loading) return <p className="text-center mt-16">{t("Loading")} {t("Trip")}...</p>
 
   return (
     <main className="p-2">
@@ -1052,7 +1053,12 @@ const exportTripsToExcel = async () => {
               </tr>
             </thead>
             <tbody className="text-gray-700">
-              {currentTrip.length === 0 ? (
+              { loading ? (
+                 <tr>
+                  <td colSpan={12} className="text-center py-20"><Spin /></td>
+                </tr>
+              )
+              :currentTrip.length === 0 ? (
                 <tr>
                   <td colSpan="10" className="text-center p-4 text-gray-500 ">
                     {t("No trip found")}

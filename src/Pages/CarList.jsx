@@ -14,6 +14,7 @@ import Pagination from "../components/Shared/Pagination";
 import api from "../../utils/axiosConfig";
 import { tableFormatDate } from "../hooks/formatDate";
 import { useTranslation } from "react-i18next";
+import { Spin } from "antd";
 const CarList = () => {
   const { t } = useTranslation();
   const [vehicles, setVehicle] = useState([]);
@@ -33,9 +34,9 @@ const CarList = () => {
     api
       .get(`/vehicle`)
       .then((response) => {
-      
-          setVehicle(response.data);
-       
+
+        setVehicle(response.data);
+
         setLoading(false);
       })
       .catch((error) => {
@@ -45,80 +46,80 @@ const CarList = () => {
   }, []);
   // delete by id
   const handleDelete = async (id) => {
-  try {
-    const response = await api.delete(`/vehicle/${id}`);
+    try {
+      const response = await api.delete(`/vehicle/${id}`);
 
-    // Axios er jonno check
-    if (response.status === 200) {
-      // UI update
-      setVehicle((prev) => prev.filter((item) => item.id !== id));
-      toast.success("Vehicle deleted successfully", {
+      // Axios er jonno check
+      if (response.status === 200) {
+        // UI update
+        setVehicle((prev) => prev.filter((item) => item.id !== id));
+        toast.success("Vehicle deleted successfully", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+
+        setIsOpen(false);
+        setSelectedDriverId(null);
+      } else {
+        throw new Error("Delete request failed");
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("There was a problem deleting!", {
         position: "top-right",
         autoClose: 3000,
       });
-
-      setIsOpen(false);
-      setSelectedDriverId(null);
-    } else {
-      throw new Error("Delete request failed");
     }
-  } catch (error) {
-    console.error("Delete error:", error);
-    toast.error("There was a problem deleting!", {
-      position: "top-right",
-      autoClose: 3000,
-    });
-  }
-};
-
-// loading page
-  if (loading) return <p className="text-center mt-16">{t("Vehicle")} {t("Loading")}...</p>;
-
-const exportExcel = (vehicles) => {
-  if (!vehicles || vehicles.length === 0) {
-    alert("No vehicle data found!");
-    return;
-  }
-
-  //  Excel-ready mapping
-  const excelData = filteredCarList.map((dt, index) => ({
-    SL: index + 1,
-    Driver: dt.driver_name,
-    Vehicle: dt.vehicle_name,
-    Category: dt.vehicle_category,
-    Size: dt.vehicle_size,
-    Registration_Zone: dt.reg_zone,
-    Registration_Serial: dt.reg_serial,
-    Registration_Number: dt.reg_no,
-    Status: dt.status,
-    Insurance_Date: dt.insurance_date !== "null" ? dt.insurance_date : "",
-    Reg_Date: dt.reg_date,
-    Tax_Date: dt.tax_date,
-    Route_Per_Date: dt.route_per_date,
-    Fitness_Date: dt.fitness_date,
-    Fuel_Capacity: dt.fuel_capcity ? Number(dt.fuel_capcity) : 0,
-  }));
-
-  // Total row (Fuel Capacity-এর জন্য)
-  const totalRow = {
-    SL: "TOTAL",
-    Fuel_Capacity: excelData.reduce((sum, row) => sum + (row.Fuel_Capacity || 0), 0),
   };
-  excelData.push(totalRow);
 
-  //  Excel create & download
-  const worksheet = XLSX.utils.json_to_sheet(excelData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Vehicles Data");
+  // loading page
+  // if (loading) return <p className="text-center mt-16">{t("Vehicle")} {t("Loading")}...</p>;
 
-  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-  saveAs(data, "vehicles_data.xlsx");
-};
+  const exportExcel = (vehicles) => {
+    if (!vehicles || vehicles.length === 0) {
+      alert("No vehicle data found!");
+      return;
+    }
+
+    //  Excel-ready mapping
+    const excelData = filteredCarList.map((dt, index) => ({
+      SL: index + 1,
+      Driver: dt.driver_name,
+      Vehicle: dt.vehicle_name,
+      Category: dt.vehicle_category,
+      Size: dt.vehicle_size,
+      Registration_Zone: dt.reg_zone,
+      Registration_Serial: dt.reg_serial,
+      Registration_Number: dt.reg_no,
+      Status: dt.status,
+      Insurance_Date: dt.insurance_date !== "null" ? dt.insurance_date : "",
+      Reg_Date: dt.reg_date,
+      Tax_Date: dt.tax_date,
+      Route_Per_Date: dt.route_per_date,
+      Fitness_Date: dt.fitness_date,
+      Fuel_Capacity: dt.fuel_capcity ? Number(dt.fuel_capcity) : 0,
+    }));
+
+    // Total row (Fuel Capacity-এর জন্য)
+    const totalRow = {
+      SL: "TOTAL",
+      Fuel_Capacity: excelData.reduce((sum, row) => sum + (row.Fuel_Capacity || 0), 0),
+    };
+    excelData.push(totalRow);
+
+    //  Excel create & download
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Vehicles Data");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "vehicles_data.xlsx");
+  };
 
 
-const printTable = () => {
-  const tableHeader = `
+  const printTable = () => {
+    const tableHeader = `
     <thead>
       <tr>
         <th>${t("SL.")}</th>
@@ -132,7 +133,7 @@ const printTable = () => {
     </thead>
   `;
 
-  const tableRows = filteredCarList.map((v, index) => `
+    const tableRows = filteredCarList.map((v, index) => `
     <tr>
       <td>${index + 1}</td>
       <td>${v.driver_name}</td>
@@ -144,15 +145,15 @@ const printTable = () => {
     </tr>
   `).join("");
 
-  const printContent = `
+    const printContent = `
     <table border="1" cellspacing="0" cellpadding="6" style="width:100%;border-collapse:collapse;">
       ${tableHeader}
       <tbody>${tableRows}</tbody>
     </table>
   `;
 
-  const WinPrint = window.open("", "", "width=900,height=650");
-  WinPrint.document.write(`
+    const WinPrint = window.open("", "", "width=900,height=650");
+    WinPrint.document.write(`
     <html>
     <head>
       <title>Vehicle Report</title>
@@ -204,20 +205,20 @@ const printTable = () => {
     </html>
   `);
 
-  WinPrint.document.close();
-  WinPrint.focus();
-  WinPrint.print();
-  WinPrint.close();
-};
+    WinPrint.document.close();
+    WinPrint.focus();
+    WinPrint.print();
+    WinPrint.close();
+  };
 
-  
+
   const handleViewCar = async (id) => {
     try {
       const response = await api.get(
         `/vehicle/${id}`
       );
-        setselectedCar(response.data);
-        setViewModalOpen(true);
+      setselectedCar(response.data);
+      setViewModalOpen(true);
     } catch (error) {
       console.error("View error:", error);
       toast.error("Vehicle information could not be loaded.");
@@ -249,7 +250,7 @@ const printTable = () => {
     indexOfLastItem
   );
   const totalPages = Math.ceil(filteredCarList.length / itemsPerPage);
- 
+
   return (
     <main className="p-2">
       <Toaster />
@@ -304,17 +305,17 @@ const printTable = () => {
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5 lg:w-60"
             />
             {/*  Clear button */}
-    {searchTerm && (
-      <button
-        onClick={() => {
-          setSearchTerm("");
-          setCurrentPage(1);
-        }}
-        className="absolute right-8 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
-      >
-        ✕
-      </button>
-    )}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-8 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
 
@@ -336,77 +337,81 @@ const printTable = () => {
               </tr>
             </thead>
             <tbody className="text-gray-700 ">
-              {
-                currentVehicles.length === 0 ? (
+              {loading ? (
                 <tr>
-                  <td colSpan="8" className="text-center p-4 text-gray-500">
-                   {t("No vehicles found")}
-                  </td>
+                  <td colSpan={12} className="text-center py-20"><Spin /></td>
+                </tr>
+              )
+                : currentVehicles.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" className="text-center p-4 text-gray-500">
+                      {t("No vehicles found")}
+                    </td>
                   </tr>
                 )
-              :(currentVehicles?.map((vehicle, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 transition-all border border-gray-200"
-                >
-                  <td className="p-2 font-bold">
-                    {indexOfFirstItem + index + 1}
-                  </td>
-                  <td className="p-2">{vehicle.driver_name}</td>
-                  <td className="p-2">{vehicle.vehicle_name}</td>
-                  <td className="p-2">{vehicle.vehicle_category}</td>
-                  <td className="p-2">{vehicle.vehicle_size}</td>
-                  <td className="p-2">
-                    {vehicle.reg_zone} - {vehicle.reg_serial}{" "}
-                    {vehicle.reg_no}
-                  </td>
-                  {/* <td className="px-2 py-4">0</td> */}
-                  {/* <td className="px-2 py-4">{vehicle.registration_number}</td> */}
-                  <td className="p-2">
-                    <span className={` px-3 py-1 rounded-md text-xs font-semibold ${vehicle.status==="Active"? "text-green-400": "text-red-400"}`}>
-                      {vehicle?.status}
-                    </span>
-                  </td>
-                  <td className="p-2 action_column">
-                    <div className="flex gap-1">
-                      <Link to={`/tramessy/UpdateCarForm/${vehicle.id}`}>
-                        <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                          <FaPen className="text-[12px]" />
-                        </button>
-                      </Link>
-                      <button
-                        onClick={() => handleViewCar(vehicle.id)}
-                        className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                      >
-                        <FaEye className="text-[12px]" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedDriverId(vehicle.id);
-                          setIsOpen(true);
-                        }}
-                        className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                      >
-                        <FaTrashAlt className="text-[12px]" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )))}
+                  : (currentVehicles?.map((vehicle, index) => (
+                    <tr
+                      key={index}
+                      className="hover:bg-gray-50 transition-all border border-gray-200"
+                    >
+                      <td className="p-2 font-bold">
+                        {indexOfFirstItem + index + 1}
+                      </td>
+                      <td className="p-2">{vehicle.driver_name}</td>
+                      <td className="p-2">{vehicle.vehicle_name}</td>
+                      <td className="p-2">{vehicle.vehicle_category}</td>
+                      <td className="p-2">{vehicle.vehicle_size}</td>
+                      <td className="p-2">
+                        {vehicle.reg_zone} - {vehicle.reg_serial}{" "}
+                        {vehicle.reg_no}
+                      </td>
+                      {/* <td className="px-2 py-4">0</td> */}
+                      {/* <td className="px-2 py-4">{vehicle.registration_number}</td> */}
+                      <td className="p-2">
+                        <span className={` px-3 py-1 rounded-md text-xs font-semibold ${vehicle.status === "Active" ? "text-green-400" : "text-red-400"}`}>
+                          {vehicle?.status}
+                        </span>
+                      </td>
+                      <td className="p-2 action_column">
+                        <div className="flex gap-1">
+                          <Link to={`/tramessy/UpdateCarForm/${vehicle.id}`}>
+                            <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                              <FaPen className="text-[12px]" />
+                            </button>
+                          </Link>
+                          <button
+                            onClick={() => handleViewCar(vehicle.id)}
+                            className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                          >
+                            <FaEye className="text-[12px]" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedDriverId(vehicle.id);
+                              setIsOpen(true);
+                            }}
+                            className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                          >
+                            <FaTrashAlt className="text-[12px]" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )))}
             </tbody>
           </table>
         </div>
         {/* pagination */}
-    {currentVehicles.length > 0 && totalPages >= 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          maxVisible={8} 
-        />
-      )}
+        {currentVehicles.length > 0 && totalPages >= 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxVisible={8}
+          />
+        )}
       </div>
-      
+
       {/* Delete modal */}
       <div className="flex justify-center items-center">
         {isOpen && (
@@ -491,7 +496,7 @@ const printTable = () => {
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2 border-r border-gray-300">
                   <p className="w-48">{t("Tax Expired Date")}</p>{" "}
-                  <p>{tableFormatDate(selectedCar.tax_date )|| "N/A"}</p>
+                  <p>{tableFormatDate(selectedCar.tax_date) || "N/A"}</p>
                 </li>
                 <li className="w-[428px] flex text-gray-700 font-semibold text-sm px-3 py-2">
                   <p className="w-48">{t("Road Permit Expired Date")}</p>{" "}

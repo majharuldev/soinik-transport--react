@@ -13,6 +13,7 @@ import Pagination from "../components/Shared/Pagination";
 import { formatDate, tableFormatDate } from "../hooks/formatDate";
 import api from "../../utils/axiosConfig";
 import { useTranslation } from "react-i18next";
+import { Spin } from "antd";
 
 const VendorList = () => {
   const {t} = useTranslation()
@@ -44,7 +45,7 @@ const VendorList = () => {
       });
   }, []);
 
-  if (loading) return <p className="text-center mt-16">{t("Vendor")} {t("Loading")}...</p>;
+  // if (loading) return <p className="text-center mt-16">{t("Vendor")} {t("Loading")}...</p>;
   // Export Excel
   const exportExcel = () => {
     const exportData = filteredvendor.map(
@@ -380,8 +381,12 @@ const printTable = () => {
               </tr>
             </thead>
             <tbody className="text-gray-700 ">
-              {
-                currentVendor.length === 0 ? (<tr>
+              { loading ? (
+                 <tr>
+                  <td colSpan={12} className="text-center py-20"><Spin /></td>
+                </tr>
+              )
+              :currentVendor.length === 0 ? (<tr>
                   <td colSpan="8" className="text-center p-4 text-gray-500">
                     {t("No Vendor found")}
                   </td>

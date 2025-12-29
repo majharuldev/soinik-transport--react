@@ -14,6 +14,7 @@ import Pagination from "../components/Shared/Pagination";
 import api from "../../utils/axiosConfig";
 import toNumber from "../hooks/toNumber";
 import { useTranslation } from "react-i18next";
+import { Spin } from "antd";
 const HelperList = () => {
   const { t } = useTranslation();
   const [helper, setHelper] = useState([]);
@@ -44,30 +45,30 @@ const HelperList = () => {
       });
   }, []);
 
-  if (loading) return <p className="text-center mt-16">Loading Helpers...</p>;
+  // if (loading) return <p className="text-center mt-16">Loading Helpers...</p>;
 
   // delete by id
   const handleDelete = async (id) => {
-  try {
-    const response = await api.delete(`/helper/${id}`);
+    try {
+      const response = await api.delete(`/helper/${id}`);
 
-    // Remove driver from local list
-    setHelper((prev) => prev.filter((driver) => driver.id !== id));
-    toast.success(t("Helper deleted successfully"), {
-      position: "top-right",
-      autoClose: 3000,
-    });
+      // Remove driver from local list
+      setHelper((prev) => prev.filter((driver) => driver.id !== id));
+      toast.success(t("Helper deleted successfully"), {
+        position: "top-right",
+        autoClose: 3000,
+      });
 
-    setIsOpen(false);
-    setSelectedHelperId(null);
-  } catch (error) {
-    console.error(t("Delete error:"), error.response || error);
-    toast.error(t("There was a problem deleting!"), {
-      position: "top-right",
-      autoClose: 3000,
-    });
-  }
-};
+      setIsOpen(false);
+      setSelectedHelperId(null);
+    } catch (error) {
+      console.error(t("Delete error:"), error.response || error);
+      toast.error(t("There was a problem deleting!"), {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
   // view Helper by id
   const handleView = async (id) => {
     try {
@@ -154,8 +155,8 @@ const HelperList = () => {
 
     doc.save("Helpers_data.pdf");
   };
- const printHelpersTable = () => {
-  const tableHeader = `
+  const printHelpersTable = () => {
+    const tableHeader = `
     <thead>
       <tr>
         <th>${t("SL.")}</th>
@@ -167,7 +168,7 @@ const HelperList = () => {
     </thead>
   `;
 
-  const tableRows = filteredHelper.map((helper, index) => `
+    const tableRows = filteredHelper.map((helper, index) => `
     <tr>
       <td>${index + 1}</td>
       <td>${helper.helper_name || ""}</td>
@@ -177,15 +178,15 @@ const HelperList = () => {
     </tr>
   `).join("");
 
-  const printContent = `
+    const printContent = `
     <table>
       ${tableHeader}
       <tbody>${tableRows}</tbody>
     </table>
   `;
 
-  const WinPrint = window.open("", "", "width=900,height=650");
-  WinPrint.document.write(`
+    const WinPrint = window.open("", "", "width=900,height=650");
+    WinPrint.document.write(`
     <html>
       <head>
         <title>-</title>
@@ -209,11 +210,11 @@ const HelperList = () => {
     </html>
   `);
 
-  WinPrint.document.close();
-  WinPrint.focus();
-  WinPrint.print();
-  WinPrint.close();
-};
+    WinPrint.document.close();
+    WinPrint.focus();
+    WinPrint.print();
+    WinPrint.close();
+  };
 
 
   // search
@@ -221,10 +222,10 @@ const HelperList = () => {
     const term = searchTerm.toLowerCase();
     return (
       h.helper_name?.toLowerCase().includes(term) ||
-    h.phone?.toLowerCase().includes(term) ||
-    h.address?.toLowerCase().includes(term) ||
-    h.salary?.toString().toLowerCase().includes(term) ||
-    h.status?.toLowerCase().includes(term)
+      h.phone?.toLowerCase().includes(term) ||
+      h.address?.toLowerCase().includes(term) ||
+      h.salary?.toString().toLowerCase().includes(term) ||
+      h.status?.toLowerCase().includes(term)
     );
   });
   // pagination
@@ -293,17 +294,17 @@ const HelperList = () => {
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}
-    {searchTerm && (
-      <button
-        onClick={() => {
-          setSearchTerm("");
-          setCurrentPage(1);
-        }}
-        className="absolute right-7 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
-      >
-        ✕
-      </button>
-    )}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-7 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
 
@@ -322,68 +323,74 @@ const HelperList = () => {
               </tr>
             </thead>
             <tbody className="text-gray-700">
-              { currentHelpers.length === 0 ? (
+              {currentHelpers.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="text-center p-4 text-gray-500">
                     {t("No Helper found")}
                   </td>
-                  </tr>)
-              :(currentHelpers?.map((helper, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 transition-all border border-gray-200"
-                >
-                  <td className="p-2 font-bold">
-                    {indexOfFirstItem + index + 1}
-                  </td>
-                  <td className="p-2">{helper.helper_name}</td>
-                  <td className="p-2">{helper.phone}</td>
-                  <td className="p-2">{helper.address}</td>
-                  <td className="p-2">{helper.salary}</td>
-                  <td className="p-2">
-                    <span className="text-white bg-green-700 px-3 py-1 rounded-md text-xs font-semibold">
-                      {helper.status}
-                    </span>
-                  </td>
-                  <td className="px-2 action_column">
-                    <div className="flex gap-1">
-                      <Link to={`/tramessy/update-helper/${helper.id}`}>
-                        <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                          <FaPen className="text-[12px]" />
-                        </button>
-                      </Link>
-                      {/* <button
+                </tr>)
+                : (
+                  loading ? (
+                    <tr>
+                      <td colSpan={12} className="text-center py-20"><Spin /></td>
+                    </tr>
+                  )
+                    : currentHelpers?.map((helper, index) => (
+                      <tr
+                        key={index}
+                        className="hover:bg-gray-50 transition-all border border-gray-200"
+                      >
+                        <td className="p-2 font-bold">
+                          {indexOfFirstItem + index + 1}
+                        </td>
+                        <td className="p-2">{helper.helper_name}</td>
+                        <td className="p-2">{helper.phone}</td>
+                        <td className="p-2">{helper.address}</td>
+                        <td className="p-2">{helper.salary}</td>
+                        <td className="p-2">
+                          <span className="text-white bg-green-700 px-3 py-1 rounded-md text-xs font-semibold">
+                            {helper.status}
+                          </span>
+                        </td>
+                        <td className="px-2 action_column">
+                          <div className="flex gap-1">
+                            <Link to={`/tramessy/update-helper/${helper.id}`}>
+                              <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                                <FaPen className="text-[12px]" />
+                              </button>
+                            </Link>
+                            {/* <button
                         onClick={() => handleView(helper.id)}
                         className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                       >
                         <FaEye className="text-[12px]" />
                       </button> */}
-                      <button
-                        onClick={() => {
-                          setSelectedHelperId(helper.id);
-                          setIsOpen(true);
-                        }}
-                        className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                      >
-                        <FaTrashAlt className="text-[12px]" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )))
+                            <button
+                              onClick={() => {
+                                setSelectedHelperId(helper.id);
+                                setIsOpen(true);
+                              }}
+                              className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                            >
+                              <FaTrashAlt className="text-[12px]" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )))
               }
             </tbody>
           </table>
         </div>
         {/* Pagination */}
-      {currentHelpers.length > 0 && totalPages >= 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          maxVisible={8} 
-        />
-      )}
+        {currentHelpers.length > 0 && totalPages >= 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxVisible={8}
+          />
+        )}
       </div>
 
       {/* Delete Modal */}
