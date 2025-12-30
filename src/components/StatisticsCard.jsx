@@ -405,7 +405,7 @@ const StatisticsCard = () => {
             <thead className="bg-gray-100 text-gray-700">
               <tr>
                 <th className="p-2">{t("SL.")}</th>
-                <th className="p-2">{t("vehicleNo")}</th>
+                <th className="p-2">{t("Vehicle No")}</th>
                 <th className="p-2">{t("Type")}</th>
                 <th className="p-2">{t("remaining")}</th>
               </tr>
