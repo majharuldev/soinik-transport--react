@@ -1,4 +1,3 @@
-
 import { FormProvider, useForm } from "react-hook-form";
 import { InputField, SelectField } from "../../components/Form/FormFields";
 import BtnSubmit from "../../components/Button/BtnSubmit";
@@ -13,7 +12,7 @@ import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 
 const PaymentReceiveForm = () => {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const dateRef = useRef(null);
@@ -33,11 +32,9 @@ const PaymentReceiveForm = () => {
   const fetchPaymentData = async () => {
     try {
       setLoading(true);
-      const response = await api.get(
-        `/payment-recieve/${id}`
-      );
+      const response = await api.get(`/payment-recieve/${id}`);
       const data = response.data.data;
-      
+
       // Set form values
       methods.reset({
         date: data.date,
@@ -49,7 +46,7 @@ const PaymentReceiveForm = () => {
         remarks: data.remarks,
         created_by: data.created_by,
         status: data.status,
-        ref_id: data.ref_id
+        ref_id: data.ref_id,
       });
     } catch (error) {
       console.error("Error fetching payment data:", error);
@@ -62,7 +59,8 @@ const PaymentReceiveForm = () => {
   // select customer from api
   const [customer, setCustomer] = useState([]);
   useEffect(() => {
-    api.get(`/customer`)
+    api
+      .get(`/customer`)
       .then((response) => setCustomer(response.data))
       .catch((error) => console.error("Error fetching customer data:", error));
   }, []);
@@ -75,7 +73,8 @@ const PaymentReceiveForm = () => {
   // select branch office from api
   const [branch, setBranch] = useState([]);
   useEffect(() => {
-    api.get(`/office`)
+    api
+      .get(`/office`)
       .then((response) => setBranch(response.data.data))
       .catch((error) => console.error("Error fetching branch data:", error));
   }, []);
@@ -90,26 +89,26 @@ const PaymentReceiveForm = () => {
   const onSubmit = async (data) => {
     const refId = isEditing ? data.ref_id : generateRefId();
     const formatDate = (date) => {
-        if (!date) return null
-        const parsed = new Date(date)
-        return isNaN(parsed) ? null : format(parsed, "yyyy-MM-dd")
-      }
+      if (!date) return null;
+      const parsed = new Date(date);
+      return isNaN(parsed) ? null : format(parsed, "yyyy-MM-dd");
+    };
     try {
       const payload = {
-      ...data,
-    }
-    payload.date = formatDate(data.date)
+        ...data,
+      };
+      payload.date = formatDate(data.date);
 
-    // যদি create হয়, নতুন ref_id generate করো
-    if (!isEditing) {
-      payload.ref_id = generateRefId()
-    }
+      // যদি create হয়, নতুন ref_id generate করো
+      if (!isEditing) {
+        payload.ref_id = generateRefId();
+      }
 
       // Use appropriate endpoint and method based on mode
-      const endpoint = isEditing 
+      const endpoint = isEditing
         ? `/payment-recieve/${id}`
         : `/payment-recieve`;
-      
+
       const method = isEditing ? "put" : "post";
 
       const paymentResponse = await api[method](endpoint, payload);
@@ -117,7 +116,9 @@ const PaymentReceiveForm = () => {
 
       if (paymentData.success) {
         toast.success(
-          isEditing ? t("Payment updated successfully") : t("Payment saved successfully"), 
+          isEditing
+            ? t("Payment updated successfully")
+            : t("Payment saved successfully"),
           { position: "top-right" }
         );
 
@@ -147,104 +148,116 @@ const PaymentReceiveForm = () => {
       <Toaster />
       <div className="mx-auto p-6  rounded-md shadow-md border-t-2 border-primary">
         <h3 className="pb-4 text-primary font-semibold ">
-        {isEditing ? t("Update Payment Receive") : t("Payment Receive Form")}
-      </h3>
-      <FormProvider {...methods} className="">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-3 mx-auto "
-        >
-          <div className="">
-            <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
-              <div className="w-full">
-                <InputField
-                  name="date"
-                  label={t("Date")}
-                  type="date"
-                  required={!isEditing}
-                  inputRef={(e) => {
-                    register("date").ref(e);
-                    dateRef.current = e;
-                  }}
-                  icon={
-                    <span
-                      className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 rounded-r"
-                      onClick={() => dateRef.current?.showPicker?.()}
-                    >
-                      <FiCalendar className="text-gray-700 cursor-pointer" />
-                    </span>
-                  }
-                />
+          {isEditing ? t("Update Payment Receive") : t("Payment Receive Form")}
+        </h3>
+        <FormProvider {...methods} className="">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-3 mx-auto "
+          >
+            <div className="">
+              <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
+                <div className="w-full">
+                  <InputField
+                    name="date"
+                    label={t("Date")}
+                    type="date"
+                    required={!isEditing}
+                    inputRef={(e) => {
+                      register("date").ref(e);
+                      dateRef.current = e;
+                    }}
+                    icon={
+                      <span
+                        className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 rounded-r"
+                        onClick={() => dateRef.current?.showPicker?.()}
+                      >
+                        <FiCalendar className="text-gray-700 cursor-pointer" />
+                      </span>
+                    }
+                  />
+                </div>
+                <div className="w-full">
+                  <SelectField
+                    name="customer_name"
+                    label={`${t("Customer")} ${t("Name")}`}
+                    required={!isEditing}
+                    options={customerOptions}
+                    control={control}
+                  />
+                </div>
+                <div className="w-full">
+                  <SelectField
+                    name="branch_name"
+                    label={`${t("Branch")} ${t("Name")}`}
+                    required={!isEditing}
+                    options={branchOptions}
+                    control={control}
+                  />
+                </div>
               </div>
-              <div className="w-full">
-                <SelectField
-                  name="customer_name"
-                  label={`${t("Customer")} ${t("Name")}`}
-                  required={!isEditing}
-                  options={customerOptions}
-                  control={control}
-                />
+              <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
+                <div className="w-full">
+                  <InputField
+                    name="bill_ref"
+                    label={t("Bill Ref")}
+                    required={!isEditing}
+                  />
+                </div>
+                <div className="w-full">
+                  <InputField
+                    name="amount"
+                    label={t("Amount")}
+                    type="number"
+                    required={!isEditing}
+                  />
+                </div>
+                <div className="w-full">
+                  <SelectField
+                    name="cash_type"
+                    label={t("Cash Type")}
+                    required={!isEditing}
+                    options={[
+                      { value: "Cash", label: t("Cash") },
+                      { value: "Bank", label: t("Bank") },
+                      { value: "Card", label: t("Card") },
+                    ]}
+                  />
+                </div>
               </div>
-              <div className="w-full">
-                <SelectField
-                  name="branch_name"
-                  label={`${t("Branch")} ${t("Name")}`}
-                  required={!isEditing}
-                  options={branchOptions}
-                  control={control}
-                />
+              <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
+                <div className="w-full">
+                  <InputField
+                    name="remarks"
+                    label={t("Note")}
+                    required={!isEditing}
+                  />
+                </div>
+                <div className="w-full">
+                  <InputField
+                    name="created_by"
+                    label={t("Created By")}
+                    required={!isEditing}
+                  />
+                </div>
+                <div className="w-full">
+                  <SelectField
+                    name="status"
+                    label={t("Status")}
+                    required={!isEditing}
+                    options={[
+                      { value: "Paid", label: t("Paid") },
+                      { value: "Unpaid", label: t("Unpaid") },
+                    ]}
+                  />
+                </div>
+              </div>
+              <div className="text-left p-5">
+                <BtnSubmit>{isEditing ? t("Update") : t("Submit")}</BtnSubmit>
               </div>
             </div>
-            <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
-              <div className="w-full">
-                <InputField name="bill_ref" label={t("Bill Ref")} required={!isEditing} />
-              </div>
-              <div className="w-full">
-                <InputField
-                  name="amount"
-                  label={t("Amount")}
-                  type="number"
-                 required={!isEditing}
-                />
-              </div>
-              <div className="w-full">
-                <SelectField
-                  name="cash_type"
-                  label={t("Cash Type")}
-                  required={!isEditing}
-                  options={[
-                    { value: "Cash", label: t("Cash") },
-                    { value: "Bank", label: t("Bank") },
-                    { value: "Card", label: t("Card") },
-                  ]}
-                />
-              </div>
-            </div>
-            <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
-              <div className="w-full">
-                <InputField name="remarks" label={t("Note")} required={!isEditing} />
-              </div>
-              <div className="w-full">
-                <InputField name="created_by" label={t("Created By")} required={!isEditing} />
-              </div>
-              <div className="w-full">
-                <SelectField
-                  name="status"
-                  label={t("Status")}
-                  required={!isEditing}
-                  options={[
-                    { value: "Active", label: t("Active") },
-                    { value: "Inactive", label: t("Inactive") },
-                  ]}
-                />
-              </div>
-            </div>
-            <div className="text-left p-5">
-              <BtnSubmit>{isEditing ? t("Update") : t("Submit")}</BtnSubmit>
-            </div>
-          </div>
-        </form>
-      </FormProvider>
+          </form>
+        </FormProvider>
       </div>
     </div>
   );

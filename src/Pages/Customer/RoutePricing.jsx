@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
@@ -14,7 +13,7 @@ import api from "../../../utils/axiosConfig";
 import { useTranslation } from "react-i18next";
 
 const RoutePricing = () => {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [routePricing, setRoutePricing] = useState([]);
   const [loading, setLoading] = useState(true);
   const [customers, setCustomers] = useState([]);
@@ -33,15 +32,16 @@ const RoutePricing = () => {
     load_point: "",
     unload_point: "",
     rate: "",
-    vat: ""
+    vat: "",
   });
 
   const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch customers
   useEffect(() => {
-    api.get(`/customer`)
-      .then(res => {
+    api
+      .get(`/customer`)
+      .then((res) => {
         setCustomers(res.data);
       })
       .catch(console.error);
@@ -49,8 +49,9 @@ const RoutePricing = () => {
 
   // Fetch unload points
   useEffect(() => {
-    axios.get("https://bdapis.vercel.app/geo/v2.0/upazilas")
-      .then(res => {
+    axios
+      .get("https://bdapis.vercel.app/geo/v2.0/upazilas")
+      .then((res) => {
         if (res.data.success) setUnloadpoints(res.data.data);
       })
       .catch(console.error);
@@ -62,12 +63,13 @@ const RoutePricing = () => {
   }, []);
 
   const fetchRoutePricingData = () => {
-    api.get(`/rate`)
-      .then(res => {
+    api
+      .get(`/rate`)
+      .then((res) => {
         setRoutePricing(res.data.data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         setLoading(false);
       });
@@ -76,13 +78,20 @@ const RoutePricing = () => {
   // Reset form & close modal
   const closeModal = () => {
     setIsModalOpen(false);
-    setFormData({ customer_name: "", vehicle_category: "", load_point: "", vehicle_size: "", unload_point: "", rate: "" });
+    setFormData({
+      customer_name: "",
+      vehicle_category: "",
+      load_point: "",
+      vehicle_size: "",
+      unload_point: "",
+      rate: "",
+    });
     setEditId(null);
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   // delete by id
@@ -122,12 +131,16 @@ const RoutePricing = () => {
       : api.post(`/rate`, formData);
 
     apiCall
-      .then(res => {
-        toast.success(editId ? (t("Route Pricing updated successfully")) : t("Route Pricing added successfully"));
+      .then((res) => {
+        toast.success(
+          editId
+            ? t("Route Pricing updated successfully")
+            : t("Route Pricing added successfully")
+        );
         closeModal();
         fetchRoutePricingData();
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         toast.error("Error occurred");
       });
@@ -141,7 +154,7 @@ const RoutePricing = () => {
       vehicle_size: item.vehicle_size,
       load_point: item.load_point,
       unload_point: item.unload_point,
-      rate: item.rate
+      rate: item.rate,
     });
     setEditId(item.id);
     setIsModalOpen(true);
@@ -183,7 +196,17 @@ const RoutePricing = () => {
     ]);
 
     autoTable(doc, {
-      head: [["SL", "Customer", "Vehicle Category", "Size", "Load Point", "Unload Point", "Rate"]],
+      head: [
+        [
+          "SL",
+          "Customer",
+          "Vehicle Category",
+          "Size",
+          "Load Point",
+          "Unload Point",
+          "Rate",
+        ],
+      ],
       body: tableData,
       startY: 25,
       theme: "grid",
@@ -266,15 +289,15 @@ const RoutePricing = () => {
   };
 
   // filter data
-  const filteredData = routePricing.filter(item =>
-    item.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.vehicle_category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.vehicle_size?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.load_point?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.unload_point?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.rate?.toString().includes(searchTerm)
+  const filteredData = routePricing.filter(
+    (item) =>
+      item.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.vehicle_category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.vehicle_size?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.load_point?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.unload_point?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.rate?.toString().includes(searchTerm)
   );
-
 
   if (loading) return <p className="text-center mt-16">{t("Loading")}...</p>;
 
@@ -289,7 +312,6 @@ const RoutePricing = () => {
     <main className="p-2">
       <Toaster />
       <div className="w-[22rem] md:w-full max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 md:p-4 border border-gray-200">
-
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
@@ -354,7 +376,6 @@ const RoutePricing = () => {
               )}
             </div>
           </div>
-
         </div>
 
         {/* Table */}
@@ -364,7 +385,9 @@ const RoutePricing = () => {
               <tr>
                 <th className="p-2">{t("SL.")}</th>
                 <th className="p-2">{t("Customer")}</th>
-                <th className="p-2">{t("Vehicle")} {t("Category")}</th>
+                <th className="p-2">
+                  {t("Vehicle")} {t("Category")}
+                </th>
                 <th className="p-2">{t("Size")}</th>
                 <th className="p-2">{t("Load Point")}</th>
                 <th className="p-2">{t("Unload Point")}</th>
@@ -380,33 +403,42 @@ const RoutePricing = () => {
                     {t("No customer rate found")}
                   </td>
                 </tr>
-              ) : currentCustomer.map((dt, index) => (
-                <tr key={index} className="hover:bg-gray-50 border border-gray-200">
-                  <td className="px-2 py-4 font-bold">{indexOfFirstItem + index + 1}</td>
-                  <td className="px-2 py-4">{dt.customer_name}</td>
-                  <td className="px-2 py-4">{dt.vehicle_category}</td>
-                  <td className="px-2 py-4">{dt.vehicle_size}</td>
-                  <td className="px-2 py-4">{dt.load_point}</td>
-                  <td className="px-2 py-4">{dt.unload_point}</td>
-                  <td className="px-2 py-4">{dt.rate}</td>
-                  {/* <td className="p-2">{dt.vat}</td> */}
-                  <td className="p-2 flex gap-2 items-center">
-
-                    <button onClick={() => handleEdit(dt)} className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md">
-                      <FaPen className="text-[12px]" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedRateId(dt.id);
-                        setIsOpen(true);
-                      }}
-                      className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                    >
-                      <FaTrashAlt className="text-[12px]" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              ) : (
+                currentCustomer.map((dt, index) => (
+                  <tr
+                    key={index}
+                    className="hover:bg-gray-50 border border-gray-200"
+                  >
+                    <td className="px-2 py-4 font-bold">
+                      {indexOfFirstItem + index + 1}
+                    </td>
+                    <td className="px-2 py-4">{dt.customer_name}</td>
+                    <td className="px-2 py-4">{dt.vehicle_category}</td>
+                    <td className="px-2 py-4">{dt.vehicle_size}</td>
+                    <td className="px-2 py-4">{dt.load_point}</td>
+                    <td className="px-2 py-4">{dt.unload_point}</td>
+                    <td className="px-2 py-4">{dt.rate}</td>
+                    {/* <td className="p-2">{dt.vat}</td> */}
+                    <td className="p-2 flex gap-2 items-center">
+                      <button
+                        onClick={() => handleEdit(dt)}
+                        className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md"
+                      >
+                        <FaPen className="text-[12px]" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedRateId(dt.id);
+                          setIsOpen(true);
+                        }}
+                        className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                      >
+                        <FaTrashAlt className="text-[12px]" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -426,7 +458,10 @@ const RoutePricing = () => {
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
           <div className="relative bg-white rounded-lg shadow-lg p-6 w-full max-w-xl border border-gray-300">
-            <button onClick={closeModal} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+            <button
+              onClick={closeModal}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+            >
               <IoMdClose className="text-2xl" />
             </button>
             <h2 className="text-xl font-bold text-[#11375B] mb-6 text-center">
@@ -435,13 +470,30 @@ const RoutePricing = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="flex gap-2">
                 <div className="w-full">
-                  <label className="block text-gray-700 text-sm font-medium mb-1">{t("Customer")}</label>
+                  <label className="block text-gray-700 text-sm font-medium mb-1">
+                    {t("Customer")}
+                  </label>
                   <CreatableSelect
-                    options={customers.map(c => ({ value: c.customer_name, label: c.customer_name }))}
-                    value={formData.customer_name ? { value: formData.customer_name, label: formData.customer_name } : null}
-                    onChange={selected => setFormData(prev => ({ ...prev, customer_name: selected?.value || "" }))}
+                    options={customers.map((c) => ({
+                      value: c.customer_name,
+                      label: c.customer_name,
+                    }))}
+                    value={
+                      formData.customer_name
+                        ? {
+                            value: formData.customer_name,
+                            label: formData.customer_name,
+                          }
+                        : null
+                    }
+                    onChange={(selected) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        customer_name: selected?.value || "",
+                      }))
+                    }
                     isClearable
-                    placeholder="Select or type customer"
+                    placeholder={t("Select or type customer")}
                     className="focus:!outline-none focus:!ring-2 focus:!ring-primary"
                   />
                 </div>
@@ -453,12 +505,17 @@ const RoutePricing = () => {
                     name="vehicle_category"
                     value={formData.vehicle_category}
                     onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, vehicle_category: e.target.value }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        vehicle_category: e.target.value,
+                      }))
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                     required
                   >
-                    <option value="">{t("Vehicle")} {t("Category")} {t("Select")}...</option>
+                    <option value="">
+                      {t("Vehicle")} {t("Category")} {t("Select")}...
+                    </option>
                     <option value="pickup">{t("Pickup")}</option>
                     <option value="covered_van">{t("Covered Van")}</option>
                     <option value="open_truck">{t("Open Truck")}</option>
@@ -470,11 +527,28 @@ const RoutePricing = () => {
               </div>
               <div className="flex gap-2">
                 <div className="w-full">
-                  <label className="block text-gray-700 text-sm font-medium mb-1">{t("Load Point")}</label>
+                  <label className="block text-gray-700 text-sm font-medium mb-1">
+                    {t("Load Point")}
+                  </label>
                   <CreatableSelect
-                    options={customers.map(c => ({ value: c.customer_name, label: c.customer_name }))}
-                    value={formData.load_point ? { value: formData.load_point, label: formData.load_point } : null}
-                    onChange={selected => setFormData(prev => ({ ...prev, load_point: selected?.value || "" }))}
+                    options={customers.map((c) => ({
+                      value: c.customer_name,
+                      label: c.customer_name,
+                    }))}
+                    value={
+                      formData.load_point
+                        ? {
+                            value: formData.load_point,
+                            label: formData.load_point,
+                          }
+                        : null
+                    }
+                    onChange={(selected) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        load_point: selected?.value || "",
+                      }))
+                    }
                     isClearable
                     placeholder={t("Select or type load")}
                     className="focus:!ring-2 focus:!ring-primary"
@@ -482,11 +556,28 @@ const RoutePricing = () => {
                 </div>
 
                 <div className="w-full">
-                  <label className="block text-gray-700 text-sm font-medium mb-1">{t("Unload Point")}</label>
+                  <label className="block text-gray-700 text-sm font-medium mb-1">
+                    {t("Unload Point")}
+                  </label>
                   <CreatableSelect
-                    options={unloadpoints.map(c => ({ value: c.name, label: c.name }))}
-                    value={formData.unload_point ? { value: formData.unload_point, label: formData.unload_point } : null}
-                    onChange={selected => setFormData(prev => ({ ...prev, unload_point: selected?.value || "" }))}
+                    options={unloadpoints.map((c) => ({
+                      value: c.name,
+                      label: c.name,
+                    }))}
+                    value={
+                      formData.unload_point
+                        ? {
+                            value: formData.unload_point,
+                            label: formData.unload_point,
+                          }
+                        : null
+                    }
+                    onChange={(selected) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        unload_point: selected?.value || "",
+                      }))
+                    }
                     isClearable
                     placeholder={t("Select or type unload")}
                     className="focus:!ring-2 focus:!ring-primary"
@@ -496,18 +587,22 @@ const RoutePricing = () => {
 
               <div className="flex gap-2">
                 <div className="w-full">
-                  <label className="block text-gray-700 text-sm font-medium mb-1">{t("Vehicle")} {t("Size")}</label>
+                  <label className="block text-gray-700 text-sm font-medium mb-1">
+                    {t("Vehicle")} {t("Size")}
+                  </label>
                   <input
                     type="text"
                     name="vehicle_size"
                     value={formData.vehicle_size}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Enter 1 Ton/7 Feet"
+                    placeholder={t("Enter vehicle size")}
                   />
                 </div>
                 <div className="w-full">
-                  <label className="block text-gray-700 text-sm font-medium mb-1">{t("Rate")}</label>
+                  <label className="block text-gray-700 text-sm font-medium mb-1">
+                    {t("Rate")}
+                  </label>
                   <input
                     type="number"
                     name="rate"
@@ -531,10 +626,17 @@ const RoutePricing = () => {
               </div> */}
 
               <div className="flex justify-end gap-3">
-                <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+                >
                   {t("Cancel")}
                 </button>
-                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80"
+                >
                   {editId ? t("Update Pricing") : t("Add Pricing")}
                 </button>
               </div>

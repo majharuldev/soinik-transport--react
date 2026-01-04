@@ -748,8 +748,8 @@
   "Please Login": "Please Login",
   "Login": "Login",
   "Logout": "Logout",
-  "Sub" : "Sub",
-  "To" : "To",
+  "Sub": "Sub",
+  "To": "To",
   "Fund transfer updated successfully": "Fund transfer updated successfully",
   "Fund transfer created successfully": "Fund transfer created successfully",
   "Zero Taka only": "Zero Taka only",
@@ -866,5 +866,12 @@
   "Thousand": "Thousand",
   "Lakh": "Lakh",
   "Crore": "Crore",
-  "Taka only": "Taka only"
+  "Taka only": "Taka only",
+  "Employee Name": "Employee Name",
+  "Salary Month": "Salary Month",
+  "Monthly Deduction": "Monthly Deduction",
+  "After Adjustment": "After Adjustment",
+  "Select or type customer": "Select or type customer",
+  "Enter vehicle size": "Enter vehicle size",
+  "Unpaid": "Unpaid"
 }

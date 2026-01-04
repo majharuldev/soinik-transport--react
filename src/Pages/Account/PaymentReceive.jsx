@@ -1,8 +1,14 @@
-
 import axios from "axios";
 import { format, isAfter, isBefore, isEqual, parseISO } from "date-fns";
 import { useEffect, useState } from "react";
-import { FaFileExcel, FaFilter, FaPen, FaPlus, FaPrint, FaTrashAlt } from "react-icons/fa";
+import {
+  FaFileExcel,
+  FaFilter,
+  FaPen,
+  FaPlus,
+  FaPrint,
+  FaTrashAlt,
+} from "react-icons/fa";
 import { FiFilter } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Pagination from "../../components/Shared/Pagination";
@@ -101,7 +107,6 @@ const PaymentReceive = () => {
     setCurrentPage(1);
   }, [searchTerm, startDate, endDate, payment]);
 
-
   // total amount footer
   const totalAmount = filteredPayment.reduce(
     (sum, item) => sum + Number(item.amount || 0),
@@ -132,57 +137,63 @@ const PaymentReceive = () => {
   };
 
   // Excel Export Function
-const exportToExcel = () => {
-  if (!filteredPayment || filteredPayment.length === 0) {
-    toast.error("No data available to export!");
-    return;
-  }
+  const exportToExcel = () => {
+    if (!filteredPayment || filteredPayment.length === 0) {
+      toast.error("No data available to export!");
+      return;
+    }
 
-  const exportData = filteredPayment.map((dt, idx) => ({
-    SL: idx + 1,
-    Date: dt.date ? format(new Date(dt.date), "dd/MM/yyyy") : "",
-    Customer: dt.customer_name || "",
-    Branch: dt.branch_name || "",
-    Bill_Ref: dt.bill_ref || "",
-    Amount: toNumber(dt.amount) || 0,
-    Cash_Type: dt.cash_type || "",
-    Note: dt.remarks || "",
-    Created_By: dt.created_by || "",
-    Status: dt.status || "",
-  }));
+    const exportData = filteredPayment.map((dt, idx) => ({
+      SL: idx + 1,
+      Date: dt.date ? format(new Date(dt.date), "dd/MM/yyyy") : "",
+      Customer: dt.customer_name || "",
+      Branch: dt.branch_name || "",
+      Bill_Ref: dt.bill_ref || "",
+      Amount: toNumber(dt.amount) || 0,
+      Cash_Type: dt.cash_type || "",
+      Note: dt.remarks || "",
+      Created_By: dt.created_by || "",
+      Status: dt.status || "",
+    }));
 
-  // Create worksheet and workbook
-  const worksheet = XLSX.utils.json_to_sheet(exportData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Payment Receive");
+    // Create worksheet and workbook
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Payment Receive");
 
-  // Set column width for better readability
-  const colWidths = [
-    { wch: 5 },  // SL
-    { wch: 12 }, // Date
-    { wch: 20 }, // Customer
-    { wch: 18 }, // Branch
-    { wch: 15 }, // Bill Ref
-    { wch: 12 }, // Amount
-    { wch: 12 }, // Cash Type
-    { wch: 25 }, // Note
-    { wch: 15 }, // Created By
-    { wch: 10 }, // Status
-  ];
-  worksheet["!cols"] = colWidths;
+    // Set column width for better readability
+    const colWidths = [
+      { wch: 5 }, // SL
+      { wch: 12 }, // Date
+      { wch: 20 }, // Customer
+      { wch: 18 }, // Branch
+      { wch: 15 }, // Bill Ref
+      { wch: 12 }, // Amount
+      { wch: 12 }, // Cash Type
+      { wch: 25 }, // Note
+      { wch: 15 }, // Created By
+      { wch: 10 }, // Status
+    ];
+    worksheet["!cols"] = colWidths;
 
-  // Convert to Excel file
-  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-  saveAs(data, `Payment_Receive_Report_${format(new Date(), "ddMMyyyy_HHmm")}.xlsx`);
-};
-
+    // Convert to Excel file
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(
+      data,
+      `Payment_Receive_Report_${format(new Date(), "ddMMyyyy_HHmm")}.xlsx`
+    );
+  };
 
   // Print Function
   const handlePrint = () => {
-    const rowsHtml = filteredPayment.map((dt, idx) => {
-      const dateStr = dt.date ? format(new Date(dt.date), "dd/MM/yyyy") : "";
-      return `
+    const rowsHtml = filteredPayment
+      .map((dt, idx) => {
+        const dateStr = dt.date ? format(new Date(dt.date), "dd/MM/yyyy") : "";
+        return `
       <tr style="border:1px solid #e5e7eb;">
         <td style="padding:6px;">${idx + 1}</td>
         <td style="padding:6px;">${dateStr}</td>
@@ -196,7 +207,8 @@ const exportToExcel = () => {
         <td style="padding:6px;">${dt.status || ""}</td>
       </tr>
     `;
-    }).join("");
+      })
+      .join("");
 
     const totalAmount = filteredPayment.reduce(
       (sum, item) => sum + Number(item.amount || 0),
@@ -209,18 +221,29 @@ const exportToExcel = () => {
         <tr style="background:#f3f4f6; color:#047857;">
           <th style="padding:8px; border:1px solid #e5e7eb;">${t("SL.")}</th>
           <th style="padding:8px; border:1px solid #e5e7eb;">${t("Date")}</th>
-          <th style="padding:8px; border:1px solid #e5e7eb;">${t("Customer")}</th>
+          <th style="padding:8px; border:1px solid #e5e7eb;">${t(
+            "Customer"
+          )}</th>
           <th style="padding:8px; border:1px solid #e5e7eb;">${t("Branch")}</th>
-          <th style="padding:8px; border:1px solid #e5e7eb;">${t("Bill Ref")}</th>
+          <th style="padding:8px; border:1px solid #e5e7eb;">${t(
+            "Bill Ref"
+          )}</th>
           <th style="padding:8px; border:1px solid #e5e7eb;">${t("Amount")}</th>
-          <th style="padding:8px; border:1px solid #e5e7eb;">${t("Cash Type")}</th>
+          <th style="padding:8px; border:1px solid #e5e7eb;">${t(
+            "Cash Type"
+          )}</th>
           <th style="padding:8px; border:1px solid #e5e7eb;">${t("Note")}</th>
-          <th style="padding:8px; border:1px solid #e5e7eb;">${t("Created By")}</th>
+          <th style="padding:8px; border:1px solid #e5e7eb;">${t(
+            "Created By"
+          )}</th>
           <th style="padding:8px; border:1px solid #e5e7eb;">${t("Status")}</th>
         </tr>
       </thead>
       <tbody>
-        ${rowsHtml || `<tr><td colspan="10" style="padding:10px;text-align:center;color:#6b7280;">No data found</td></tr>`}
+        ${
+          rowsHtml ||
+          `<tr><td colspan="10" style="padding:10px;text-align:center;color:#6b7280;">No data found</td></tr>`
+        }
       </tbody>
       <tfoot>
         <tr>
@@ -250,8 +273,13 @@ const exportToExcel = () => {
       </head>
       <body>
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-gray-800">${t("Payment Receive")} ${t("Report")}</h2>
-          <p class="text-gray-600 text-sm">Generated: ${format(new Date(), "dd/MM/yyyy HH:mm")}</p>
+          <h2 class="text-xl font-bold text-gray-800">${t(
+            "Payment Receive"
+          )} ${t("Report")}</h2>
+          <p class="text-gray-600 text-sm">Generated: ${format(
+            new Date(),
+            "dd/MM/yyyy HH:mm"
+          )}</p>
         </div>
         ${tableHtml}
       </body>
@@ -264,13 +292,15 @@ const exportToExcel = () => {
     }, 300);
   };
 
-
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentPayments = filteredPayment.slice(indexOfFirstItem, indexOfLastItem);
+  const currentPayments = filteredPayment.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
   const totalPages = Math.ceil(filteredPayment.length / itemsPerPage);
 
   // filter clear func
@@ -396,8 +426,12 @@ const exportToExcel = () => {
               <tr>
                 <th className="p-2">{t("SL.")}</th>
                 <th className="p-2">{t("Date")}</th>
-                <th className="p-2">{t("Customer")} {t("Name")}</th>
-                <th className="p-2">{t("Branch")} {t("Name")}</th>
+                <th className="p-2">
+                  {t("Customer")} {t("Name")}
+                </th>
+                <th className="p-2">
+                  {t("Branch")} {t("Name")}
+                </th>
                 <th className="p-2">{t("Bill Ref")}</th>
                 <th className="p-2">{t("Amount")}</th>
                 <th className="p-2">{t("Cash Type")}</th>
@@ -408,68 +442,81 @@ const exportToExcel = () => {
               </tr>
             </thead>
             <tbody className="text-gray-700">
-              {
-                currentPayments.length === 0 ? (
-                  <tr>
-                    <td colSpan="10" className="text-center py-10 text-gray-500 italic">
-                      <div className="flex flex-col items-center">
-                        <svg
-                          className="w-12 h-12 text-gray-300 mb-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+              {currentPayments.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan="10"
+                    className="text-center py-10 text-gray-500 italic"
+                  >
+                    <div className="flex flex-col items-center">
+                      <svg
+                        className="w-12 h-12 text-gray-300 mb-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      {t("No payment receive data found")}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                currentPayments?.map((dt, index) => (
+                  <tr
+                    key={dt.id}
+                    className="hover:bg-gray-50 transition-all border border-gray-200"
+                  >
+                    <td className="px-2 py-1 font-bold">
+                      {indexOfFirstItem + index + 1}.
+                    </td>
+                    <td className="px-2 py-1">
+                      {dt.date ? tableFormatDate(dt.date) : ""}
+                    </td>
+                    <td className="px-2 py-1">{dt.customer_name}</td>
+                    <td className="px-2 py-1">{dt.branch_name}</td>
+                    <td className="px-2 py-1">{dt.bill_ref}</td>
+                    <td className="px-2 py-1">{dt.amount}</td>
+                    <td className="px-2 py-1">{dt.cash_type}</td>
+                    <td className="px-2 py-1">{dt.remarks}</td>
+                    <td className="px-2 py-1">{dt.created_by}</td>
+                    <td className="px-2 py-1">{t(dt.status)}</td>
+                    <td className="px-2 action_column">
+                      <div className="flex gap-1">
+                        <Link
+                          to={`/tramessy/account/update-PaymentReceiveForm/${dt.id}`}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        {t("No payment receive data found")}
+                          <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                            <FaPen className="text-[12px]" />
+                          </button>
+                        </Link>
+                        <button
+                          onClick={() => {
+                            setSelectedPaymentId(dt.id);
+                            setIsOpen(true);
+                          }}
+                          className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                        >
+                          <FaTrashAlt className="text-[12px]" />
+                        </button>
                       </div>
                     </td>
                   </tr>
-                )
-                  :
-                  (currentPayments?.map((dt, index) => (
-                    <tr key={dt.id} className="hover:bg-gray-50 transition-all border border-gray-200">
-                      <td className="px-2 py-1 font-bold">{indexOfFirstItem + index + 1}.</td>
-                      <td className="px-2 py-1">{dt.date ? tableFormatDate(dt.date) : ""}</td>
-                      <td className="px-2 py-1">{dt.customer_name}</td>
-                      <td className="px-2 py-1">{dt.branch_name}</td>
-                      <td className="px-2 py-1">{dt.bill_ref}</td>
-                      <td className="px-2 py-1">{dt.amount}</td>
-                      <td className="px-2 py-1">{dt.cash_type}</td>
-                      <td className="px-2 py-1">{dt.remarks}</td>
-                      <td className="px-2 py-1">{dt.created_by}</td>
-                      <td className="px-2 py-1">{dt.status}</td>
-                      <td className="px-2 action_column">
-                        <div className="flex gap-1">
-                          <Link to={`/tramessy/account/update-PaymentReceiveForm/${dt.id}`}>
-                            <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                              <FaPen className="text-[12px]" />
-                            </button>
-                          </Link>
-                          <button
-                            onClick={() => {
-                              setSelectedPaymentId(dt.id);
-                              setIsOpen(true);
-                            }}
-                            className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                          >
-                            <FaTrashAlt className="text-[12px]" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )))}
+                ))
+              )}
             </tbody>
             {/*  মোট যোগফল row */}
             {currentPayments.length > 0 && (
               <tfoot className="bg-gray-100 font-bold">
                 <tr>
-                  <td colSpan="5" className="text-right p-2">{t("Total")}:</td>
+                  <td colSpan="5" className="text-right p-2">
+                    {t("Total")}:
+                  </td>
                   <td className="p-2">{totalAmount}</td>
                   <td colSpan="5"></td>
                 </tr>
