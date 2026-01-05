@@ -1,19 +1,15 @@
-
-import axios from "axios";
 import { useEffect, useState } from "react";
-import { FaFileExcel, FaFilePdf, FaFilter, FaPrint } from "react-icons/fa";
+import { FaFileExcel, FaFilter, FaPrint } from "react-icons/fa";
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import api from "../../../utils/axiosConfig";
 import { tableFormatDate } from "../../hooks/formatDate";
 import { useTranslation } from "react-i18next";
 import { Spin } from "antd";
 
 const VendorLedger = () => {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [vendorData, setVendorData] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState("");
   const [loading, setLoading] = useState(true);
@@ -23,7 +19,8 @@ const VendorLedger = () => {
 
   // Fetch vendor list (for opening balance)
   useEffect(() => {
-    api.get(`/vendor`)
+    api
+      .get(`/vendor`)
       .then((res) => {
         if (res.data.success) {
           setVendorList(res.data.data);
@@ -34,7 +31,8 @@ const VendorLedger = () => {
 
   // Fetch vendor ledger data
   useEffect(() => {
-    api.get(`/vendorLedger`)
+    api
+      .get(`/vendorLedger`)
       .then((res) => {
         if (res.data.status === "Success") {
           // Filter out entries without a vendor name early if needed, or handle nulls in calculations
@@ -58,7 +56,6 @@ const VendorLedger = () => {
     return isNaN(num) ? 0 : num;
   };
 
-
   const selectedVendorInfo = vendorList.find(
     (v) => v.vendor_name === selectedVendor
   );
@@ -78,27 +75,30 @@ const VendorLedger = () => {
           const date = new Date(item.date);
           const monthNum = date.getMonth() + 1;
           // Use slice for padding instead of padStart for broader compatibility
-          const paddedMonth = ('0' + monthNum).slice(-2);
+          const paddedMonth = ("0" + monthNum).slice(-2);
           return `${date.getFullYear()}-${paddedMonth}`;
         })
     ),
   ].sort();
 
-  const vendorNames = [...new Set(vendorData.map((v) => v.vendor_name))];
+  // const vendorNames = [...new Set(vendorData.map((v) => v.vendor_name))];
 
   // Filter data based on selected vendor and month, then sort by date
-  const filteredVendors = vendorData.filter((v) => {
-    const matchesVendor = selectedVendor ? v.vendor_name === selectedVendor : true;
-    const matchesMonth = selectedMonth
-      ? v.date && new Date(v.date).toISOString().slice(0, 7) === selectedMonth
-      : true;
-    return matchesVendor && matchesMonth;
-  }).sort((a, b) => {
-    // Sort by date to ensure correct running balance calculation
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
-    return dateA.getTime() - dateB.getTime();
-  });
+  const filteredVendors = vendorData
+    .filter((v) => {
+      const matchesVendor = selectedVendor
+        ? v.vendor_name === selectedVendor
+        : true;
+      const matchesMonth = selectedMonth
+        ? v.date && new Date(v.date).toISOString().slice(0, 7) === selectedMonth
+        : true;
+      return matchesVendor && matchesMonth;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateA.getTime() - dateB.getTime();
+    });
 
   // Calculate running balance for filtered data
   let currentRunningBalance = openingBalance;
@@ -138,7 +138,8 @@ const VendorLedger = () => {
   // The grand total due is the last running balance, or opening balance if no transactions
   const grandDue =
     rowsWithRunningBalance.length > 0
-      ? rowsWithRunningBalance[rowsWithRunningBalance.length - 1].running_balance
+      ? rowsWithRunningBalance[rowsWithRunningBalance.length - 1]
+          .running_balance
       : openingBalance;
 
   // Export to Excel
@@ -149,7 +150,7 @@ const VendorLedger = () => {
     if (selectedVendor) {
       dataToExport.push({
         Date: "",
-        "Trip Id" : "",
+        "Trip Id": "",
         Vendor: "Opening Balance",
         Load: "",
         Unload: "",
@@ -210,75 +211,6 @@ const VendorLedger = () => {
     saveAs(blob, `Vendor_Ledger_${selectedVendor || "All"}.xlsx`);
   };
 
-
-  // Export to PDF
-  const exportToPDF = () => {
-    const doc = new jsPDF("landscape");
-
-    // Title
-    doc.setFontSize(16);
-    doc.text(`Vendor Ledger: ${selectedVendor || "All Vendors"}`, 14, 15);
-
-    if (selectedVendor) {
-      doc.setFontSize(10);
-      doc.text(`Opening Balance: ${openingBalance.toFixed(2)}`, 14, 22);
-    }
-
-    const columns = [
-      "SL.",
-      "Date",
-      "Vendor",
-      "Load",
-      "Unload",
-      "Vehicle",
-      "Driver",
-      "Trip Rent",
-      "Advance",
-      "Pay Amount",
-      "Due",
-    ];
-
-    const rows = rowsWithRunningBalance.map((item, idx) => {
-      return [
-        idx + 1,
-        item.date || "",
-        item.vendor_name || "",
-        item.load_point || "--",
-        item.unload_point || "--",
-        item.vehicle_no || "--",
-        item.driver_name || "--",
-        item.trip_rent ? toNumber(item.trip_rent) : "--",
-        item.advance ? toNumber(item.advance) : "--",
-        item.pay_amount ? toNumber(item.pay_amount) : "--",
-        item.running_balance,
-      ];
-    });
-
-    // Add totals row
-    rows.push([
-      "",
-      "",
-      "TOTAL",
-      "",
-      "",
-      "",
-      "",
-      totals.rent,
-      totals.advance,
-      totals.pay_amount,
-      grandDue,
-    ]);
-
-    autoTable(doc, {
-      head: [columns],
-      body: rows,
-      startY: selectedVendor ? 25 : 20,
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [17, 55, 91], textColor: [255, 255, 255] },
-    });
-    doc.save(`Vendor_Ledger_${selectedVendor || "All"}.pdf`);
-  };
-
   // print function
   const printTable = () => {
     const content = document.getElementById("vendor-ledger-table").innerHTML;
@@ -327,14 +259,16 @@ const VendorLedger = () => {
         </head>
         <body>
           <div class="print-header">
-            <div class="print-title">${t("Vendor")} ${t("Ledger")}: ${selectedVendor || "All Vendors"
-      }</div>
-            ${selectedVendor
-        ? `<div class="opening-balance-text">${t("Opening Balance")}: ${openingBalance.toFixed(
-          2
-        )}</div>`
-        : ""
-      }
+            <div class="print-title">${t("Vendor")} ${t("Ledger")}: ${
+      selectedVendor || "All Vendors"
+    }</div>
+            ${
+              selectedVendor
+                ? `<div class="opening-balance-text">${t(
+                    "Opening Balance"
+                  )}: ${openingBalance.toFixed(2)}</div>`
+                : ""
+            }
           </div>
           ${content}
         </body>
@@ -350,7 +284,8 @@ const VendorLedger = () => {
         <div className="overflow-x-auto max-w-5xl mx-auto">
           <div className="md:flex items-center justify-between mb-6">
             <h1 className="text-xl font-bold text-gray-800 capitalize">
-              {t("Vendor")} {t("Ledger")}: {selectedVendor || t("All") + " " + t("Vendor")}
+              {t("Vendor")} {t("Ledger")}:{" "}
+              {selectedVendor || t("All") + " " + t("Vendor")}
             </h1>
             <div className="mt-3 md:mt-0 flex gap-2">
               <button
@@ -370,13 +305,6 @@ const VendorLedger = () => {
                 <FaFileExcel className="" />
                 {t("Excel")}
               </button>
-              {/* <button
-                onClick={exportToPDF}
-                className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-gray-50 shadow  hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-              >
-                <FaFilePdf className="" />
-                PDF
-              </button> */}
               <button
                 onClick={printTable}
                 className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-gray-50 shadow  hover:text-white rounded-md transition-all duration-300 cursor-pointer"
@@ -400,7 +328,9 @@ const VendorLedger = () => {
                       onChange={(e) => setSelectedMonth(e.target.value)}
                       className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
                     >
-                      <option value="">{t("All")} {t("Month")}</option>
+                      <option value="">
+                        {t("All")} {t("Month")}
+                      </option>
                       {availableMonths.map((month, idx) => {
                         const [year, monthNum] = month.split("-");
                         const date = new Date(`${month}-01`);
@@ -428,7 +358,9 @@ const VendorLedger = () => {
                     }}
                     className="mt-1 w-full text-gray-600 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
                   >
-                    <option value="">{t("All")} {t("Vendor")}</option>
+                    <option value="">
+                      {t("All")} {t("Vendor")}
+                    </option>
                     {vendorList.map((vendor, idx) => (
                       <option key={idx} value={vendor.vendor_name}>
                         {vendor.vendor_name}
@@ -460,15 +392,13 @@ const VendorLedger = () => {
                     {t("Total")}:
                   </td>
                   <td className="border px-2 py-1">{totals.rent}</td>
-                   <td className="border px-2 py-1">{totals.demurrage}</td>
-                   <td className="border px-2 py-1">{totals.total}</td>
+                  <td className="border px-2 py-1">{totals.demurrage}</td>
+                  <td className="border px-2 py-1">{totals.total}</td>
                   <td className="border px-2 py-1">{totals.advance}</td>
                   <td className="border px-2 py-1">{totals.pay_amount}</td>
                   <td className="border px-2 py-1">
                     <span className={grandDue < 0 ? "text-red-500" : ""}>
-                      {grandDue < 0
-                        ? `(${Math.abs(grandDue)})`
-                        : grandDue}
+                      {grandDue < 0 ? `(${Math.abs(grandDue)})` : grandDue}
                     </span>
                     {selectedVendor && (
                       <p className="text-xs text-gray-600 font-normal">
@@ -487,7 +417,7 @@ const VendorLedger = () => {
                   <th className="border px-2 py-1">{t("Driver")}</th>
                   <th className="border px-2 py-1">{t("Trip Rent")}</th>
                   <th className="border px-2 py-1">{t("Demurrage")}</th>
-                   <th className="border px-2 py-1">{t("Total")}</th>
+                  <th className="border px-2 py-1">{t("Total")}</th>
                   <th className="border px-2 py-1">{t("Advance")}</th>
                   <th className="border px-2 py-1">{t("Pay Amount")}</th>
                   <th className="border px-2 py-1">
@@ -501,74 +431,80 @@ const VendorLedger = () => {
                 </tr>
               </thead>
               <tbody>
-                {
-                  loading ? (
-                    <tr>
-                  <td colSpan={12} className="text-center py-20"><Spin /></td>
-                </tr>
-                  )
-                :(rowsWithRunningBalance.map((item, idx) => {
-                  const total = toNumber(item.total_rent || 0) + toNumber(item.v_d_total || 0);
-                  return (
-                    <tr key={idx}>
-                      <td className="border px-2 py-1">{idx + 1}</td>
-                      <td className="border px-2 py-1">{tableFormatDate(item.date)}</td>
-                      <td className="border px-2 py-1">{item.vendor_name}</td>
-                      <td className="border px-2 py-1">
-                        {item?.load_point || (
-                          <span className="flex justify-center items-center">
-                            --
+                {loading ? (
+                  <tr>
+                    <td colSpan={12} className="text-center py-20">
+                      <Spin />
+                    </td>
+                  </tr>
+                ) : (
+                  rowsWithRunningBalance.map((item, idx) => {
+                    const total =
+                      toNumber(item.total_rent || 0) +
+                      toNumber(item.v_d_total || 0);
+                    return (
+                      <tr key={idx}>
+                        <td className="border px-2 py-1">{idx + 1}</td>
+                        <td className="border px-2 py-1">
+                          {tableFormatDate(item.date)}
+                        </td>
+                        <td className="border px-2 py-1">{item.vendor_name}</td>
+                        <td className="border px-2 py-1">
+                          {item?.load_point || (
+                            <span className="flex justify-center items-center">
+                              --
+                            </span>
+                          )}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {item.unload_point || (
+                            <span className="flex justify-center items-center">
+                              --
+                            </span>
+                          )}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {item.vehicle_no || (
+                            <span className="flex justify-center items-center">
+                              --
+                            </span>
+                          )}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {item.driver_name || (
+                            <span className="flex justify-center items-center">
+                              --
+                            </span>
+                          )}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {item.total_rent ? toNumber(item.total_rent) : "--"}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {item.v_d_total ? toNumber(item.v_d_total) : "--"}
+                        </td>
+                        <td className="border px-2 py-1">{total || "--"}</td>
+                        <td className="border px-2 py-1">
+                          {item.advance ? toNumber(item.advance) : "--"}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {item.pay_amount ? toNumber(item.pay_amount) : "--"}
+                        </td>
+                        <td className="border px-2 py-1">
+                          <span
+                            className={
+                              item.running_balance < 0 ? "text-red-500" : ""
+                            }
+                          >
+                            {item.running_balance < 0
+                              ? `(${Math.abs(item.running_balance)})`
+                              : item.running_balance}
                           </span>
-                        )}
-                      </td>
-                      <td className="border px-2 py-1">
-                        {item.unload_point || (
-                          <span className="flex justify-center items-center">
-                            --
-                          </span>
-                        )}
-                      </td>
-                      <td className="border px-2 py-1">
-                        {item.vehicle_no || (
-                          <span className="flex justify-center items-center">
-                            --
-                          </span>
-                        )}
-                      </td>
-                      <td className="border px-2 py-1">
-                        {item.driver_name || (
-                          <span className="flex justify-center items-center">
-                            --
-                          </span>
-                        )}
-                      </td>
-                      <td className="border px-2 py-1">
-                        {item.total_rent ? toNumber(item.total_rent) : "--"}
-                      </td>
-                      <td className="border px-2 py-1">
-                        {item.v_d_total ? toNumber(item.v_d_total) : "--"}
-                      </td>
-                      <td className="border px-2 py-1">
-                        {total || "--"}
-                      </td>
-                      <td className="border px-2 py-1">
-                        {item.advance ? toNumber(item.advance) : "--"}
-                      </td>
-                      <td className="border px-2 py-1">
-                        {item.pay_amount ? toNumber(item.pay_amount) : "--"}
-                      </td>
-                      <td className="border px-2 py-1">
-                        <span
-                          className={item.running_balance < 0 ? "text-red-500" : ""}
-                        >
-                          {item.running_balance < 0
-                            ? `(${Math.abs(item.running_balance)})`
-                            : item.running_balance}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                }))}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
               <tfoot></tfoot>
             </table>

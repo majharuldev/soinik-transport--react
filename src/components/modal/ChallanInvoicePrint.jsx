@@ -1,10 +1,9 @@
+import { forwardRef } from "react";
 
-import { forwardRef } from "react"
-
-import logo from "../../assets/AJ_Logo.png"
+import logo from "../../assets/AJ_Logo.png";
 
 const ChallanInvoicePrint = forwardRef(({ data }, ref) => {
-  console.log(data)
+  console.log(data);
   const {
     voucherNo,
     receiver,
@@ -16,14 +15,14 @@ const ChallanInvoicePrint = forwardRef(({ data }, ref) => {
     unloadingPoint,
     productDetails,
     route,
-    rent
-  } = data
+    rent,
+  } = data;
 
   // Get current date
-  const currentDate = new Date().toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
+  const currentDate = new Date().toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
   });
 
   return (
@@ -33,13 +32,13 @@ const ChallanInvoicePrint = forwardRef(({ data }, ref) => {
     >
       <div className="flex items-center justify-center mb-3">
         <div className="flex items-center gap-3">
+          <div>{/* <img src={logo} alt="" /> */}</div>
           <div>
-            {/* <img src={logo} alt="" /> */}
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-cyan-600 mb-1 text-center">মেসার্স সৈনিক ট্রান্সপোর্ট এজেন্সি</h1>
+            <h1 className="text-2xl font-bold text-cyan-600 mb-1 text-center">
+              মেসার্স সৈনিক ট্রান্সপোর্ট এজেন্সি
+            </h1>
             <p className="text-xs leading-tight text-center">
-              অফিস:  ঢাকা।
+              অফিস: ঢাকা।
               <br />
               মোবাইল নং- ০১********, ০১********
             </p>
@@ -51,7 +50,9 @@ const ChallanInvoicePrint = forwardRef(({ data }, ref) => {
         <div className="text-sm">
           চালান নং: <span className="font-bold">{voucherNo}</span>
         </div>
-        <div className="bg-cyan-500 text-white px-4 py-1 rounded text-sm font-bold">ট্রাক চালান</div>
+        <div className="bg-cyan-500 text-white px-4 py-1 rounded text-sm font-bold">
+          ট্রাক চালান
+        </div>
         <div className="text-sm">
           তারিখ: <span className="font-bold">{currentDate}</span>
         </div>
@@ -63,19 +64,27 @@ const ChallanInvoicePrint = forwardRef(({ data }, ref) => {
           <div className="border-r border-gray-700 p-2 space-y-2">
             <div className="flex items-center">
               <span className="w-12 text-sm">প্রাপক:</span>
-              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">{receiver}</span>
+              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">
+                {receiver}
+              </span>
             </div>
             <div className="flex items-center">
               <span className="w-12 text-sm">বিবরণ:</span>
-              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">{address}</span>
+              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">
+                {address}
+              </span>
             </div>
             <div className="flex items-center">
               <span className="w-12 text-sm">প্রেরক:</span>
-              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">{loadingPoint}</span>
+              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">
+                {loadingPoint}
+              </span>
             </div>
             <div className="flex items-center">
               <span className="w-12 text-sm">বিবরণ:</span>
-              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">{unloadingPoint}</span>
+              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">
+                {unloadingPoint}
+              </span>
             </div>
           </div>
 
@@ -83,20 +92,31 @@ const ChallanInvoicePrint = forwardRef(({ data }, ref) => {
           <div className="p-2 space-y-2">
             <div className="flex items-center">
               <span className="w-16 text-sm">ট্রাক নং:</span>
-              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">{truckNo}</span>
+              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">
+                {truckNo}
+              </span>
             </div>
             <div className="flex items-center">
               <span className="w-16 text-sm">চালকের নাম:</span>
-              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">{driverName}</span>
+              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">
+                {driverName}
+              </span>
             </div>
             <div className="flex items-center">
               <span className="w-16 text-sm">লাইসেন্স নং:</span>
-              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">{licenseNo}</span>
+              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">
+                {licenseNo}
+              </span>
             </div>
             <div className="flex items-center">
               <span className="w-16 text-sm">রুট:</span>
-              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">{loadingPoint}</span> to
-              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">{unloadingPoint}</span>
+              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">
+                {loadingPoint}
+              </span>{" "}
+              to
+              <span className="flex-1 border-b border-gray-700 pb-1 ml-2 text-sm">
+                {unloadingPoint}
+              </span>
             </div>
           </div>
         </div>
@@ -131,7 +151,10 @@ const ChallanInvoicePrint = forwardRef(({ data }, ref) => {
             <div className="mt-6 text-gray-900">
               <div className="text-sm font-medium">{productDetails}</div>
               <div className="text-xs text-gray-900 mt-3">জনাব,</div>
-              <div className="text-xs mt-2">চালান অনুযায়ী মাল বুঝিয়া লইয়া রিসিভিং/বাকি ভাড়া ................... টাকা দিয়ে দিবেন।</div>
+              <div className="text-xs mt-2">
+                চালান অনুযায়ী মাল বুঝিয়া লইয়া রিসিভিং/বাকি ভাড়া
+                ................... টাকা দিয়ে দিবেন।
+              </div>
             </div>
           </div>
         </div>
@@ -174,15 +197,18 @@ const ChallanInvoicePrint = forwardRef(({ data }, ref) => {
             ))}
           </div>
         </div>
-
       </div>
 
       <div className="text-xs mb-4 leading-relaxed">
         <p className="mb-2">
-          <strong>বি: দ্র:</strong> উপরিউক্ত মাল পরিবহনের পৌঁছানো দায়িত্ব ট্রাক চালকের। গাড়ীতে মালিকের উপস্থিতি ছাড়া পরিবহন সংস্থা দায়ী নয়
-          কোন ক্ষতির জন্য।
+          <strong>বি: দ্র:</strong> উপরিউক্ত মাল পরিবহনের পৌঁছানো দায়িত্ব ট্রাক
+          চালকের। গাড়ীতে মালিকের উপস্থিতি ছাড়া পরিবহন সংস্থা দায়ী নয় কোন
+          ক্ষতির জন্য।
         </p>
-        <p>গাড়ীর চালক ৭ সপ্তাহের মধ্যে অবশ্যই বিল পরিশোধ মাধ্যমে চালান ট্রাকমেট কর্তৃপক্ষের নিকট জমা দিতে হবে।</p>
+        <p>
+          গাড়ীর চালক ৭ সপ্তাহের মধ্যে অবশ্যই বিল পরিশোধ মাধ্যমে চালান ট্রাকমেট
+          কর্তৃপক্ষের নিকট জমা দিতে হবে।
+        </p>
       </div>
 
       {/* Signature Section */}
@@ -201,26 +227,18 @@ const ChallanInvoicePrint = forwardRef(({ data }, ref) => {
         <div className="text-center">
           <div className="flex">
             <div className="text-right">
-              <div className="text-xs">
-                স্বাক্ষর: লোডিং প্রতিনিধি:
-              </div>
-              <div className="text-xs">
-                ম্যানেজার:
-              </div>
+              <div className="text-xs">স্বাক্ষর: লোডিং প্রতিনিধি:</div>
+              <div className="text-xs">ম্যানেজার:</div>
             </div>
             <div className="text-lg font-bold mb-2 border border-gray-700 w-56 h-16"></div>
           </div>
-          <div className="text-xs">
-            পক্ষে: মেসার্স এজে এন্টারপ্রাইজ
-          </div>
+          <div className="text-xs">পক্ষে: সৈনিক ট্রান্সপোর্ট এজেন্সি</div>
         </div>
       </div>
     </div>
-  )
-})
+  );
+});
 
-ChallanInvoicePrint.displayName = "ChallanInvoicePrint"
+ChallanInvoicePrint.displayName = "ChallanInvoicePrint";
 
-export default ChallanInvoicePrint
-
-
+export default ChallanInvoicePrint;
